@@ -15,11 +15,18 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 카카오 SDK 초기화
-  KakaoSdk.init(nativeAppKey: '12d305eadaea3b2a308d925199f2b86a');
+  const kakaoAppKey = String.fromEnvironment('KAKAO_NATIVE_APP_KEY');
+  if (kakaoAppKey.isNotEmpty) {
+    KakaoSdk.init(nativeAppKey: kakaoAppKey);
+  }
 
   // 네이버 지도 SDK 초기화
   try {
-    await FlutterNaverMap().init(clientId: 'ksrv1pjr10');
+    const naverClientId = String.fromEnvironment('NAVER_MAP_CLIENT_ID');
+    if (naverClientId.isEmpty) {
+      throw StateError('NAVER_MAP_CLIENT_ID is not configured');
+    }
+    await FlutterNaverMap().init(clientId: naverClientId);
     isNaverMapInitialized = true;
     debugPrint('네이버 지도 SDK 초기화 성공');
   } catch (e) {
