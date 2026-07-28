@@ -1,0 +1,13 @@
+{
+  "name": "unitrip-ws-test-server",
+  "version": "1.0.0",
+  "description": "UniTrip 채팅 테스트용 WebSocket 서버 (브로드캐스트)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "ws": "^8.21.0"
+  }
+}

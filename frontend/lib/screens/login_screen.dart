@@ -1,0 +1,507 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_strings.dart';
+import '../providers/locale_provider.dart';
+import '../services/auth_api_service.dart';
+import '../services/google_auth_service.dart';
+import '../services/kakao_auth_service.dart';
+import '../services/tour_api_service.dart';
+import 'main_screen.dart';
+import 'profile_setup_screen.dart';
+import 'role_selection_screen.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  bool _isKakaoLoading = false;
+  bool _isGoogleLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleKakaoLogin() async {
+    if (_isKakaoLoading) return;
+
+    setState(() => _isKakaoLoading = true);
+
+    final locale = context.read<LocaleProvider>();
+    final accessToken = await KakaoAuthService.login();
+
+    if (!mounted) return;
+
+    if (accessToken == null) {
+      debugPrint('[Login] 카카오 OAuth 실패 (accessToken 없음)');
+      setState(() => _isKakaoLoading = false);
+      _showLoginError(locale);
+      return;
+    }
+
+    debugPrint('[Login] 카카오 OAuth accessToken 획득 (${accessToken.length}자) → /auth/login 요청');
+    final loginResponse = await AuthApiService.login('KAKAO', accessToken);
+
+    if (!mounted) return;
+    setState(() => _isKakaoLoading = false);
+
+    if (loginResponse == null ||
+        loginResponse.code != 'SUCCESS' ||
+        loginResponse.data == null) {
+      _showLoginError(locale);
+      return;
+    }
+
+    final data = loginResponse.data!;
+    if (!data.isNewUser && !data.profileCompleted) {
+      _showLoginError(locale);
+      return;
+    }
+
+    final userInfo = await KakaoAuthService.getUserInfo();
+    if (!mounted) return;
+    final profileImageUrl =
+        userInfo?.kakaoAccount?.profile?.profileImageUrl ??
+        userInfo?.kakaoAccount?.profile?.thumbnailImageUrl;
+    final nickname = userInfo?.kakaoAccount?.profile?.nickname;
+    // 회원가입(POST /api/users) body에 사용할 이메일 캡처
+    AuthApiService.userEmail = userInfo?.kakaoAccount?.email;
+
+    _navigateAfterLogin(
+      isNewUser: data.isNewUser,
+      profileCompleted: data.profileCompleted,
+      userType: data.userType,
+      profileImageUrl: profileImageUrl,
+      nickname: nickname,
+    );
+  }
+
+  Future<void> _handleGoogleLogin() async {
+    if (_isGoogleLoading) return;
+
+    setState(() => _isGoogleLoading = true);
+    debugPrint('[Google] 로그인 시작');
+
+    final locale = context.read<LocaleProvider>();
+    final result = await GoogleAuthService.signIn();
+
+    if (!mounted) return;
+
+    if (result == null) {
+      setState(() => _isGoogleLoading = false);
+      _showLoginError(locale);
+      return;
+    }
+
+    final idToken = result.idToken;
+    if (idToken == null || idToken.isEmpty) {
+      debugPrint('[Login] 구글 OAuth 실패 (idToken 없음)');
+      setState(() => _isGoogleLoading = false);
+      _showLoginError(locale);
+      return;
+    }
+
+    debugPrint('[Login] 구글 OAuth idToken 획득 (${idToken.length}자) → /auth/login 요청');
+    final loginResponse = await AuthApiService.login('GOOGLE', idToken);
+
+    if (!mounted) return;
+    setState(() => _isGoogleLoading = false);
+
+    if (loginResponse == null ||
+        loginResponse.code != 'SUCCESS' ||
+        loginResponse.data == null) {
+      _showLoginError(locale);
+      return;
+    }
+
+    final data = loginResponse.data!;
+    if (!data.isNewUser && !data.profileCompleted) {
+      _showLoginError(locale);
+      return;
+    }
+
+    // 회원가입(POST /api/users) body에 사용할 이메일 캡처
+    AuthApiService.userEmail = result.email;
+
+    _navigateAfterLogin(
+      isNewUser: data.isNewUser,
+      profileCompleted: data.profileCompleted,
+      userType: data.userType,
+      profileImageUrl: result.profileImageUrl,
+      nickname: result.nickname,
+    );
+  }
+
+  void _showLoginError(LocaleProvider locale) {
+    debugPrint('[Login] 로그인 실패 → 에러 표시 (원인은 위 [AuthAPI] 로그 확인)');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          locale.tr(AppStrings.loginError),
+          style: GoogleFonts.gowunDodum(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: AppColors.accent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _navigateAfterLogin({
+    required bool isNewUser,
+    required bool profileCompleted,
+    String? userType,
+    String? profileImageUrl,
+    String? nickname,
+  }) {
+    if (isNewUser) {
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              RoleSelectionScreen(
+                kakaoProfileImageUrl: profileImageUrl,
+                kakaoNickname: nickname,
+              ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position:
+                    Tween<Offset>(
+                      begin: const Offset(0.3, 0.0),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    ),
+                child: child,
+              ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      );
+      return;
+    }
+    if (!profileCompleted) {
+      final role = userRoleFromApi(userType);
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              ProfileSetupScreen(
+                role: role,
+                kakaoProfileImageUrl: profileImageUrl,
+                kakaoNickname: nickname,
+              ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position:
+                    Tween<Offset>(
+                      begin: const Offset(0.3, 0.0),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                    ),
+                child: child,
+              ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      );
+      return;
+    }
+    // 기존 사용자(프로필 완료) → 역할에 따라 TourAPI 서비스 언어 결정
+    TourApiService.lang = userRoleFromApi(userType) == UserRole.foreigner
+        ? TourLang.english
+        : TourLang.korean;
+    Navigator.of(context).pushAndRemoveUntil(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const MainScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0.3, 0.0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                  ),
+              child: child,
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+      (route) => false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<LocaleProvider>(
+      builder: (context, locale, _) {
+        return Scaffold(
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFFFFFFF),
+                  Color(0xFFF0F5FF),
+                  Color(0xFFFFF5F2),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // 상단 뒤로가기
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4, top: 8),
+                      child: TextButton.icon(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(
+                          Icons.arrow_back_ios_rounded,
+                          size: 16,
+                          color: AppColors.grey,
+                        ),
+                        label: Text(
+                          locale.tr(AppStrings.back),
+                          style: GoogleFonts.gowunDodum(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(flex: 3),
+                  // 로고 + 타이틀
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Column(
+                        children: [
+                          // 로고 (랜딩 화면과 동일한 크기)
+                          Container(
+                            width: 280,
+                            height: 280,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(28),
+                              child: Image.asset(
+                                'assets/images/knot_logo.png',
+                                width: 280,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          // 타이틀
+                          Text(
+                            locale.tr(AppStrings.loginTitle),
+                            style: GoogleFonts.gowunDodum(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.black,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Spacer(flex: 3),
+                  // 카카오 로그인 버튼
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child: ElevatedButton(
+                              onPressed: (_isKakaoLoading || _isGoogleLoading)
+                                  ? null
+                                  : _handleKakaoLogin,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFEE500),
+                                foregroundColor: const Color(0xFF191919),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                disabledBackgroundColor: const Color(
+                                  0xFFFEE500,
+                                ).withValues(alpha: 0.6),
+                              ),
+                              child: _isKakaoLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: Color(0xFF191919),
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        // 카카오 말풍선 아이콘
+                                        Image.network(
+                                          'https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png',
+                                          width: 20,
+                                          height: 20,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return const Icon(
+                                                  Icons.chat_bubble,
+                                                  size: 20,
+                                                  color: Color(0xFF191919),
+                                                );
+                                              },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          locale.tr(AppStrings.loginWithKakao),
+                                          style: GoogleFonts.gowunDodum(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: const Color(0xFF191919),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Google 로그인 버튼
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child: OutlinedButton(
+                              onPressed: (_isKakaoLoading || _isGoogleLoading)
+                                  ? null
+                                  : _handleGoogleLogin,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.black,
+                                side: const BorderSide(
+                                  color: AppColors.lightGrey,
+                                  width: 1.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: _isGoogleLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: AppColors.darkGrey,
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.network(
+                                          'https://www.google.com/favicon.ico',
+                                          width: 20,
+                                          height: 20,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return const Icon(
+                                                  Icons.g_mobiledata_rounded,
+                                                  size: 24,
+                                                  color: AppColors.darkGrey,
+                                                );
+                                              },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          locale.tr(AppStrings.loginWithGoogle),
+                                          style: GoogleFonts.gowunDodum(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.darkGrey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
