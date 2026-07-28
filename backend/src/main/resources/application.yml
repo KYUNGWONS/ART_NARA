@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: UniTrip
+
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:unitripdb}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:create-drop}
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:always}
+      data-locations: classpath:test.sql
+
+jwt:
+  issuer: ${JWT_ISSUER:unitrip}
+  secret: ${JWT_SECRET:dW5pdHJpcC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbg==}
+  access-token-validity: ${JWT_ACCESS_TTL:1h}
+  refresh-token-validity: ${JWT_REFRESH_TTL:14d}
+
+auth:
+  # 로컬 테스트 전용: 값을 넣으면 토큰 검증 없이 해당 userId로 모든 요청이 인증된다.
+  # 절대 운영 환경에 설정하지 말 것. 비워두면(기본값) 평소처럼 정상 검증한다.
+  dev-bypass-user-id: ${AUTH_DEV_BYPASS_USER_ID:}
+
+oauth:
+  google:
+    # 설정 시 구글 idToken의 aud(클라이언트 ID) 검증. 비어 있으면 검증을 건너뜁니다.
+    client-id: ${GOOGLE_CLIENT_ID:}
