@@ -7,15 +7,12 @@ import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
 import '../services/kakao_auth_service.dart';
-import '../widgets/ambassador_showcase.dart';
-import '../widgets/date_selector.dart';
-import '../widgets/upcoming_festivals.dart';
 // TODO: 매거진(Mate Stories) 화면 추후 복구 예정 — 현재는 숨김
 // import '../widgets/mate_stories_section.dart';
 import 'chat_list_screen.dart';
 // TODO: 게시판 화면 추후 복구 예정 — 현재는 준비중
 // import 'community_screen.dart';
-import 'content_create_flow_screen.dart';
+import 'art_home_feed_screen.dart';
 import 'landing_screen.dart';
 import 'map_screen.dart';
 import 'my_profile_screen.dart';
@@ -324,171 +321,13 @@ class _MainScreenState extends State<MainScreen>
       case 1: // 매거진 (준비중)
         // TODO: 매거진 화면 연동 후 복구 — 현재는 준비중 표시
         return _buildPlaceholder(locale);
-      case 2: // 홈 (로고·광고·문구 버튼·커뮤니티 피드)
-        return _buildHeroSection(locale);
+      case 2:
+        return const ArtHomeFeedScreen();
       case 3: // 채팅 (참여 중인 채팅방 목록)
         return const ChatListScreen();
       default:
         return _buildPlaceholder(locale);
     }
-  }
-
-  Widget _buildHeroSection(LocaleProvider locale) {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [AppColors.white, Color(0xFFF0F5FF), Color(0xFFFFF5F2)],
-        ),
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              // 광고 배너 (로고 바로 밑, 세로로 길게)
-              Padding(
-                padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
-                child: _buildAdBanner(),
-              ),
-              const SizedBox(height: 32),
-              // 메인 카피 (두 줄, 버튼 형태로 클릭 유도)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (context) => const ContentCreateFlowScreen(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    splashColor: AppColors.primary.withValues(alpha: 0.12),
-                    highlightColor: AppColors.primary.withValues(alpha: 0.06),
-                    child: Ink(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.4),
-                          width: 1.5,
-                        ),
-                        color: AppColors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.08),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      // 광고 배너와 동일한 너비(전체)·높이(minHeight 88)로 맞춤
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 88),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 20,
-                        ),
-                        child: Text(
-                          locale.tr(AppStrings.heroTitle),
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.jua(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.black,
-                            height: 1.35,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              // 1기 앰배서더 쇼케이스
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: AmbassadorShowcase(),
-              ),
-              const SizedBox(height: 32),
-              // 날짜 선택 달력
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: DateSelector(),
-              ),
-              const SizedBox(height: 32),
-              // 다가오는 축제: 행사정보조회(searchFestival2) 가로 스크롤 카드
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: UpcomingFestivals(),
-              ),
-              // TODO: 매거진(Mate Stories) 화면 — 추후 복구 예정, 현재는 숨김
-              // const SizedBox(height: 32),
-              // const Padding(
-              //   padding: EdgeInsets.symmetric(horizontal: 16),
-              //   child: MateStoriesSection(),
-              // ),
-              const SizedBox(height: 40),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAdBanner() {
-    return GestureDetector(
-      onTap: () {
-        // TODO: 광고 링크 또는 상세 화면
-      },
-      child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 88),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppColors.primary.withValues(alpha: 0.12),
-              AppColors.accent.withValues(alpha: 0.08),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.primary.withValues(alpha: 0.2),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.campaign_outlined,
-              size: 24,
-              color: AppColors.primary.withValues(alpha: 0.8),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Knot와 함께하는 특별 혜택',
-              style: GoogleFonts.gowunDodum(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkGrey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildPlaceholder(LocaleProvider locale) {
