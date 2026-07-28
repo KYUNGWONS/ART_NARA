@@ -12,6 +12,10 @@ public class SecurityConstant {
             "/auth/**"
     };
 
+    public static final String[] PUBLIC_FEED_URLS = {
+            "/api/feed/**"
+    };
+
     public static final String[] SWAGGER_URLS = {
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -32,7 +36,7 @@ public class SecurityConstant {
     };
 
     public static final String[] PUBLIC_URLS =
-            Stream.of(PUBLIC_AUTH_URLS, SWAGGER_URLS, WEBSOCKET_URLS, H2_URLS)
+            Stream.of(PUBLIC_AUTH_URLS, PUBLIC_FEED_URLS, SWAGGER_URLS, WEBSOCKET_URLS, H2_URLS)
                     .flatMap(Arrays::stream)
                     .toArray(String[]::new);
 }
