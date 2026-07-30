@@ -4,6 +4,7 @@ import '../constants/app_colors.dart';
 import '../models/user_profile_response.dart';
 import '../services/user_api_service.dart';
 import 'certificate_screen.dart';
+import 'order_history_screen.dart';
 
 /// 내 프로필 조회 화면 (GET /users/me)
 class MyProfileScreen extends StatefulWidget {
@@ -75,7 +76,25 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 children: [
                   _buildProfileHeader(_profile!),
                   const SizedBox(height: 16),
-                  _buildCertificateMenu(),
+                  _buildMenuTile(
+                    icon: Icons.qr_code_scanner,
+                    title: '정품 인증 · 디지털 소유권',
+                    subtitle: 'QR 스캔으로 정품 인증서를 확인하세요',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                          builder: (_) => const CertificateScreen()),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildMenuTile(
+                    icon: Icons.receipt_long_outlined,
+                    title: '주문 내역',
+                    subtitle: '결제한 작품과 배송 정보를 확인하세요',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                          builder: (_) => const OrderHistoryScreen()),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   _buildSection('기본 정보', [
                     _row('닉네임', _profile!.nickname),
@@ -142,17 +161,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
   }
 
-  Widget _buildCertificateMenu() {
+  Widget _buildMenuTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return Material(
       color: AppColors.white,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const CertificateScreen()),
-          );
-        },
+        onTap: onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -168,11 +188,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.qr_code_scanner,
-                  size: 20,
-                  color: AppColors.primary,
-                ),
+                child: Icon(icon, size: 20, color: AppColors.primary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -180,7 +196,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '정품 인증 · 디지털 소유권',
+                      title,
                       style: GoogleFonts.gowunDodum(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -189,7 +205,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'QR 스캔으로 정품 인증서를 확인하세요',
+                      subtitle,
                       style: GoogleFonts.gowunDodum(
                         fontSize: 12,
                         color: AppColors.grey,
