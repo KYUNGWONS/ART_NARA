@@ -59,6 +59,20 @@ class ArtworkServiceTest {
     }
 
     @Test
+    @DisplayName("집 주변 작품은 가까운 순으로 정렬된다")
+    void getNearby() {
+        // 홍대입구 좌표 기준
+        var nearby = artworkService.getNearby(37.5563, 126.9220);
+        assertThat(nearby.artworks()).hasSize(8);
+        assertThat(nearby.artworks().get(0).id()).isEqualTo(1L);
+        assertThat(nearby.artworks().get(0).distanceKm()).isEqualTo(0.0);
+        for (int i = 1; i < nearby.artworks().size(); i++) {
+            assertThat(nearby.artworks().get(i).distanceKm())
+                    .isGreaterThanOrEqualTo(nearby.artworks().get(i - 1).distanceKm());
+        }
+    }
+
+    @Test
     @DisplayName("일반 판매 작품에 입찰 시 400")
     void placeBidOnNonAuction() {
         assertThatThrownBy(() -> artworkService.placeBid(1L, new ArtworkDetailDto.BidRequest(500000)))

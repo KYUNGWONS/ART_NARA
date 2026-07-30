@@ -1,9 +1,12 @@
 package com.example.artnara.domain.artwork.service;
 
 import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
+import com.example.artnara.domain.artwork.dto.NearbyArtworkDto;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -46,8 +49,48 @@ public class ArtworkService {
                 "혼합 매체", "60.6 x 60.6cm", 2026, 190000, true, "09:30:05");
     }
 
+    // 작품 위치 mock (판매자 동네 기준) — id 순서대로 홍대, 성수, 이태원, 연남, 망원, 합정, 상수, 서교
+    private static final Map<Long, double[]> LOCATIONS = Map.of(
+            1L, new double[]{37.5563, 126.9220}, 2L, new double[]{37.5446, 127.0559},
+            3L, new double[]{37.5340, 126.9948}, 4L, new double[]{37.5628, 126.9256},
+            5L, new double[]{37.5556, 126.9019}, 6L, new double[]{37.5495, 126.9139},
+            7L, new double[]{37.5478, 126.9227}, 8L, new double[]{37.5525, 126.9180});
+
+    private static final Map<Long, String> ADDRESSES = Map.of(
+            1L, "서울 마포구 홍대입구", 2L, "서울 성동구 성수동",
+            3L, "서울 용산구 이태원동", 4L, "서울 마포구 연남동",
+            5L, "서울 마포구 망원동", 6L, "서울 마포구 합정동",
+            7L, "서울 마포구 상수동", 8L, "서울 마포구 서교동");
+
     public ArtworkDetailDto getDetail(Long artworkId) {
         return find(artworkId).toDto();
+    }
+
+    public NearbyArtworkDto getNearby(double latitude, double longitude) {
+        List<NearbyArtworkDto.Item> items = artworks.values().stream()
+                .map(artwork -> {
+                    double[] location = LOCATIONS.get(artwork.id);
+                    double distance = haversineKm(latitude, longitude, location[0], location[1]);
+                    return new NearbyArtworkDto.Item(
+                            artwork.id, artwork.title, artwork.artistName,
+                            artwork.auction ? artwork.currentBid : artwork.price,
+                            artwork.auction, location[0], location[1],
+                            ADDRESSES.getOrDefault(artwork.id, ""),
+                            Math.round(distance * 10) / 10.0);
+                })
+                .sorted(Comparator.comparingDouble(NearbyArtworkDto.Item::distanceKm))
+                .toList();
+        return new NearbyArtworkDto(items);
+    }
+
+    private static double haversineKm(double lat1, double lng1, double lat2, double lng2) {
+        double earthRadiusKm = 6371.0;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
     public synchronized ArtworkDetailDto placeBid(Long artworkId, ArtworkDetailDto.BidRequest request) {
