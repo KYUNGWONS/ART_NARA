@@ -47,7 +47,10 @@ public enum DomainResultCode implements ResultCode {
     ORDER_ALREADY_SOLD("ORDER_409", "이미 판매 완료된 작품입니다.", HttpStatus.CONFLICT),
     AUCTION_ALREADY_CLOSED("AUCTION_409", "이미 마감된 경매입니다.", HttpStatus.CONFLICT),
     ORDER_AUCTION_NO_WINNER("ORDER_400_NO_WINNER", "유찰된 경매 작품은 결제할 수 없습니다.", HttpStatus.BAD_REQUEST),
-    ORDER_NOT_WINNER("ORDER_403_WINNER", "낙찰자만 결제할 수 있습니다.", HttpStatus.FORBIDDEN);
+    ORDER_NOT_WINNER("ORDER_403_WINNER", "낙찰자만 결제할 수 있습니다.", HttpStatus.FORBIDDEN),
+    IMAGE_FILE_REQUIRED("IMAGE_400", "업로드할 이미지 파일이 없습니다.", HttpStatus.BAD_REQUEST),
+    IMAGE_INVALID_TYPE("IMAGE_422", "jpg, png, webp 이미지만 업로드할 수 있습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
+    IMAGE_STORE_FAILED("IMAGE_500", "이미지 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;
     private final String message;

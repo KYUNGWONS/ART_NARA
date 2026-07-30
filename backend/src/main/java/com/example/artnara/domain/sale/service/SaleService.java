@@ -29,6 +29,7 @@ public class SaleService {
                 request.auctionEnabled(),
                 request.auctionEnabled() ? request.auctionStartPrice() : null,
                 request.auctionEnabled() ? request.auctionEndDate() : null,
+                request.imageUrl() == null ? "" : request.imageUrl().trim(),
                 "검수 대기");
         sales.add(0, sale);
         return sale;

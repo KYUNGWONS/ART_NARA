@@ -19,7 +19,7 @@ class CommissionServiceTest {
     private CommissionDto.CreateRequest request() {
         return new CommissionDto.CreateRequest(
                 "결혼 선물용 초상화", "부모님 사진을 바탕으로 유화 초상화를 그려주세요.",
-                "회화", 400000, LocalDate.now().plusDays(21));
+                "회화", 400000, LocalDate.now().plusDays(21), "/images/reference.jpg");
     }
 
     @Test
@@ -82,7 +82,7 @@ class CommissionServiceTest {
     @Test
     @DisplayName("예산 없이 등록 시 400")
     void createWithoutBudget() {
-        var invalid = new CommissionDto.CreateRequest("제목", null, "회화", null, null);
+        var invalid = new CommissionDto.CreateRequest("제목", null, "회화", null, null, null);
         assertThatThrownBy(() -> commissionService.create(invalid))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())

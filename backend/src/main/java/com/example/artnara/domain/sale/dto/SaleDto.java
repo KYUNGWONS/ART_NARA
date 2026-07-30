@@ -14,7 +14,8 @@ public class SaleDto {
             Integer buyNowPrice,
             boolean auctionEnabled,
             Integer auctionStartPrice,
-            LocalDate auctionEndDate
+            LocalDate auctionEndDate,
+            String imageUrl
     ) {}
 
     public record Response(
@@ -28,6 +29,7 @@ public class SaleDto {
             boolean auctionEnabled,
             Integer auctionStartPrice,
             LocalDate auctionEndDate,
+            String imageUrl,
             String status
     ) {}
 

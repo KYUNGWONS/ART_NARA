@@ -21,7 +21,8 @@ class SaleServiceTest {
                 "봄의 정원", "설명", "캔버스에 유화", "10호", 2026,
                 300000, auction,
                 auction ? 200000 : null,
-                auction ? LocalDate.now().plusDays(7) : null);
+                auction ? LocalDate.now().plusDays(7) : null,
+                "/images/sample.jpg");
     }
 
     @Test
@@ -53,7 +54,7 @@ class SaleServiceTest {
     @DisplayName("작품명 없이 등록 시 400")
     void createWithoutTitle() {
         var invalid = new SaleDto.CreateRequest(
-                " ", null, null, null, null, 300000, false, null, null);
+                " ", null, null, null, null, 300000, false, null, null, null);
         assertThatThrownBy(() -> saleService.create(invalid))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
@@ -65,7 +66,7 @@ class SaleServiceTest {
     void createAuctionStartAboveBuyNow() {
         var invalid = new SaleDto.CreateRequest(
                 "작품", null, null, null, null, 300000, true,
-                400000, LocalDate.now().plusDays(7));
+                400000, LocalDate.now().plusDays(7), null);
         assertThatThrownBy(() -> saleService.create(invalid))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
@@ -77,7 +78,7 @@ class SaleServiceTest {
     void createAuctionPastEndDate() {
         var invalid = new SaleDto.CreateRequest(
                 "작품", null, null, null, null, 300000, true,
-                200000, LocalDate.now());
+                200000, LocalDate.now(), null);
         assertThatThrownBy(() -> saleService.create(invalid))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())

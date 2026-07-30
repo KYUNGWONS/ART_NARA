@@ -32,7 +32,7 @@ public class CommissionService {
                 idSequence.incrementAndGet(),
                 "거실에 걸 바다 풍경화 의뢰",
                 "3m 폭 거실 벽에 어울리는 잔잔한 바다 풍경을 원해요. 파란색 계열이면 좋겠습니다.",
-                "회화", 500000, LocalDate.now().plusDays(30),
+                "회화", 500000, LocalDate.now().plusDays(30), "",
                 ARTIST_POOL.get("회화"));
         sample.offers.add(new CommissionDto.Offer("김*진", 450000, "유화로 30호 작업 가능합니다.", "2시간 전"));
         sample.offers.add(new CommissionDto.Offer("박*현", 400000, "아크릴로 2주 내 완성 가능해요.", "1시간 전"));
@@ -48,6 +48,7 @@ public class CommissionService {
                 request.category().trim(),
                 request.budget(),
                 request.desiredDate(),
+                request.referenceImageUrl() == null ? "" : request.referenceImageUrl().trim(),
                 ARTIST_POOL.getOrDefault(request.category().trim(), 10));
         commissions.put(commission.id, commission);
         return commission.toDto();
@@ -100,17 +101,20 @@ public class CommissionService {
         private final String category;
         private final int budget;
         private final LocalDate desiredDate;
+        private final String referenceImageUrl;
         private final int notifiedArtistCount;
         private final List<CommissionDto.Offer> offers = new ArrayList<>();
 
         private MutableCommission(Long id, String title, String description, String category,
-                                  int budget, LocalDate desiredDate, int notifiedArtistCount) {
+                                  int budget, LocalDate desiredDate, String referenceImageUrl,
+                                  int notifiedArtistCount) {
             this.id = id;
             this.title = title;
             this.description = description;
             this.category = category;
             this.budget = budget;
             this.desiredDate = desiredDate;
+            this.referenceImageUrl = referenceImageUrl;
             this.notifiedArtistCount = notifiedArtistCount;
         }
 
@@ -123,7 +127,7 @@ public class CommissionService {
 
         private CommissionDto.Response toDto() {
             return new CommissionDto.Response(
-                    id, title, description, category, budget, desiredDate,
+                    id, title, description, category, budget, desiredDate, referenceImageUrl,
                     offers.isEmpty() ? "작가 제안 대기" : "역경매 진행 중",
                     notifiedArtistCount, lowestOffer(), List.copyOf(offers));
         }

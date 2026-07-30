@@ -10,7 +10,8 @@ public class CommissionDto {
             String description,
             String category,
             Integer budget,
-            LocalDate desiredDate
+            LocalDate desiredDate,
+            String referenceImageUrl
     ) {}
 
     public record OfferRequest(
@@ -33,6 +34,7 @@ public class CommissionDto {
             String category,
             Integer budget,
             LocalDate desiredDate,
+            String referenceImageUrl,
             String status,
             int notifiedArtistCount,
             Integer lowestOffer,
