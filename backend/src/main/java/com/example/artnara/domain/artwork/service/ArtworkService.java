@@ -1,5 +1,6 @@
 package com.example.artnara.domain.artwork.service;
 
+import com.example.artnara.domain.artwork.dto.ArtworkCreate;
 import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
 import com.example.artnara.domain.artwork.dto.NearbyArtworkDto;
 import com.example.artnara.global.common.DomainResultCode;
@@ -14,6 +15,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class ArtworkService {
@@ -21,6 +23,7 @@ public class ArtworkService {
     private static final int MIN_BID_INCREMENT = 10000;
 
     private final Map<Long, MutableArtwork> artworks = new LinkedHashMap<>();
+    private final AtomicLong idSequence = new AtomicLong(8); // 시드 작품 1~8 이후부터 발급
 
     public ArtworkService() {
         seed(1L, "봄의 정원", "김예진", "자연의 빛을 기록하는 작가",
@@ -62,20 +65,44 @@ public class ArtworkService {
             5L, "서울 마포구 망원동", 6L, "서울 마포구 합정동",
             7L, "서울 마포구 상수동", 8L, "서울 마포구 서교동");
 
-    public ArtworkDetailDto getDetail(Long artworkId) {
+    // 위치 정보가 없는 등록 작품의 기본 좌표 (홍대입구)
+    private static final double[] DEFAULT_LOCATION = {37.5563, 126.9220};
+
+    public synchronized ArtworkDetailDto getDetail(Long artworkId) {
         return find(artworkId).toDto();
     }
 
-    public NearbyArtworkDto getNearby(double latitude, double longitude) {
+    public synchronized List<ArtworkDetailDto> listAll() {
+        return artworks.values().stream().map(MutableArtwork::toDto).toList();
+    }
+
+    /** 판매 등록된 작품을 작품 저장소에 추가하고 발급된 작품 id를 반환한다. */
+    public synchronized Long register(ArtworkCreate create) {
+        Long id = idSequence.incrementAndGet();
+        MutableArtwork artwork = new MutableArtwork(
+                id, create.title(), create.artistName(), create.artistIntroduction(),
+                create.description(), create.medium(), create.size(), create.year(),
+                create.price(), create.auction(),
+                create.auction() ? "~" + create.auctionEndDate() : null);
+        artwork.imageUrl = create.imageUrl() == null ? "" : create.imageUrl();
+        if (create.auction()) {
+            artwork.currentBid = create.auctionStartPrice() != null
+                    ? create.auctionStartPrice() : create.price();
+        }
+        artworks.put(id, artwork);
+        return id;
+    }
+
+    public synchronized NearbyArtworkDto getNearby(double latitude, double longitude) {
         List<NearbyArtworkDto.Item> items = artworks.values().stream()
                 .map(artwork -> {
-                    double[] location = LOCATIONS.get(artwork.id);
+                    double[] location = LOCATIONS.getOrDefault(artwork.id, DEFAULT_LOCATION);
                     double distance = haversineKm(latitude, longitude, location[0], location[1]);
                     return new NearbyArtworkDto.Item(
                             artwork.id, artwork.title, artwork.artistName,
                             artwork.auction ? artwork.currentBid : artwork.price,
                             artwork.auction, location[0], location[1],
-                            ADDRESSES.getOrDefault(artwork.id, ""),
+                            ADDRESSES.getOrDefault(artwork.id, "서울 마포구"),
                             Math.round(distance * 10) / 10.0);
                 })
                 .sorted(Comparator.comparingDouble(NearbyArtworkDto.Item::distanceKm))
@@ -164,6 +191,7 @@ public class ArtworkService {
         private int currentBid;
         private boolean auctionClosed;
         private String winnerName;
+        private String imageUrl = "";
         private final Deque<ArtworkDetailDto.Bid> bidHistory = new ArrayDeque<>();
 
         private MutableArtwork(Long id, String title, String artistName, String artistIntroduction,
@@ -184,7 +212,7 @@ public class ArtworkService {
 
         private ArtworkDetailDto toDto() {
             return new ArtworkDetailDto(
-                    id, title, artistName, artistIntroduction, description, "",
+                    id, title, artistName, artistIntroduction, description, imageUrl,
                     medium, size, year, price, auction,
                     auction ? currentBid : null, MIN_BID_INCREMENT,
                     auctionClosed ? "00:00:00" : remainingTime,

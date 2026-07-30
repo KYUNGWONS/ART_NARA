@@ -1,8 +1,11 @@
 package com.example.artnara.domain.sale.service;
 
+import com.example.artnara.domain.artwork.dto.ArtworkCreate;
+import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.sale.dto.SaleDto;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -11,7 +14,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
+@RequiredArgsConstructor
 public class SaleService {
+
+    /** 프로토타입 단일 사용자 판매자명. */
+    private static final String SELLER_NAME = "나";
+
+    private final ArtworkService artworkService;
 
     private final List<SaleDto.Response> sales = new ArrayList<>();
     private final AtomicLong idSequence = new AtomicLong(0);
@@ -32,6 +41,16 @@ public class SaleService {
                 request.imageUrl() == null ? "" : request.imageUrl().trim(),
                 "검수 대기");
         sales.add(0, sale);
+
+        // 프로토타입: 검수 절차 없이 바로 작품 저장소에 등록해 홈 피드에 노출한다.
+        artworkService.register(new ArtworkCreate(
+                sale.title(), SELLER_NAME, "내가 등록한 작품입니다.",
+                sale.description(), sale.medium(), sale.size(),
+                sale.year() == null ? LocalDate.now().getYear() : sale.year(),
+                sale.buyNowPrice(), sale.auctionEnabled(),
+                sale.auctionStartPrice(),
+                sale.auctionEndDate() == null ? null : sale.auctionEndDate().toString(),
+                sale.imageUrl()));
         return sale;
     }
 

@@ -1,5 +1,6 @@
 package com.example.artnara.domain.sale;
 
+import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.sale.dto.SaleDto;
 import com.example.artnara.domain.sale.service.SaleService;
 import com.example.artnara.global.common.DomainResultCode;
@@ -14,7 +15,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class SaleServiceTest {
 
-    private final SaleService saleService = new SaleService();
+    private final ArtworkService artworkService = new ArtworkService();
+    private final SaleService saleService = new SaleService(artworkService);
 
     private SaleDto.CreateRequest request(boolean auction) {
         return new SaleDto.CreateRequest(
@@ -48,6 +50,21 @@ class SaleServiceTest {
         saleService.create(request(false));
         SaleDto.Response latest = saleService.create(request(true));
         assertThat(saleService.list().sales().get(0).id()).isEqualTo(latest.id());
+    }
+
+    @Test
+    @DisplayName("판매 등록 시 작품 저장소에도 이미지와 함께 등록된다")
+    void createRegistersArtwork() {
+        int artworksBefore = artworkService.listAll().size();
+
+        saleService.create(request(false));
+
+        var artworks = artworkService.listAll();
+        assertThat(artworks).hasSize(artworksBefore + 1);
+        var registered = artworks.get(artworks.size() - 1);
+        assertThat(registered.title()).isEqualTo("봄의 정원");
+        assertThat(registered.artistName()).isEqualTo("나");
+        assertThat(registered.imageUrl()).isEqualTo("/images/sample.jpg");
     }
 
     @Test
