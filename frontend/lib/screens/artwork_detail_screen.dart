@@ -305,7 +305,6 @@ class _InfoTable extends StatelessWidget {
       MapEntry('재료', detail.medium),
       MapEntry('크기', detail.size),
       MapEntry('정품 인증', detail.certified ? 'QR 정품 인증 발급' : '미발급'),
-      MapEntry('배송', detail.deliveryInfo),
     ];
     return Container(
       padding: const EdgeInsets.all(13),

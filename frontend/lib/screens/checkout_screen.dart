@@ -12,8 +12,6 @@ const _paymentMethods = [
   ('TOSS', '토스페이'),
 ];
 
-const _deliveryFee = 15000;
-
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key, required this.artwork, this.priceOverride});
 
@@ -28,34 +26,18 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _api = const OrderApiService();
-  final _formKey = GlobalKey<FormState>();
-  final _receiverController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
 
   String _paymentMethod = _paymentMethods.first.$1;
   bool _paying = false;
 
   int get _price => widget.priceOverride ?? widget.artwork.price;
 
-  @override
-  void dispose() {
-    _receiverController.dispose();
-    _phoneController.dispose();
-    _addressController.dispose();
-    super.dispose();
-  }
-
   Future<void> _pay() async {
-    if (!_formKey.currentState!.validate()) return;
     setState(() => _paying = true);
     try {
       final order = await _api.create(
         artworkId: widget.artwork.id,
         paymentMethod: _paymentMethod,
-        receiverName: _receiverController.text.trim(),
-        phone: _phoneController.text.trim(),
-        deliveryAddress: _addressController.text.trim(),
       );
       if (!mounted) return;
       await _showCompleteDialog(order);
@@ -140,95 +122,56 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
         centerTitle: true,
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-          children: [
-            _ArtworkSummary(artwork: artwork, price: _price),
-            if (widget.priceOverride != null) ...[
-              const SizedBox(height: 8),
-              const Text(
-                '🎉 낙찰을 축하합니다! 낙찰가로 결제가 진행됩니다.',
-                style: TextStyle(fontSize: 12, color: Color(0xFF059669)),
-              ),
-            ],
-            const SizedBox(height: 24),
-            const Text('배송지 정보',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _receiverController,
-              decoration: _inputDecoration('수령인 이름 *'),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? '수령인을 입력해주세요' : null,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: _inputDecoration('연락처'),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _addressController,
-              decoration: _inputDecoration('배송지 주소 *'),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? '배송지를 입력해주세요' : null,
-            ),
-            const SizedBox(height: 24),
-            const Text('결제 수단',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            ..._paymentMethods.map(
-              (method) => RadioListTile<String>(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: Text(method.$2, style: const TextStyle(fontSize: 13)),
-                value: method.$1,
-                groupValue: _paymentMethod,
-                onChanged: (value) => setState(
-                    () => _paymentMethod = value ?? _paymentMethods.first.$1),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _PriceSummary(price: _price),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _paying ? null : _pay,
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF1F2937),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              child: Text(
-                _paying
-                    ? '결제 중...'
-                    : '₩${_formatPrice(_price + _deliveryFee)} 결제하기',
-              ),
-            ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+        children: [
+          _ArtworkSummary(artwork: artwork, price: _price),
+          if (widget.priceOverride != null) ...[
             const SizedBox(height: 8),
             const Text(
-              '구매자 수수료 0% · 결제 완료 시 디지털 소유권이 자동 발급됩니다',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+              '🎉 낙찰을 축하합니다! 낙찰가로 결제가 진행됩니다.',
+              style: TextStyle(fontSize: 12, color: Color(0xFF059669)),
             ),
           ],
-        ),
+          const SizedBox(height: 24),
+          const Text('결제 수단',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          ..._paymentMethods.map(
+            (method) => RadioListTile<String>(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              title: Text(method.$2, style: const TextStyle(fontSize: 13)),
+              value: method.$1,
+              groupValue: _paymentMethod,
+              onChanged: (value) => setState(
+                  () => _paymentMethod = value ?? _paymentMethods.first.$1),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _PriceSummary(price: _price),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: _paying ? null : _pay,
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF1F2937),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+            child: Text(
+              _paying ? '결제 중...' : '₩${_formatPrice(_price)} 결제하기',
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '구매자 수수료 0% · 결제 완료 시 디지털 소유권이 자동 발급됩니다',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+          ),
+        ],
       ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-      border: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      ),
-      isDense: true,
     );
   }
 }
@@ -254,13 +197,16 @@ class _ArtworkSummary extends StatelessWidget {
             width: 56,
             height: 56,
             alignment: Alignment.center,
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: const Color(0xFFD1D5DB)),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Icon(Icons.image_outlined,
-                size: 22, color: Color(0xFF9CA3AF)),
+            child: artwork.imageUrl.isEmpty
+                ? const Icon(Icons.image_outlined,
+                    size: 22, color: Color(0xFF9CA3AF))
+                : Image.network(artwork.imageUrl, fit: BoxFit.cover),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -303,9 +249,8 @@ class _PriceSummary extends StatelessWidget {
       child: Column(
         children: [
           _row('작품 금액', '₩${_formatPrice(price)}'),
-          _row('배송비 (전문 포장·배송)', '₩${_formatPrice(_deliveryFee)}'),
           const Divider(height: 16, color: Color(0xFFE5E7EB)),
-          _row('총 결제 금액', '₩${_formatPrice(price + _deliveryFee)}', bold: true),
+          _row('총 결제 금액', '₩${_formatPrice(price)}', bold: true),
         ],
       ),
     );

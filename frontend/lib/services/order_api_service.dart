@@ -11,9 +11,6 @@ class OrderApiService {
   Future<Order> create({
     required int artworkId,
     required String paymentMethod,
-    required String receiverName,
-    required String phone,
-    required String deliveryAddress,
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/orders'),
@@ -21,9 +18,6 @@ class OrderApiService {
       body: jsonEncode({
         'artworkId': artworkId,
         'paymentMethod': paymentMethod,
-        'receiverName': receiverName,
-        'phone': phone,
-        'deliveryAddress': deliveryAddress,
       }),
     );
     final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;

@@ -109,7 +109,7 @@ class _OrderCard extends StatelessWidget {
           Text('${order.artistName} · ${order.orderedDate}',
               style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
           const SizedBox(height: 4),
-          Text('총 ₩${order.totalAmount} (배송비 포함) · ${order.deliveryAddress}',
+          Text('결제 금액 ₩${order.amount}',
               style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
           const SizedBox(height: 4),
           Text('디지털 소유권 ${order.certificateNo}',

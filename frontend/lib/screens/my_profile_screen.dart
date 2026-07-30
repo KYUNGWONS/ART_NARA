@@ -89,7 +89,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   _buildMenuTile(
                     icon: Icons.receipt_long_outlined,
                     title: '주문 내역',
-                    subtitle: '결제한 작품과 배송 정보를 확인하세요',
+                    subtitle: '결제한 작품과 소유권 발급 내역을 확인하세요',
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                           builder: (_) => const OrderHistoryScreen()),

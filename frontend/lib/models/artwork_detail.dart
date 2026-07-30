@@ -13,7 +13,6 @@ class ArtworkDetail {
     required this.auction,
     required this.minBidIncrement,
     required this.certified,
-    required this.deliveryInfo,
     required this.bidHistory,
     required this.auctionClosed,
     this.winnerName,
@@ -38,7 +37,6 @@ class ArtworkDetail {
   final bool auctionClosed;
   final String? winnerName;
   final bool certified;
-  final String deliveryInfo;
   final List<ArtworkBid> bidHistory;
 
   factory ArtworkDetail.fromJson(Map<String, dynamic> json) {
@@ -66,7 +64,6 @@ class ArtworkDetail {
       auctionClosed: json['auctionClosed'] as bool? ?? false,
       winnerName: json['winnerName'] as String?,
       certified: json['certified'] as bool? ?? false,
-      deliveryInfo: json['deliveryInfo'] as String? ?? '',
       bidHistory: bids,
     );
   }
