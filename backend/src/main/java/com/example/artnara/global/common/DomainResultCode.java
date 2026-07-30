@@ -32,7 +32,13 @@ public enum DomainResultCode implements ResultCode {
     BID_AMOUNT_TOO_LOW("BID_422", "입찰가가 최소 입찰 금액보다 낮습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
     SALE_TITLE_REQUIRED("SALE_400_TITLE", "작품명을 입력해주세요.", HttpStatus.BAD_REQUEST),
     SALE_INVALID_PRICE("SALE_400_PRICE", "즉시 판매가를 올바르게 입력해주세요.", HttpStatus.BAD_REQUEST),
-    SALE_INVALID_AUCTION("SALE_422_AUCTION", "경매 설정이 올바르지 않습니다.", HttpStatus.UNPROCESSABLE_ENTITY);
+    SALE_INVALID_AUCTION("SALE_422_AUCTION", "경매 설정이 올바르지 않습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
+    COMMISSION_NOT_FOUND("COMMISSION_404", "제작 의뢰를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    COMMISSION_TITLE_REQUIRED("COMMISSION_400_TITLE", "의뢰 제목을 입력해주세요.", HttpStatus.BAD_REQUEST),
+    COMMISSION_CATEGORY_REQUIRED("COMMISSION_400_CATEGORY", "미술품 카테고리를 선택해주세요.", HttpStatus.BAD_REQUEST),
+    COMMISSION_INVALID_BUDGET("COMMISSION_400_BUDGET", "예산을 올바르게 입력해주세요.", HttpStatus.BAD_REQUEST),
+    OFFER_INVALID_AMOUNT("OFFER_400", "제안 금액을 올바르게 입력해주세요.", HttpStatus.BAD_REQUEST),
+    OFFER_AMOUNT_TOO_HIGH("OFFER_422", "역경매 제안가는 현재 최저가보다 낮아야 합니다.", HttpStatus.UNPROCESSABLE_ENTITY);
 
     private final String code;
     private final String message;
