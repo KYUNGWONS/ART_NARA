@@ -38,7 +38,9 @@ public enum DomainResultCode implements ResultCode {
     COMMISSION_CATEGORY_REQUIRED("COMMISSION_400_CATEGORY", "미술품 카테고리를 선택해주세요.", HttpStatus.BAD_REQUEST),
     COMMISSION_INVALID_BUDGET("COMMISSION_400_BUDGET", "예산을 올바르게 입력해주세요.", HttpStatus.BAD_REQUEST),
     OFFER_INVALID_AMOUNT("OFFER_400", "제안 금액을 올바르게 입력해주세요.", HttpStatus.BAD_REQUEST),
-    OFFER_AMOUNT_TOO_HIGH("OFFER_422", "역경매 제안가는 현재 최저가보다 낮아야 합니다.", HttpStatus.UNPROCESSABLE_ENTITY);
+    OFFER_AMOUNT_TOO_HIGH("OFFER_422", "역경매 제안가는 현재 최저가보다 낮아야 합니다.", HttpStatus.UNPROCESSABLE_ENTITY),
+    CERTIFICATE_QR_REQUIRED("CERTIFICATE_400", "QR 코드를 입력해주세요.", HttpStatus.BAD_REQUEST),
+    CERTIFICATE_NOT_FOUND("CERTIFICATE_404", "인증 정보를 찾을 수 없는 QR 코드입니다.", HttpStatus.NOT_FOUND);
 
     private final String code;
     private final String message;

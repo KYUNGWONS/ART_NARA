@@ -23,7 +23,8 @@ public class SecurityConstant {
     public static final String[] PUBLIC_ARTWORK_URLS = {
             "/api/artworks/**",
             "/api/sales/**",
-            "/api/commissions/**"
+            "/api/commissions/**",
+            "/api/certificates/**"
     };
 
     public static final String[] SWAGGER_URLS = {
