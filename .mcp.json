@@ -2,10 +2,7 @@
   "mcpServers": {
     "figma-dustart": {
       "type": "http",
-      "url": "https://mcp.figma.com/mcp",
-      "headers": {
-        "Authorization": "Bearer ${FIGMA_DUSTART_TOKEN}"
-      }
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }
