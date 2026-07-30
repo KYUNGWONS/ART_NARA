@@ -26,7 +26,10 @@ public enum DomainResultCode implements ResultCode {
     VERIFICATION_NOT_FOUND("VERIFICATION_404", "인증 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     RECOMMENDED_PLACE_NOT_FOUND("RECOMMENDED_PLACE_404", "추천 장소를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     DISTRICT_NOT_FOUND("DISTRICT_404", "지역(구)을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    RECOMMENDED_CONTENT_NOT_FOUND("RECOMMENDED_CONTENT_404", "추천 컨텐츠를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+    RECOMMENDED_CONTENT_NOT_FOUND("RECOMMENDED_CONTENT_404", "추천 컨텐츠를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ARTWORK_NOT_FOUND("ARTWORK_404", "작품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ARTWORK_NOT_AUCTION("ARTWORK_400", "경매 작품이 아닙니다.", HttpStatus.BAD_REQUEST),
+    BID_AMOUNT_TOO_LOW("BID_422", "입찰가가 최소 입찰 금액보다 낮습니다.", HttpStatus.UNPROCESSABLE_ENTITY);
 
     private final String code;
     private final String message;
