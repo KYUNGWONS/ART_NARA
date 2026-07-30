@@ -1,0 +1,86 @@
+package com.example.artnara.domain.sale;
+
+import com.example.artnara.domain.sale.dto.SaleDto;
+import com.example.artnara.domain.sale.service.SaleService;
+import com.example.artnara.global.common.DomainResultCode;
+import com.example.artnara.global.exception.GlobalException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class SaleServiceTest {
+
+    private final SaleService saleService = new SaleService();
+
+    private SaleDto.CreateRequest request(boolean auction) {
+        return new SaleDto.CreateRequest(
+                "봄의 정원", "설명", "캔버스에 유화", "10호", 2026,
+                300000, auction,
+                auction ? 200000 : null,
+                auction ? LocalDate.now().plusDays(7) : null);
+    }
+
+    @Test
+    @DisplayName("즉시 판매 등록")
+    void createDirectSale() {
+        SaleDto.Response sale = saleService.create(request(false));
+        assertThat(sale.id()).isPositive();
+        assertThat(sale.auctionEnabled()).isFalse();
+        assertThat(sale.status()).isEqualTo("검수 대기");
+    }
+
+    @Test
+    @DisplayName("경매 포함 판매 등록")
+    void createAuctionSale() {
+        SaleDto.Response sale = saleService.create(request(true));
+        assertThat(sale.auctionStartPrice()).isEqualTo(200000);
+        assertThat(sale.auctionEndDate()).isAfter(LocalDate.now());
+    }
+
+    @Test
+    @DisplayName("등록한 판매는 목록 최신순으로 조회된다")
+    void listNewestFirst() {
+        saleService.create(request(false));
+        SaleDto.Response latest = saleService.create(request(true));
+        assertThat(saleService.list().sales().get(0).id()).isEqualTo(latest.id());
+    }
+
+    @Test
+    @DisplayName("작품명 없이 등록 시 400")
+    void createWithoutTitle() {
+        var invalid = new SaleDto.CreateRequest(
+                " ", null, null, null, null, 300000, false, null, null);
+        assertThatThrownBy(() -> saleService.create(invalid))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.SALE_TITLE_REQUIRED);
+    }
+
+    @Test
+    @DisplayName("경매 최저가가 즉시 판매가보다 높으면 422")
+    void createAuctionStartAboveBuyNow() {
+        var invalid = new SaleDto.CreateRequest(
+                "작품", null, null, null, null, 300000, true,
+                400000, LocalDate.now().plusDays(7));
+        assertThatThrownBy(() -> saleService.create(invalid))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.SALE_INVALID_AUCTION);
+    }
+
+    @Test
+    @DisplayName("경매 마감일이 오늘 이전이면 422")
+    void createAuctionPastEndDate() {
+        var invalid = new SaleDto.CreateRequest(
+                "작품", null, null, null, null, 300000, true,
+                200000, LocalDate.now());
+        assertThatThrownBy(() -> saleService.create(invalid))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.SALE_INVALID_AUCTION);
+    }
+}

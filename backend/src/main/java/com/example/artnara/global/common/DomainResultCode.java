@@ -29,7 +29,10 @@ public enum DomainResultCode implements ResultCode {
     RECOMMENDED_CONTENT_NOT_FOUND("RECOMMENDED_CONTENT_404", "추천 컨텐츠를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ARTWORK_NOT_FOUND("ARTWORK_404", "작품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ARTWORK_NOT_AUCTION("ARTWORK_400", "경매 작품이 아닙니다.", HttpStatus.BAD_REQUEST),
-    BID_AMOUNT_TOO_LOW("BID_422", "입찰가가 최소 입찰 금액보다 낮습니다.", HttpStatus.UNPROCESSABLE_ENTITY);
+    BID_AMOUNT_TOO_LOW("BID_422", "입찰가가 최소 입찰 금액보다 낮습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
+    SALE_TITLE_REQUIRED("SALE_400_TITLE", "작품명을 입력해주세요.", HttpStatus.BAD_REQUEST),
+    SALE_INVALID_PRICE("SALE_400_PRICE", "즉시 판매가를 올바르게 입력해주세요.", HttpStatus.BAD_REQUEST),
+    SALE_INVALID_AUCTION("SALE_422_AUCTION", "경매 설정이 올바르지 않습니다.", HttpStatus.UNPROCESSABLE_ENTITY);
 
     private final String code;
     private final String message;
