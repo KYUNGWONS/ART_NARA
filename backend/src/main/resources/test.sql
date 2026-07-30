@@ -1,19 +1,19 @@
 -- ============================================================
--- UniTrip 더미 데이터 (MySQL / H2 호환)
+-- ArtNara 더미 데이터 (MySQL / H2 호환)
 -- SQL_INIT_MODE=always 로 매 부팅마다 실행됨 → INSERT IGNORE 로 중복 방지
 -- ============================================================
 
 -- ── 사용자 (users) ──────────────────────────────────────────
 INSERT IGNORE INTO users (id, email, nickname, display_name, age, user_type, profile_completed, profile_image_url, region, about_me, planning, vibe, role, dynamic, matching_enabled, created_at, updated_at)
 VALUES
-(1, 'chan@example.com', '찬이', '김찬', 25, 'KOREAN_STUDENT', true, 'https://cdn.unitrip.com/profile/chan.jpg', 'SEOUL', '서울 토박이! 맛집과 숨은 명소를 알려드립니다.', 80, -30, 50, 60, true, NOW(), NOW()),
-(2, 'minji@example.com', '민지', '이민지', 23, 'KOREAN_STUDENT', true, 'https://cdn.unitrip.com/profile/minji.jpg', 'BUSAN', '부산 바다와 감천문화마을을 함께 탐험해요!', 50, 40, 30, 70, true, NOW(), NOW()),
-(3, 'andrew@example.com', 'Andrew', 'Andrew Kim', 28, 'FOREIGN_TOURIST', true, 'https://cdn.unitrip.com/profile/andrew.jpg', 'SEOUL', 'American traveler looking for authentic Korean experiences!', -20, 60, -10, 40, true, NOW(), NOW()),
-(4, 'yuki@example.com', 'Yuki', 'Yuki Tanaka', 22, 'FOREIGN_TOURIST', true, 'https://cdn.unitrip.com/profile/yuki.jpg', 'BUSAN', '韓国の文化に興味があります。よろしく！', 30, -50, 20, 80, true, NOW(), NOW()),
-(5, 'jiwon@example.com', '지원', '박지원', 27, 'KOREAN_STUDENT', true, 'https://cdn.unitrip.com/profile/jiwon.jpg', 'SEOUL', '한국 전통문화 전공! 한복체험, 다도 등을 소개해드려요.', 90, 20, 70, 30, true, NOW(), NOW()),
-(6, 'emma@example.com', 'Emma', 'Emma Dubois', 24, 'FOREIGN_TOURIST', true, 'https://cdn.unitrip.com/profile/emma.jpg', 'SEOUL', 'French student studying in Seoul, love K-food and K-pop!', 10, 70, 0, 50, false, NOW(), NOW()),
+(1, 'chan@example.com', '찬이', '김찬', 25, 'KOREAN_STUDENT', true, 'https://cdn.artnara.com/profile/chan.jpg', 'SEOUL', '서울 토박이! 맛집과 숨은 명소를 알려드립니다.', 80, -30, 50, 60, true, NOW(), NOW()),
+(2, 'minji@example.com', '민지', '이민지', 23, 'KOREAN_STUDENT', true, 'https://cdn.artnara.com/profile/minji.jpg', 'BUSAN', '부산 바다와 감천문화마을을 함께 탐험해요!', 50, 40, 30, 70, true, NOW(), NOW()),
+(3, 'andrew@example.com', 'Andrew', 'Andrew Kim', 28, 'FOREIGN_TOURIST', true, 'https://cdn.artnara.com/profile/andrew.jpg', 'SEOUL', 'American traveler looking for authentic Korean experiences!', -20, 60, -10, 40, true, NOW(), NOW()),
+(4, 'yuki@example.com', 'Yuki', 'Yuki Tanaka', 22, 'FOREIGN_TOURIST', true, 'https://cdn.artnara.com/profile/yuki.jpg', 'BUSAN', '韓国の文化に興味があります。よろしく！', 30, -50, 20, 80, true, NOW(), NOW()),
+(5, 'jiwon@example.com', '지원', '박지원', 27, 'KOREAN_STUDENT', true, 'https://cdn.artnara.com/profile/jiwon.jpg', 'SEOUL', '한국 전통문화 전공! 한복체험, 다도 등을 소개해드려요.', 90, 20, 70, 30, true, NOW(), NOW()),
+(6, 'emma@example.com', 'Emma', 'Emma Dubois', 24, 'FOREIGN_TOURIST', true, 'https://cdn.artnara.com/profile/emma.jpg', 'SEOUL', 'French student studying in Seoul, love K-food and K-pop!', 10, 70, 0, 50, false, NOW(), NOW()),
 (7, 'hyunwoo@example.com', '현우', '정현우', 26, 'KOREAN_STUDENT', true, NULL, 'DAEJEON', '대전 카이스트 재학생입니다. 대전/세종 가이드 가능!', 60, 10, 40, 40, true, NOW(), NOW()),
-(8, 'lucas@example.com', 'Lucas', 'Lucas Silva', 30, 'FOREIGN_TOURIST', true, 'https://cdn.unitrip.com/profile/lucas.jpg', 'JEJU', 'Brazilian photographer, exploring Korea for a month.', -40, 80, 60, 90, true, NOW(), NOW());
+(8, 'lucas@example.com', 'Lucas', 'Lucas Silva', 30, 'FOREIGN_TOURIST', true, 'https://cdn.artnara.com/profile/lucas.jpg', 'JEJU', 'Brazilian photographer, exploring Korea for a month.', -40, 80, 60, 90, true, NOW(), NOW());
 
 -- ── 사용자 구사 언어 (user_languages) ───────────────────────
 INSERT IGNORE INTO user_languages (user_id, language) VALUES
@@ -53,16 +53,16 @@ VALUES
 
 -- ── 콘텐츠 대표/추가 사진 (content_images) ──────────────────
 INSERT IGNORE INTO content_images (content_id, image_order, image_url) VALUES
-(1, 0, 'https://cdn.unitrip.com/content/seochon.jpg'),
-(2, 0, 'https://cdn.unitrip.com/content/euljiro.jpg'),
-(3, 0, 'https://cdn.unitrip.com/content/surfing.jpg'),
-(4, 0, 'https://cdn.unitrip.com/content/gamcheon.jpg'),
-(5, 0, 'https://cdn.unitrip.com/content/hanbok.jpg'),
-(6, 0, 'https://cdn.unitrip.com/content/dado.jpg'),
-(7, 0, 'https://cdn.unitrip.com/content/chimac.jpg'),
-(8, 0, 'https://cdn.unitrip.com/content/bread.jpg'),
-(9, 0, 'https://cdn.unitrip.com/content/jagalchi.jpg'),
-(10, 0, 'https://cdn.unitrip.com/content/insadong.jpg');
+(1, 0, 'https://cdn.artnara.com/content/seochon.jpg'),
+(2, 0, 'https://cdn.artnara.com/content/euljiro.jpg'),
+(3, 0, 'https://cdn.artnara.com/content/surfing.jpg'),
+(4, 0, 'https://cdn.artnara.com/content/gamcheon.jpg'),
+(5, 0, 'https://cdn.artnara.com/content/hanbok.jpg'),
+(6, 0, 'https://cdn.artnara.com/content/dado.jpg'),
+(7, 0, 'https://cdn.artnara.com/content/chimac.jpg'),
+(8, 0, 'https://cdn.artnara.com/content/bread.jpg'),
+(9, 0, 'https://cdn.artnara.com/content/jagalchi.jpg'),
+(10, 0, 'https://cdn.artnara.com/content/insadong.jpg');
 
 -- ── 콘텐츠 가능 언어 (content_languages) ─────────────────────
 INSERT IGNORE INTO content_languages (content_id, language) VALUES
@@ -171,22 +171,22 @@ VALUES
 -- ── 페스티벌 (festivals) ────────────────────────────────────
 INSERT IGNORE INTO festivals (id, name, region, description, cover_image_url, start_date, end_date, created_at, updated_at)
 VALUES
-(1, '서울 불꽃축제', '서울', '여의도 한강에서 펼쳐지는 대규모 불꽃축제! 국내외 팀이 참여하는 화려한 불꽃쇼를 감상하세요.', 'https://cdn.unitrip.com/festival/fireworks.jpg', '2026-10-03', '2026-10-03', NOW(), NOW()),
-(2, '부산 국제영화제 (BIFF)', '부산', '아시아 최대 영화제! 해운대 영화의전당에서 세계 영화를 만나보세요.', 'https://cdn.unitrip.com/festival/biff.jpg', '2026-10-07', '2026-10-16', NOW(), NOW()),
-(3, '진해 벚꽃축제', '경남', '진해 군항제와 함께하는 벚꽃 축제. 여좌천 벚꽃터널이 압권!', 'https://cdn.unitrip.com/festival/cherry.jpg', '2026-03-28', '2026-04-06', NOW(), NOW()),
-(4, '보령 머드축제', '충남', '보령 대천해수욕장에서 진흙을 온몸에 바르고 즐기는 여름 축제!', 'https://cdn.unitrip.com/festival/mud.jpg', '2026-07-17', '2026-07-26', NOW(), NOW()),
-(5, '안동 탈춤 페스티벌', '경북', '유네스코 무형문화유산 안동 하회탈춤을 직접 볼 수 있는 축제.', 'https://cdn.unitrip.com/festival/mask.jpg', '2026-09-25', '2026-10-04', NOW(), NOW()),
-(6, '서울 빛초롱축제', '서울', '청계천을 수놓는 아름다운 등불 축제. 가을 밤 산책하기 좋아요.', 'https://cdn.unitrip.com/festival/lantern.jpg', '2026-11-06', '2026-11-22', NOW(), NOW()),
-(7, '제주 들불축제', '제주', '제주 새별오름에서 펼쳐지는 들불놓기 행사. 장관입니다!', 'https://cdn.unitrip.com/festival/fire.jpg', '2026-03-12', '2026-03-14', NOW(), NOW());
+(1, '서울 불꽃축제', '서울', '여의도 한강에서 펼쳐지는 대규모 불꽃축제! 국내외 팀이 참여하는 화려한 불꽃쇼를 감상하세요.', 'https://cdn.artnara.com/festival/fireworks.jpg', '2026-10-03', '2026-10-03', NOW(), NOW()),
+(2, '부산 국제영화제 (BIFF)', '부산', '아시아 최대 영화제! 해운대 영화의전당에서 세계 영화를 만나보세요.', 'https://cdn.artnara.com/festival/biff.jpg', '2026-10-07', '2026-10-16', NOW(), NOW()),
+(3, '진해 벚꽃축제', '경남', '진해 군항제와 함께하는 벚꽃 축제. 여좌천 벚꽃터널이 압권!', 'https://cdn.artnara.com/festival/cherry.jpg', '2026-03-28', '2026-04-06', NOW(), NOW()),
+(4, '보령 머드축제', '충남', '보령 대천해수욕장에서 진흙을 온몸에 바르고 즐기는 여름 축제!', 'https://cdn.artnara.com/festival/mud.jpg', '2026-07-17', '2026-07-26', NOW(), NOW()),
+(5, '안동 탈춤 페스티벌', '경북', '유네스코 무형문화유산 안동 하회탈춤을 직접 볼 수 있는 축제.', 'https://cdn.artnara.com/festival/mask.jpg', '2026-09-25', '2026-10-04', NOW(), NOW()),
+(6, '서울 빛초롱축제', '서울', '청계천을 수놓는 아름다운 등불 축제. 가을 밤 산책하기 좋아요.', 'https://cdn.artnara.com/festival/lantern.jpg', '2026-11-06', '2026-11-22', NOW(), NOW()),
+(7, '제주 들불축제', '제주', '제주 새별오름에서 펼쳐지는 들불놓기 행사. 장관입니다!', 'https://cdn.artnara.com/festival/fire.jpg', '2026-03-12', '2026-03-14', NOW(), NOW());
 
 -- ── 매거진 (magazines) ──────────────────────────────────────
 INSERT IGNORE INTO magazines (id, title, summary, content, cover_image_url, category, created_at, updated_at)
 VALUES
-(1, '찬이와 Andrew의 서촌 하루', '한국인 메이트 찬이와 외국인 Andrew가 함께한 서촌 골목 산책 이야기', '서촌은 경복궁 서쪽에 위치한 조용한 마을입니다. 찬이는 Andrew에게 숨겨진 카페와 골목 갤러리를 소개해주었고, Andrew는 한국 전통 건축의 아름다움에 감탄했습니다. 통인시장에서 도시락 카페를 체험하고, 수성동 계곡에서 잠시 쉬어가기도 했습니다. "한국의 진짜 모습을 볼 수 있었어요!" Andrew의 후기에 찬이도 뿌듯했습니다.', 'https://cdn.unitrip.com/magazine/seochon-story.jpg', 'BEST_MATE_STORY', NOW(), NOW()),
-(2, 'UniTrip 이용 가이드', 'UniTrip을 처음 사용하는 분들을 위한 완벽 가이드', '1. 회원가입 후 프로필을 완성하세요. 여행 스타일과 관심사를 입력하면 더 나은 매칭이 가능합니다. 2. 마음에 드는 콘텐츠를 찾아 예약하세요. 3. 채팅방에서 메이트와 소통하며 약속을 잡으세요. 4. 만남 후 리뷰를 남겨주세요! 5. 소속 인증(대학교, 여권 등)을 하면 신뢰도가 올라갑니다.', 'https://cdn.unitrip.com/magazine/guide.jpg', 'KNOT_GUIDE', NOW(), NOW()),
-(3, '한국 여행 Q&A: 자주 묻는 질문 TOP 10', '외국인 관광객들이 가장 많이 묻는 한국 여행 질문 모음', 'Q1. 교통카드는 어디서 사나요? A. 편의점이나 지하철역에서 구매 가능합니다. Q2. 한국어를 못해도 괜찮나요? A. UniTrip 메이트가 도와드려요! Q3. 팁 문화가 있나요? A. 한국에는 팁 문화가 없습니다. Q4. 현금이 필요한가요? A. 대부분의 장소에서 카드 결제가 가능합니다.', 'https://cdn.unitrip.com/magazine/qna.jpg', 'QNA_TIPS', NOW(), NOW()),
-(4, '민지와 Emma의 해운대 서핑 데이', '부산 메이트 민지와 프랑스인 Emma의 서핑 도전기!', '처음에 겁이 났다는 Emma. 하지만 민지의 도움으로 보드 위에 서는 데 성공! 서핑 후에는 해운대 포장마차에서 씨앗호떡을 먹으며 부산의 밤을 즐겼습니다. "Best day in Korea so far!" - Emma', 'https://cdn.unitrip.com/magazine/surfing-story.jpg', 'BEST_MATE_STORY', NOW(), NOW()),
-(5, '한국 길거리 음식 완전정복', '떡볶이부터 호떡까지, 한국 길거리 음식 A to Z', '한국의 길거리 음식은 세계적으로 유명합니다. 떡볶이, 순대, 어묵, 호떡, 붕어빵, 계란빵, 핫도그(명랑핫도그), 타코야키 등 다양한 메뉴가 있습니다. 서울에서는 명동, 홍대, 광장시장이 유명하고, 부산에서는 BIFF 광장과 국제시장을 추천합니다.', 'https://cdn.unitrip.com/magazine/streetfood.jpg', 'QNA_TIPS', NOW(), NOW());
+(1, '찬이와 Andrew의 서촌 하루', '한국인 메이트 찬이와 외국인 Andrew가 함께한 서촌 골목 산책 이야기', '서촌은 경복궁 서쪽에 위치한 조용한 마을입니다. 찬이는 Andrew에게 숨겨진 카페와 골목 갤러리를 소개해주었고, Andrew는 한국 전통 건축의 아름다움에 감탄했습니다. 통인시장에서 도시락 카페를 체험하고, 수성동 계곡에서 잠시 쉬어가기도 했습니다. "한국의 진짜 모습을 볼 수 있었어요!" Andrew의 후기에 찬이도 뿌듯했습니다.', 'https://cdn.artnara.com/magazine/seochon-story.jpg', 'BEST_MATE_STORY', NOW(), NOW()),
+(2, 'ArtNara 이용 가이드', 'ArtNara을 처음 사용하는 분들을 위한 완벽 가이드', '1. 회원가입 후 프로필을 완성하세요. 여행 스타일과 관심사를 입력하면 더 나은 매칭이 가능합니다. 2. 마음에 드는 콘텐츠를 찾아 예약하세요. 3. 채팅방에서 메이트와 소통하며 약속을 잡으세요. 4. 만남 후 리뷰를 남겨주세요! 5. 소속 인증(대학교, 여권 등)을 하면 신뢰도가 올라갑니다.', 'https://cdn.artnara.com/magazine/guide.jpg', 'KNOT_GUIDE', NOW(), NOW()),
+(3, '한국 여행 Q&A: 자주 묻는 질문 TOP 10', '외국인 관광객들이 가장 많이 묻는 한국 여행 질문 모음', 'Q1. 교통카드는 어디서 사나요? A. 편의점이나 지하철역에서 구매 가능합니다. Q2. 한국어를 못해도 괜찮나요? A. ArtNara 메이트가 도와드려요! Q3. 팁 문화가 있나요? A. 한국에는 팁 문화가 없습니다. Q4. 현금이 필요한가요? A. 대부분의 장소에서 카드 결제가 가능합니다.', 'https://cdn.artnara.com/magazine/qna.jpg', 'QNA_TIPS', NOW(), NOW()),
+(4, '민지와 Emma의 해운대 서핑 데이', '부산 메이트 민지와 프랑스인 Emma의 서핑 도전기!', '처음에 겁이 났다는 Emma. 하지만 민지의 도움으로 보드 위에 서는 데 성공! 서핑 후에는 해운대 포장마차에서 씨앗호떡을 먹으며 부산의 밤을 즐겼습니다. "Best day in Korea so far!" - Emma', 'https://cdn.artnara.com/magazine/surfing-story.jpg', 'BEST_MATE_STORY', NOW(), NOW()),
+(5, '한국 길거리 음식 완전정복', '떡볶이부터 호떡까지, 한국 길거리 음식 A to Z', '한국의 길거리 음식은 세계적으로 유명합니다. 떡볶이, 순대, 어묵, 호떡, 붕어빵, 계란빵, 핫도그(명랑핫도그), 타코야키 등 다양한 메뉴가 있습니다. 서울에서는 명동, 홍대, 광장시장이 유명하고, 부산에서는 BIFF 광장과 국제시장을 추천합니다.', 'https://cdn.artnara.com/magazine/streetfood.jpg', 'QNA_TIPS', NOW(), NOW());
 
 -- ── 알림 (notifications) ────────────────────────────────────
 INSERT IGNORE INTO notifications (id, user_id, type, title, body, is_read, created_at, updated_at)
@@ -205,14 +205,14 @@ VALUES
 -- ── 소속 인증 (verifications) ───────────────────────────────
 INSERT IGNORE INTO verifications (id, user_id, type, status, document_url, reject_reason, created_at, updated_at)
 VALUES
-(1, 1, 'UNIVERSITY', 'APPROVED', 'https://cdn.unitrip.com/docs/chan-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY)),
-(2, 2, 'UNIVERSITY', 'APPROVED', 'https://cdn.unitrip.com/docs/minji-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_SUB(NOW(), INTERVAL 24 DAY)),
-(3, 3, 'PASSPORT', 'APPROVED', 'https://cdn.unitrip.com/docs/andrew-passport.jpg', NULL, DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 19 DAY)),
-(4, 4, 'FLIGHT', 'PENDING', 'https://cdn.unitrip.com/docs/yuki-flight.jpg', NULL, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(5, 5, 'UNIVERSITY', 'APPROVED', 'https://cdn.unitrip.com/docs/jiwon-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY)),
-(6, 6, 'PASSPORT', 'REJECTED', 'https://cdn.unitrip.com/docs/emma-passport.jpg', '서류가 불명확합니다. 여권 사진면을 다시 업로드해주세요.', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 9 DAY)),
-(7, 7, 'UNIVERSITY', 'APPROVED', 'https://cdn.unitrip.com/docs/hyunwoo-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 14 DAY)),
-(8, 8, 'PASSPORT', 'APPROVED', 'https://cdn.unitrip.com/docs/lucas-passport.jpg', NULL, DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 11 DAY));
+(1, 1, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/chan-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY)),
+(2, 2, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/minji-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_SUB(NOW(), INTERVAL 24 DAY)),
+(3, 3, 'PASSPORT', 'APPROVED', 'https://cdn.artnara.com/docs/andrew-passport.jpg', NULL, DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 19 DAY)),
+(4, 4, 'FLIGHT', 'PENDING', 'https://cdn.artnara.com/docs/yuki-flight.jpg', NULL, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
+(5, 5, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/jiwon-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY)),
+(6, 6, 'PASSPORT', 'REJECTED', 'https://cdn.artnara.com/docs/emma-passport.jpg', '서류가 불명확합니다. 여권 사진면을 다시 업로드해주세요.', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 9 DAY)),
+(7, 7, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/hyunwoo-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 14 DAY)),
+(8, 8, 'PASSPORT', 'APPROVED', 'https://cdn.artnara.com/docs/lucas-passport.jpg', NULL, DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 11 DAY));
 
 -- ── 위시리스트 폴더 (wishlist_folders) ──────────────────────
 INSERT IGNORE INTO wishlist_folders (id, owner_id, name, created_at, updated_at)

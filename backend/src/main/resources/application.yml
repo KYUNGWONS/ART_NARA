@@ -1,9 +1,9 @@
 spring:
   application:
-    name: UniTrip
+    name: ArtNara
 
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:unitripdb}
+    url: ${DB_URL:jdbc:h2:mem:artnaradb}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}
@@ -28,8 +28,8 @@ spring:
       data-locations: classpath:test.sql
 
 jwt:
-  issuer: ${JWT_ISSUER:unitrip}
-  secret: ${JWT_SECRET:dW5pdHJpcC1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbg==}
+  issuer: ${JWT_ISSUER:artnara}
+  secret: ${JWT_SECRET:YXJ0bmFyYS1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tZ2VuZXJhdGlvbg==}
   access-token-validity: ${JWT_ACCESS_TTL:1h}
   refresh-token-validity: ${JWT_REFRESH_TTL:14d}
 
