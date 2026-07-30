@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.unitrip" "\0"
-            VALUE "FileDescription", "unitrip" "\0"
+            VALUE "CompanyName", "com.artnara" "\0"
+            VALUE "FileDescription", "artnara" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "unitrip" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.unitrip. All rights reserved." "\0"
-            VALUE "OriginalFilename", "unitrip.exe" "\0"
-            VALUE "ProductName", "unitrip" "\0"
+            VALUE "InternalName", "artnara" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.artnara. All rights reserved." "\0"
+            VALUE "OriginalFilename", "artnara.exe" "\0"
+            VALUE "ProductName", "artnara" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

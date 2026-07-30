@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = unitrip
+PRODUCT_NAME = artnara
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.unitrip.unitrip
+PRODUCT_BUNDLE_IDENTIFIER = com.artnara.artnara
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.unitrip. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 com.artnara. All rights reserved.

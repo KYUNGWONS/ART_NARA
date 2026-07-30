@@ -5,7 +5,7 @@
     <!-- 프로토타입 백엔드(http://52.79.247.172:8080)가 평문 HTTP라 cleartext 허용.
          TODO(보안): 운영 전 백엔드를 HTTPS로 전환하고 usesCleartextTraffic 제거할 것. -->
     <application
-        android:label="unitrip"
+        android:label="artnara"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

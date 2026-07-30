@@ -87,7 +87,7 @@ final List<CommunityPost> mockCommunityPosts = [
     category: 'review',
     title: 'Busan trip with a Korean mate - best decision!',
     content:
-        'I used UniTrip to find a local student. We went to Gamcheon village and had fresh fish at Jagalchi. He explained everything. 10/10 recommend.',
+        'I used ArtNara to find a local student. We went to Gamcheon village and had fresh fish at Jagalchi. He explained everything. 10/10 recommend.',
     imageUrl:
         'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800',
     likes: 58,

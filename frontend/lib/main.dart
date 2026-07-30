@@ -40,18 +40,18 @@ void main() async {
       statusBarBrightness: Brightness.light,
     ),
   );
-  runApp(const UniTripApp());
+  runApp(const ArtNaraApp());
 }
 
-class UniTripApp extends StatelessWidget {
-  const UniTripApp({super.key});
+class ArtNaraApp extends StatelessWidget {
+  const ArtNaraApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => LocaleProvider(),
       child: MaterialApp(
-        title: 'UniTrip',
+        title: 'ArtNara',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(

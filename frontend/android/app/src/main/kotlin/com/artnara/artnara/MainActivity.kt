@@ -1,4 +1,4 @@
-package com.unitrip.unitrip
+package com.artnara.artnara
 
 import io.flutter.embedding.android.FlutterActivity
 

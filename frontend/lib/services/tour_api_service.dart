@@ -41,7 +41,7 @@ class TourApiService {
           Uri.https(tourApiHost, '$_basePath/locationBasedList2', {
             'serviceKey': tourApiServiceKey,
             'MobileOS': 'IOS',
-            'MobileApp': 'UniTrip',
+            'MobileApp': 'ArtNara',
             'mapX': lng.toString(),
             'mapY': lat.toString(),
             'radius': radius.toString(),
@@ -89,7 +89,7 @@ class TourApiService {
       final uri = Uri.https(tourApiHost, '$_basePath/areaBasedList2', {
         'serviceKey': tourApiServiceKey,
         'MobileOS': 'IOS',
-        'MobileApp': 'UniTrip',
+        'MobileApp': 'ArtNara',
         'areaCode': areaCode,
         'sigunguCode': ?sigunguCode,
         'arrange': 'O', // 제목순 + 대표이미지가 반드시 있는 항목
@@ -132,7 +132,7 @@ class TourApiService {
       final uri = Uri.https(tourApiHost, '$_basePath/searchKeyword2', {
         'serviceKey': tourApiServiceKey,
         'MobileOS': 'IOS',
-        'MobileApp': 'UniTrip',
+        'MobileApp': 'ArtNara',
         'keyword': keyword,
         'arrange': 'O',
         '_type': 'json',
@@ -173,7 +173,7 @@ class TourApiService {
       final uri = Uri.https(tourApiHost, '$_basePath/searchFestival2', {
         'serviceKey': tourApiServiceKey,
         'MobileOS': 'IOS',
-        'MobileApp': 'UniTrip',
+        'MobileApp': 'ArtNara',
         'eventStartDate': start,
         'arrange': 'O', // 제목순 + 대표이미지 필수
         '_type': 'json',
@@ -427,7 +427,7 @@ class TourApiService {
     return Uri.https(tourApiHost, '$_basePath/$operation', {
       'serviceKey': tourApiServiceKey,
       'MobileOS': 'IOS',
-      'MobileApp': 'UniTrip',
+      'MobileApp': 'ArtNara',
       '_type': 'json',
       ...params,
     });

@@ -64,9 +64,9 @@ class AppStrings {
 
   static const Map<AppLanguage, String> getStarted = {
     AppLanguage.ko: '지금, 바로 시작해보세요!',
-    AppLanguage.en: 'Start UniTrip 🎉',
-    AppLanguage.ja: 'UniTripをはじめよう 🎉',
-    AppLanguage.zh: '开始UniTrip 🎉',
+    AppLanguage.en: 'Start ArtNara 🎉',
+    AppLanguage.ja: 'ArtNaraをはじめよう 🎉',
+    AppLanguage.zh: '开始ArtNara 🎉',
   };
 
   static const Map<AppLanguage, String> loginComingSoon = {
