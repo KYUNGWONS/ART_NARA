@@ -1,7 +1,9 @@
 package com.example.unitrip.domain.brand.controller;
 
 import com.example.unitrip.domain.brand.dto.BrandIntroDto;
+import com.example.unitrip.domain.brand.dto.BrandValueDto;
 import com.example.unitrip.domain.brand.service.BrandService;
+import com.example.unitrip.domain.brand.service.BrandValueService;
 import com.example.unitrip.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,10 +19,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class BrandController {
 
     private final BrandService brandService;
+    private final BrandValueService brandValueService;
 
     @GetMapping("/intro")
     @Operation(summary = "브랜드 소개 조회", description = "앱 첫 진입에 필요한 브랜드 소개 콘텐츠를 조회합니다.")
     public BaseResponse<BrandIntroDto> intro() {
         return BaseResponse.success("브랜드 소개 조회", brandService.getIntro());
+    }
+
+    @GetMapping("/value")
+    @Operation(summary = "서비스 가치 소개 조회", description = "ART NARA의 신뢰 체계와 서비스 가치를 조회합니다.")
+    public BaseResponse<BrandValueDto> value() {
+        return BaseResponse.success("서비스 가치 소개 조회", brandValueService.getValue());
     }
 }
