@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:provider/provider.dart';
 import 'constants/app_colors.dart';
+import 'constants/dust_tokens.dart';
 import 'providers/locale_provider.dart';
 import 'screens/splash_onboarding_screen.dart';
 
@@ -54,14 +55,15 @@ class ArtNaraApp extends StatelessWidget {
         title: 'ArtNara',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          // DUST-ART 디자인 토큰 기준 (Figma Foundations 25:210)
           colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.primary,
-            primary: AppColors.primary,
-            secondary: AppColors.accent,
+            seedColor: DustColors.brandPrimary,
+            primary: DustColors.brandPrimary,
+            secondary: DustColors.brandDeep,
           ),
           useMaterial3: true,
           scaffoldBackgroundColor: AppColors.white,
-          textTheme: GoogleFonts.gowunDodumTextTheme(),
+          textTheme: GoogleFonts.notoSansKrTextTheme(),
         ),
         home: const SplashOnboardingScreen(),
       ),

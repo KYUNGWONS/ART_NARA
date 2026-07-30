@@ -1,43 +1,36 @@
 import 'package:flutter/material.dart';
 
+import '../constants/dust_tokens.dart';
 import 'login_screen.dart';
 
-// DUST-ART 디자인 팔레트 (Figma 스플래시/온보딩 화면 기준)
-const kDustCream = Color(0xFFF6F1E8);
-const kDustNavy = Color(0xFF25333B);
-const kDustGrey = Color(0xFF8A857B);
+/// Figma 스플래시/온보딩(node 1:309) 기준 좌표계. 이 값에 맞춰 화면 크기에 비례 배치한다.
+const _designWidth = 390.0;
+const _designHeight = 844.0;
 
 class _OnboardingPage {
-  const _OnboardingPage({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
+  const _OnboardingPage({required this.title, required this.subtitle});
 
   final String title;
   final String subtitle;
-  final IconData icon;
 }
 
+/// 1페이지는 디자인 그대로 워드마크 + 태그라인. 2~4페이지는 서비스 소개.
 const _pages = [
+  _OnboardingPage(title: '', subtitle: '당신의 예술, 새로운 가치를 만나다'),
   _OnboardingPage(
-    title: '당신의 방,\n새로운 갤러리가 되다',
-    subtitle: '미대생의 진짜 작품을\n합리적인 가격에 만나보세요',
-    icon: Icons.wallpaper_outlined,
+    title: '집 주변의 작품을 만나요',
+    subtitle: '지도로 가까운 작가의 작품을\n직접 보고 소장할 수 있어요',
   ),
   _OnboardingPage(
     title: '경매와 제작 의뢰까지',
-    subtitle: '구매, 경매 입찰, 원하는 작품 의뢰까지\n원하는 방식으로 작품을 만나세요',
-    icon: Icons.gavel_outlined,
+    subtitle: '입찰로 합리적으로 소장하고,\n원하는 작품은 직접 의뢰하세요',
   ),
   _OnboardingPage(
-    title: '정품 인증과\n디지털 소유권',
+    title: '정품 인증과 디지털 소유권',
     subtitle: 'QR 정품 인증과 소유권 자동 이전으로\n믿을 수 있는 거래를 약속합니다',
-    icon: Icons.verified_outlined,
   ),
 ];
 
-/// 앱 첫 진입 스플래시 / 온보딩 화면 (DUST-ART 디자인)
 class SplashOnboardingScreen extends StatefulWidget {
   const SplashOnboardingScreen({super.key});
 
@@ -64,125 +57,159 @@ class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kDustCream,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 48),
-            // 워드마크
-            const Text(
-              'DUST-ART',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 8,
-                color: kDustNavy,
+      backgroundColor: DustColors.bgCanvas,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final sw = constraints.maxWidth / _designWidth;
+          final sh = constraints.maxHeight / _designHeight;
+
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              // 수채 배경 (Figma image 2)
+              Image.asset(
+                'assets/images/dust_splash_bg.jpg',
+                fit: BoxFit.cover,
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '창고 속 예술을 거실로',
-              style: TextStyle(fontSize: 12, color: kDustGrey, letterSpacing: 2),
-            ),
-            Expanded(
-              child: PageView.builder(
+
+              // 페이지 콘텐츠
+              PageView.builder(
                 controller: _pageController,
                 itemCount: _pages.length,
                 onPageChanged: (index) => setState(() => _currentPage = index),
-                itemBuilder: (context, index) => _PageContent(page: _pages[index]),
+                itemBuilder: (context, index) => index == 0
+                    ? _WordmarkPage(sw: sw, sh: sh)
+                    : _MessagePage(page: _pages[index], sh: sh),
               ),
-            ),
-            // 페이지 인디케이터
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_pages.length, (index) {
-                final selected = index == _currentPage;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: selected ? 20 : 6,
-                  height: 6,
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  decoration: BoxDecoration(
-                    color: selected ? kDustNavy : kDustNavy.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 24),
-            // 시작하기
-            Padding(
-              padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  onPressed: _start,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: kDustNavy,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(26),
-                    ),
-                  ),
-                  child: const Text(
-                    '시작하기',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+
+              // 캐러셀 도트 (디자인: y=700.5, 10x10, 간격 22)
+              Positioned(
+                top: 700.5 * sh,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(_pages.length, (index) {
+                      final selected = index == _currentPage;
+                      return Container(
+                        width: 10,
+                        height: 10,
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: selected
+                              ? DustColors.brandPrimary
+                              : DustColors.brandPrimary.withValues(alpha: 0.25),
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+
+              // 시작하기 CTA (디자인: x=30, y=734.5, 330x53, pill)
+              Positioned(
+                top: 734.5 * sh,
+                left: 30 * sw,
+                right: 30 * sw,
+                child: SizedBox(
+                  height: 53,
+                  child: FilledButton(
+                    onPressed: _start,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: DustColors.brandPrimary,
+                      foregroundColor: DustColors.textOnBrand,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(DustRadius.full),
+                      ),
+                    ),
+                    child: const Text(
+                      '시작하기',
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class _PageContent extends StatelessWidget {
-  const _PageContent({required this.page});
+/// 1페이지 — DUST-ART 워드마크 + 태그라인 (Figma 좌표 그대로)
+class _WordmarkPage extends StatelessWidget {
+  const _WordmarkPage({required this.sw, required this.sh});
+
+  final double sw;
+  final double sh;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // 워드마크 이미지(image 11). 흰 배경이 깔리지 않도록 multiply 로 합성한다.
+        Positioned(
+          left: -14 * sw,
+          top: 231 * sh,
+          width: 417 * sw,
+          height: 278 * sh,
+          child: Image.asset(
+            'assets/images/dust_wordmark.png',
+            fit: BoxFit.contain,
+            color: Colors.white,
+            colorBlendMode: BlendMode.multiply,
+          ),
+        ),
+        // 태그라인 (디자인: y=386)
+        Positioned(
+          top: 386 * sh,
+          left: 0,
+          right: 0,
+          child: const Center(
+            child: Text(
+              '당신의 예술, 새로운 가치를 만나다',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: DustColors.brandPrimary,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 2~4페이지 — 서비스 소개 문구
+class _MessagePage extends StatelessWidget {
+  const _MessagePage({required this.page, required this.sh});
 
   final _OnboardingPage page;
+  final double sh;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: EdgeInsets.fromLTRB(40, 300 * sh, 40, 0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 수채 워시 느낌의 비주얼 영역
-          Container(
-            width: 180,
-            height: 180,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  kDustNavy.withValues(alpha: 0.08),
-                  kDustCream,
-                ],
-              ),
-            ),
-            child: Icon(page.icon, size: 64, color: kDustNavy),
-          ),
-          const SizedBox(height: 40),
           Text(
             page.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              height: 1.4,
-              color: kDustNavy,
-            ),
+            style: DustText.section.copyWith(color: DustColors.brandPrimary),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: DustSpacing.md),
           Text(
             page.subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13, height: 1.6, color: kDustGrey),
+            style: DustText.body.copyWith(
+              height: 1.6,
+              color: DustColors.textSecondary,
+            ),
           ),
         ],
       ),

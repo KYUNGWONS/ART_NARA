@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
+import '../constants/dust_tokens.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
@@ -279,11 +280,11 @@ class _LoginScreenState extends State<LoginScreen>
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF6F1E8),
+          backgroundColor: DustColors.bgCanvas,
           body: Container(
             width: double.infinity,
             height: double.infinity,
-            color: const Color(0xFFF6F1E8),
+            color: DustColors.bgCanvas,
             child: SafeArea(
               child: Column(
                 children: [
@@ -318,34 +319,27 @@ class _LoginScreenState extends State<LoginScreen>
                       position: _slideAnimation,
                       child: Column(
                         children: [
-                          // DUST-ART 워드마크 (Figma 스플래시 디자인과 동일 팔레트)
+                          // DUST-ART 워드마크 (Figma image 11 에셋)
+                          Image.asset(
+                            'assets/images/dust_wordmark.png',
+                            width: 260,
+                            fit: BoxFit.contain,
+                            color: Colors.white,
+                            colorBlendMode: BlendMode.multiply,
+                          ),
                           const Text(
-                            'DUST-ART',
+                            '당신의 예술, 새로운 가치를 만나다',
                             style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 8,
-                              color: Color(0xFF25333B),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: DustColors.brandPrimary,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            '창고 속 예술을 거실로',
-                            style: TextStyle(
-                              fontSize: 12,
-                              letterSpacing: 2,
-                              color: Color(0xFF8A857B),
-                            ),
-                          ),
-                          const SizedBox(height: 48),
+                          const SizedBox(height: DustSpacing.lg * 2),
                           // 타이틀
                           Text(
                             locale.tr(AppStrings.loginTitle),
-                            style: const TextStyle(
-                              fontSize: 19,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF25333B),
-                            ),
+                            style: DustText.section.copyWith(fontSize: 19),
                             textAlign: TextAlign.center,
                           ),
                         ],
