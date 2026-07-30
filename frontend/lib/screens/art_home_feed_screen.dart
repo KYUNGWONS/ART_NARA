@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../models/home_feed.dart';
 import '../services/home_feed_api_service.dart';
+import 'artwork_detail_screen.dart';
 
 class ArtHomeFeedScreen extends StatefulWidget {
   const ArtHomeFeedScreen({super.key});
@@ -160,9 +161,19 @@ class _ArtworkCard extends StatelessWidget {
 
   final Artwork artwork;
 
+  void _openDetail(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ArtworkDetailScreen(artworkId: artwork.id),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () => _openDetail(context),
+      child: Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: const Color(0xFFF9FAFB),
@@ -194,6 +205,7 @@ class _ArtworkCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
