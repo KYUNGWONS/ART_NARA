@@ -925,6 +925,13 @@ class AppStrings {
     AppLanguage.zh: '出售',
   };
 
+  static const Map<AppLanguage, String> navCommission = {
+    AppLanguage.ko: '의뢰',
+    AppLanguage.en: 'Request',
+    AppLanguage.ja: '依頼',
+    AppLanguage.zh: '定制',
+  };
+
   static const Map<AppLanguage, String> navHome = {
     AppLanguage.ko: '홈',
     AppLanguage.en: 'Home',

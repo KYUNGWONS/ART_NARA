@@ -13,6 +13,7 @@ import 'chat_list_screen.dart';
 // TODO: 게시판 화면 추후 복구 예정 — 현재는 준비중
 // import 'community_screen.dart';
 import 'art_home_feed_screen.dart';
+import 'commission_screen.dart';
 import 'landing_screen.dart';
 import 'map_screen.dart';
 import 'my_profile_screen.dart';
@@ -325,6 +326,8 @@ class _MainScreenState extends State<MainScreen>
         return const ArtHomeFeedScreen();
       case 3: // 채팅 (참여 중인 채팅방 목록)
         return const ChatListScreen();
+      case 4: // 제작 의뢰 (역경매)
+        return const CommissionScreen();
       default:
         return _buildPlaceholder(locale);
     }
@@ -336,14 +339,14 @@ class _MainScreenState extends State<MainScreen>
       AppStrings.navSell,
       AppStrings.navHome,
       AppStrings.navChat,
-      AppStrings.navWish,
+      AppStrings.navCommission,
     ];
     final icons = [
       Icons.map_outlined,
       Icons.storefront_outlined,
       Icons.home_rounded,
       Icons.chat_bubble_outline_rounded,
-      Icons.favorite_outline_rounded,
+      Icons.design_services_outlined,
     ];
 
     return Center(
@@ -398,9 +401,9 @@ class _MainScreenState extends State<MainScreen>
         label: AppStrings.navChat,
       ),
       _NavItem(
-        icon: Icons.favorite_outline_rounded,
-        activeIcon: Icons.favorite_rounded,
-        label: AppStrings.navWish,
+        icon: Icons.design_services_outlined,
+        activeIcon: Icons.design_services_rounded,
+        label: AppStrings.navCommission,
       ),
     ];
 
