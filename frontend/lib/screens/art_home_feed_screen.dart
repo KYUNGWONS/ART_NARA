@@ -183,7 +183,7 @@ class _ArtworkCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ImagePlaceholder(height: 160),
+          _ArtworkThumb(imageUrl: artwork.imageUrl, height: 160),
           const SizedBox(height: 12),
           Text(artwork.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
           const SizedBox(height: 12),
@@ -254,6 +254,30 @@ class _ImagePlaceholder extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: const Text('Image', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+    );
+  }
+}
+
+class _ArtworkThumb extends StatelessWidget {
+  const _ArtworkThumb({required this.imageUrl, required this.height});
+
+  final String imageUrl;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl.isEmpty) {
+      return _ImagePlaceholder(height: height);
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: Image.network(
+        imageUrl,
+        height: height,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _ImagePlaceholder(height: height),
+      ),
     );
   }
 }

@@ -405,6 +405,20 @@ class _SaleCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          if (sale.imageUrl.isNotEmpty) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Image.network(
+                sale.imageUrl,
+                width: 44,
+                height: 44,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    const SizedBox(width: 44, height: 44),
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

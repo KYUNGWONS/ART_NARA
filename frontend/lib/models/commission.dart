@@ -8,6 +8,7 @@ class Commission {
     required this.status,
     required this.notifiedArtistCount,
     required this.offers,
+    required this.referenceImageUrl,
     this.desiredDate,
     this.lowestOffer,
   });
@@ -21,6 +22,7 @@ class Commission {
   final String status;
   final int notifiedArtistCount;
   final int? lowestOffer;
+  final String referenceImageUrl;
   final List<CommissionOffer> offers;
 
   factory Commission.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class Commission {
       status: json['status'] as String? ?? '',
       notifiedArtistCount: json['notifiedArtistCount'] as int? ?? 0,
       lowestOffer: json['lowestOffer'] as int?,
+      referenceImageUrl: json['referenceImageUrl'] as String? ?? '',
       offers: offers,
     );
   }

@@ -8,6 +8,7 @@ class Sale {
     required this.buyNowPrice,
     required this.auctionEnabled,
     required this.status,
+    required this.imageUrl,
     this.year,
     this.auctionStartPrice,
     this.auctionEndDate,
@@ -23,6 +24,7 @@ class Sale {
   final bool auctionEnabled;
   final int? auctionStartPrice;
   final String? auctionEndDate;
+  final String imageUrl;
   final String status;
 
   factory Sale.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class Sale {
       auctionEnabled: json['auctionEnabled'] as bool? ?? false,
       auctionStartPrice: json['auctionStartPrice'] as int?,
       auctionEndDate: json['auctionEndDate'] as String?,
+      imageUrl: json['imageUrl'] as String? ?? '',
       status: json['status'] as String? ?? '',
     );
   }

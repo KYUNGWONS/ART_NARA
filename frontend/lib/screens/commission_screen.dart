@@ -341,6 +341,20 @@ class _CommissionCard extends StatelessWidget {
         children: [
           Row(
             children: [
+              if (commission.referenceImageUrl.isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Image.network(
+                    commission.referenceImageUrl,
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) =>
+                        const SizedBox(width: 36, height: 36),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
               Expanded(
                 child: Text(commission.title,
                     style: const TextStyle(
