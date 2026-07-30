@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../models/brand_intro.dart';
 import '../services/brand_api_service.dart';
+import 'brand_value_screen.dart';
 import 'landing_screen.dart';
-import 'onboarding_screen.dart';
 
 class BrandIntroScreen extends StatefulWidget {
   const BrandIntroScreen({super.key});
@@ -25,7 +25,7 @@ class _BrandIntroScreenState extends State<BrandIntroScreen> {
 
   void _openOnboarding() {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const OnboardingScreen()),
+      MaterialPageRoute<void>(builder: (_) => const BrandValueScreen()),
     );
   }
 
