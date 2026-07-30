@@ -79,12 +79,11 @@ class AppointmentIntegrationTest {
     }
 
     @Test
-    @DisplayName("from~to 로도 조회되고, guest로 로그인하면 상대는 mate(재협)")
-    void listByFromTo() throws Exception {
+    @DisplayName("guest로 로그인해 월 조회하면 상대는 mate(재협)")
+    void listByMonthAsGuest() throws Exception {
         Fixture f = setUp();
 
-        mockMvc.perform(get("/api/appointments")
-                        .param("from", "2026-07-01").param("to", "2026-07-31")
+        mockMvc.perform(get("/api/appointments").param("month", "2026-07")
                         .with(user(String.valueOf(f.guest().getId()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.length()").value(1))
