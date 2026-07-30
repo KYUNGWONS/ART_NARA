@@ -40,7 +40,11 @@ public enum DomainResultCode implements ResultCode {
     OFFER_INVALID_AMOUNT("OFFER_400", "제안 금액을 올바르게 입력해주세요.", HttpStatus.BAD_REQUEST),
     OFFER_AMOUNT_TOO_HIGH("OFFER_422", "역경매 제안가는 현재 최저가보다 낮아야 합니다.", HttpStatus.UNPROCESSABLE_ENTITY),
     CERTIFICATE_QR_REQUIRED("CERTIFICATE_400", "QR 코드를 입력해주세요.", HttpStatus.BAD_REQUEST),
-    CERTIFICATE_NOT_FOUND("CERTIFICATE_404", "인증 정보를 찾을 수 없는 QR 코드입니다.", HttpStatus.NOT_FOUND);
+    CERTIFICATE_NOT_FOUND("CERTIFICATE_404", "인증 정보를 찾을 수 없는 QR 코드입니다.", HttpStatus.NOT_FOUND),
+    ORDER_INVALID_PAYMENT_METHOD("ORDER_400_PAYMENT", "지원하지 않는 결제 수단입니다.", HttpStatus.BAD_REQUEST),
+    ORDER_ADDRESS_REQUIRED("ORDER_400_ADDRESS", "수령인과 배송지를 입력해주세요.", HttpStatus.BAD_REQUEST),
+    ORDER_AUCTION_NOT_BUYABLE("ORDER_400_AUCTION", "경매 작품은 입찰로만 구매할 수 있습니다.", HttpStatus.BAD_REQUEST),
+    ORDER_ALREADY_SOLD("ORDER_409", "이미 판매 완료된 작품입니다.", HttpStatus.CONFLICT);
 
     private final String code;
     private final String message;
