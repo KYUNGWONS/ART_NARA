@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../main.dart' show isNaverMapInitialized;
+import '../widgets/nearby_artworks_sheet.dart';
 import '../models/event_data.dart';
 import '../models/region_data.dart';
 import '../models/tour_spot.dart';
@@ -137,6 +138,23 @@ class _MapScreenState extends State<MapScreen> {
         }
       }
     });
+  }
+
+  // ─── 집 주변 작품 매칭 시트 ───
+  Future<void> _openNearbyArtworks() async {
+    double latitude = 37.5563; // 기본: 홍대입구
+    double longitude = 126.9220;
+    try {
+      final position = await _mapController?.getCameraPosition();
+      if (position != null) {
+        latitude = position.target.latitude;
+        longitude = position.target.longitude;
+      }
+    } catch (_) {
+      // 카메라 조회 실패 시 기본 좌표 사용
+    }
+    if (!mounted) return;
+    showNearbyArtworksSheet(context, latitude: latitude, longitude: longitude);
   }
 
   // ─── 줌 레벨에 따른 마커 렌더링 ───
@@ -495,6 +513,28 @@ class _MapScreenState extends State<MapScreen> {
               child: const SizedBox.expand(),
             ),
           ),
+
+        // 하단: 집 주변 작품 매칭 버튼
+        Positioned(
+          bottom: 24,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: FilledButton.icon(
+              onPressed: _openNearbyArtworks,
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF1F2937),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              icon: const Icon(Icons.palette_outlined, size: 18),
+              label: const Text('집 주변 작품 보기'),
+            ),
+          ),
+        ),
 
         // 상단: 고정 검색 바 + 확장 레이어
         Positioned(
