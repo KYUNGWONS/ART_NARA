@@ -4,15 +4,19 @@ import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
 import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
+import com.example.artnara.support.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@IntegrationTest
 class ArtworkServiceTest {
 
-    private final ArtworkService artworkService = new ArtworkService();
+    @Autowired
+    ArtworkService artworkService;
 
     @Test
     @DisplayName("작품 상세 조회")
@@ -56,6 +60,15 @@ class ArtworkServiceTest {
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.BID_AMOUNT_TOO_LOW);
+    }
+
+    @Test
+    @DisplayName("일반 판매 작품에 입찰 시 400")
+    void placeBidOnNonAuction() {
+        assertThatThrownBy(() -> artworkService.placeBid(1L, new ArtworkDetailDto.BidRequest(500000)))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.ARTWORK_NOT_AUCTION);
     }
 
     @Test
@@ -110,14 +123,5 @@ class ArtworkServiceTest {
             assertThat(nearby.artworks().get(i).distanceKm())
                     .isGreaterThanOrEqualTo(nearby.artworks().get(i - 1).distanceKm());
         }
-    }
-
-    @Test
-    @DisplayName("일반 판매 작품에 입찰 시 400")
-    void placeBidOnNonAuction() {
-        assertThatThrownBy(() -> artworkService.placeBid(1L, new ArtworkDetailDto.BidRequest(500000)))
-                .isInstanceOf(GlobalException.class)
-                .extracting(e -> ((GlobalException) e).getResultCode())
-                .isEqualTo(DomainResultCode.ARTWORK_NOT_AUCTION);
     }
 }

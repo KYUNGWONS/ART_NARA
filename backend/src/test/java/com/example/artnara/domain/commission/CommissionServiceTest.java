@@ -4,17 +4,21 @@ import com.example.artnara.domain.commission.dto.CommissionDto;
 import com.example.artnara.domain.commission.service.CommissionService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
+import com.example.artnara.support.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@IntegrationTest
 class CommissionServiceTest {
 
-    private final CommissionService commissionService = new CommissionService();
+    @Autowired
+    CommissionService commissionService;
 
     private CommissionDto.CreateRequest request() {
         return new CommissionDto.CreateRequest(

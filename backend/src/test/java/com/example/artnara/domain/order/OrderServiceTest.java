@@ -1,30 +1,31 @@
 package com.example.artnara.domain.order;
 
+import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
 import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.certificate.service.CertificateService;
 import com.example.artnara.domain.order.dto.OrderDto;
 import com.example.artnara.domain.order.service.OrderService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
-import org.junit.jupiter.api.BeforeEach;
+import com.example.artnara.support.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@IntegrationTest
 class OrderServiceTest {
 
-    private ArtworkService artworkService;
-    private CertificateService certificateService;
-    private OrderService orderService;
+    @Autowired
+    OrderService orderService;
 
-    @BeforeEach
-    void setUp() {
-        artworkService = new ArtworkService();
-        certificateService = new CertificateService();
-        orderService = new OrderService(artworkService, certificateService);
-    }
+    @Autowired
+    ArtworkService artworkService;
+
+    @Autowired
+    CertificateService certificateService;
 
     private OrderDto.CreateRequest request(Long artworkId) {
         return new OrderDto.CreateRequest(
@@ -78,7 +79,7 @@ class OrderServiceTest {
     @Test
     @DisplayName("낙찰자는 마감된 경매 작품을 낙찰가로 결제할 수 있다")
     void createForWonAuction() {
-        artworkService.placeBid(5L, new com.example.artnara.domain.artwork.dto.ArtworkDetailDto.BidRequest(800000));
+        artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000));
         artworkService.closeAuction(5L);
 
         OrderDto.Response order = orderService.create(request(5L));

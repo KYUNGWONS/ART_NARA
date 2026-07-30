@@ -3,59 +3,70 @@ package com.example.artnara.domain.sale.service;
 import com.example.artnara.domain.artwork.dto.ArtworkCreate;
 import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.sale.dto.SaleDto;
+import com.example.artnara.domain.sale.entity.Sale;
+import com.example.artnara.domain.sale.repository.SaleRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SaleService {
 
     /** 프로토타입 단일 사용자 판매자명. */
     private static final String SELLER_NAME = "나";
 
+    private final SaleRepository saleRepository;
     private final ArtworkService artworkService;
 
-    private final List<SaleDto.Response> sales = new ArrayList<>();
-    private final AtomicLong idSequence = new AtomicLong(0);
-
-    public synchronized SaleDto.Response create(SaleDto.CreateRequest request) {
+    public SaleDto.Response create(SaleDto.CreateRequest request) {
         validate(request);
-        SaleDto.Response sale = new SaleDto.Response(
-                idSequence.incrementAndGet(),
-                request.title().trim(),
-                request.description() == null ? "" : request.description().trim(),
-                request.medium() == null ? "" : request.medium().trim(),
-                request.size() == null ? "" : request.size().trim(),
-                request.year(),
-                request.buyNowPrice(),
-                request.auctionEnabled(),
-                request.auctionEnabled() ? request.auctionStartPrice() : null,
-                request.auctionEnabled() ? request.auctionEndDate() : null,
-                request.imageUrl() == null ? "" : request.imageUrl().trim(),
-                "검수 대기");
-        sales.add(0, sale);
+        Sale sale = saleRepository.save(Sale.builder()
+                .title(request.title().trim())
+                .description(request.description() == null ? "" : request.description().trim())
+                .medium(request.medium() == null ? "" : request.medium().trim())
+                .sizeInfo(request.size() == null ? "" : request.size().trim())
+                .yearCreated(request.year())
+                .buyNowPrice(request.buyNowPrice())
+                .auctionEnabled(request.auctionEnabled())
+                .auctionStartPrice(request.auctionEnabled() ? request.auctionStartPrice() : null)
+                .auctionEndDate(request.auctionEnabled() ? request.auctionEndDate() : null)
+                .imageUrl(request.imageUrl() == null ? "" : request.imageUrl().trim())
+                .status("검수 대기")
+                .build());
 
         // 프로토타입: 검수 절차 없이 바로 작품 저장소에 등록해 홈 피드에 노출한다.
         artworkService.register(new ArtworkCreate(
-                sale.title(), SELLER_NAME, "내가 등록한 작품입니다.",
-                sale.description(), sale.medium(), sale.size(),
-                sale.year() == null ? LocalDate.now().getYear() : sale.year(),
-                sale.buyNowPrice(), sale.auctionEnabled(),
-                sale.auctionStartPrice(),
-                sale.auctionEndDate() == null ? null : sale.auctionEndDate().toString(),
-                sale.imageUrl()));
-        return sale;
+                sale.getTitle(), SELLER_NAME, "내가 등록한 작품입니다.",
+                sale.getDescription(), sale.getMedium(), sale.getSizeInfo(),
+                sale.getYearCreated() == null ? LocalDate.now().getYear() : sale.getYearCreated(),
+                sale.getBuyNowPrice(), sale.isAuctionEnabled(),
+                sale.getAuctionStartPrice(),
+                sale.getAuctionEndDate() == null ? null : sale.getAuctionEndDate().toString(),
+                sale.getImageUrl()));
+        return toDto(sale);
     }
 
-    public synchronized SaleDto.ListResponse list() {
-        return new SaleDto.ListResponse(List.copyOf(sales));
+    @Transactional(readOnly = true)
+    public SaleDto.ListResponse list() {
+        return new SaleDto.ListResponse(
+                saleRepository.findAllByOrderByIdDesc().stream()
+                        .map(this::toDto)
+                        .toList());
+    }
+
+    private SaleDto.Response toDto(Sale sale) {
+        return new SaleDto.Response(
+                sale.getId(), sale.getTitle(), sale.getDescription(),
+                sale.getMedium(), sale.getSizeInfo(), sale.getYearCreated(),
+                sale.getBuyNowPrice(), sale.isAuctionEnabled(),
+                sale.getAuctionStartPrice(), sale.getAuctionEndDate(),
+                sale.getImageUrl(), sale.getStatus());
     }
 
     private void validate(SaleDto.CreateRequest request) {

@@ -5,22 +5,28 @@ import com.example.artnara.domain.sale.dto.SaleDto;
 import com.example.artnara.domain.sale.service.SaleService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
+import com.example.artnara.support.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@IntegrationTest
 class SaleServiceTest {
 
-    private final ArtworkService artworkService = new ArtworkService();
-    private final SaleService saleService = new SaleService(artworkService);
+    @Autowired
+    SaleService saleService;
+
+    @Autowired
+    ArtworkService artworkService;
 
     private SaleDto.CreateRequest request(boolean auction) {
         return new SaleDto.CreateRequest(
-                "봄의 정원", "설명", "캔버스에 유화", "10호", 2026,
+                "새로 그린 정원", "설명", "캔버스에 유화", "10호", 2026,
                 300000, auction,
                 auction ? 200000 : null,
                 auction ? LocalDate.now().plusDays(7) : null,
@@ -62,7 +68,7 @@ class SaleServiceTest {
         var artworks = artworkService.listAll();
         assertThat(artworks).hasSize(artworksBefore + 1);
         var registered = artworks.get(artworks.size() - 1);
-        assertThat(registered.title()).isEqualTo("봄의 정원");
+        assertThat(registered.title()).isEqualTo("새로 그린 정원");
         assertThat(registered.artistName()).isEqualTo("나");
         assertThat(registered.imageUrl()).isEqualTo("/images/sample.jpg");
     }

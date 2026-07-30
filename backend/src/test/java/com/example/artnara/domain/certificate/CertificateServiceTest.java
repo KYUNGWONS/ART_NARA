@@ -4,20 +4,34 @@ import com.example.artnara.domain.certificate.dto.CertificateDto;
 import com.example.artnara.domain.certificate.service.CertificateService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
+import com.example.artnara.support.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@IntegrationTest
 class CertificateServiceTest {
 
-    private final CertificateService certificateService = new CertificateService();
+    @Autowired
+    CertificateService certificateService;
 
     @Test
     @DisplayName("디지털 소유권 목록 조회")
     void listOwnerships() {
         assertThat(certificateService.listOwnerships().ownerships()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("소유권 등록 시 목록 최신순으로 추가된다")
+    void register() {
+        certificateService.register(new CertificateDto.Ownership(
+                "ARTNARA-2026-9999", "새 작품", "나", "2026-07-31", false));
+        var ownerships = certificateService.listOwnerships().ownerships();
+        assertThat(ownerships).hasSize(3);
+        assertThat(ownerships.get(0).certificateNo()).isEqualTo("ARTNARA-2026-9999");
     }
 
     @Test

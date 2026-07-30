@@ -4,15 +4,21 @@ import com.example.artnara.domain.artwork.dto.ArtworkCreate;
 import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.feed.dto.HomeFeedDto;
 import com.example.artnara.domain.feed.service.HomeFeedService;
+import com.example.artnara.support.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@IntegrationTest
 class HomeFeedServiceTest {
 
-    private final ArtworkService artworkService = new ArtworkService();
-    private final HomeFeedService homeFeedService = new HomeFeedService(artworkService);
+    @Autowired
+    ArtworkService artworkService;
+
+    @Autowired
+    HomeFeedService homeFeedService;
 
     @Test
     @DisplayName("홈 피드는 추천 작품과 경매 작품으로 나뉜다")

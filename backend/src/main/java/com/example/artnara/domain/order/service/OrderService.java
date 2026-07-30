@@ -5,20 +5,20 @@ import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.certificate.dto.CertificateDto;
 import com.example.artnara.domain.certificate.service.CertificateService;
 import com.example.artnara.domain.order.dto.OrderDto;
+import com.example.artnara.domain.order.entity.ArtOrder;
+import com.example.artnara.domain.order.repository.ArtOrderRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OrderService {
 
     /** 배송 중개비 (전문 포장 + 배송, 사업계획서 기준 1~2만원) */
@@ -30,15 +30,11 @@ public class OrderService {
     private static final Set<String> PAYMENT_METHODS =
             Set.of("CARD", "KAKAO_PAY", "NAVER_PAY", "TOSS");
 
+    private final ArtOrderRepository artOrderRepository;
     private final ArtworkService artworkService;
     private final CertificateService certificateService;
 
-    private final List<OrderDto.Response> orders = new ArrayList<>();
-    private final Set<Long> soldArtworkIds = new HashSet<>();
-    private final AtomicLong idSequence = new AtomicLong(0);
-    private final AtomicLong certificateSequence = new AtomicLong(100);
-
-    public synchronized OrderDto.Response create(OrderDto.CreateRequest request) {
+    public OrderDto.Response create(OrderDto.CreateRequest request) {
         validate(request);
         ArtworkDetailDto artwork = artworkService.getDetail(request.artworkId());
         int amount = artwork.price();
@@ -55,35 +51,52 @@ public class OrderService {
             }
             amount = artwork.currentBid();
         }
-        if (soldArtworkIds.contains(artwork.id())) {
+        if (artOrderRepository.existsByArtworkId(artwork.id())) {
             throw new GlobalException(DomainResultCode.ORDER_ALREADY_SOLD);
         }
 
         // mock PG 승인 → 결제 완료 처리
-        String certificateNo = "ARTNARA-2026-" + certificateSequence.incrementAndGet();
         String today = LocalDate.now().toString();
-
-        OrderDto.Response order = new OrderDto.Response(
-                idSequence.incrementAndGet(),
-                artwork.id(), artwork.title(), artwork.artistName(),
-                amount, DELIVERY_FEE, amount + DELIVERY_FEE,
-                request.paymentMethod(),
-                request.receiverName().trim(),
-                request.deliveryAddress().trim(),
-                "결제 완료", certificateNo, today);
-
-        soldArtworkIds.add(artwork.id());
-        orders.add(0, order);
+        ArtOrder order = artOrderRepository.save(ArtOrder.builder()
+                .artworkId(artwork.id())
+                .artworkTitle(artwork.title())
+                .artistName(artwork.artistName())
+                .price(amount)
+                .deliveryFee(DELIVERY_FEE)
+                .totalAmount(amount + DELIVERY_FEE)
+                .paymentMethod(request.paymentMethod())
+                .receiverName(request.receiverName().trim())
+                .phone(request.phone())
+                .deliveryAddress(request.deliveryAddress().trim())
+                .status("결제 완료")
+                .certificateNo("ARTNARA-2026-PENDING")
+                .orderedDate(today)
+                .build());
+        String certificateNo = "ARTNARA-2026-" + (100 + order.getId());
+        order.issueCertificate(certificateNo);
 
         // 거래 완료 → 디지털 소유권 자동 이전
         certificateService.register(new CertificateDto.Ownership(
                 certificateNo, artwork.title(), artwork.artistName(), today, false));
 
-        return order;
+        return toDto(order);
     }
 
-    public synchronized OrderDto.ListResponse list() {
-        return new OrderDto.ListResponse(List.copyOf(orders));
+    @Transactional(readOnly = true)
+    public OrderDto.ListResponse list() {
+        return new OrderDto.ListResponse(
+                artOrderRepository.findAllByOrderByIdDesc().stream()
+                        .map(this::toDto)
+                        .toList());
+    }
+
+    private OrderDto.Response toDto(ArtOrder order) {
+        return new OrderDto.Response(
+                order.getId(), order.getArtworkId(), order.getArtworkTitle(),
+                order.getArtistName(), order.getPrice(), order.getDeliveryFee(),
+                order.getTotalAmount(), order.getPaymentMethod(),
+                order.getReceiverName(), order.getDeliveryAddress(),
+                order.getStatus(), order.getCertificateNo(), order.getOrderedDate());
     }
 
     private void validate(OrderDto.CreateRequest request) {
