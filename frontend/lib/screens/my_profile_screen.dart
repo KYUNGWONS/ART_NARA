@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 import '../models/user_profile_response.dart';
 import '../services/user_api_service.dart';
+import 'certificate_screen.dart';
 
 /// 내 프로필 조회 화면 (GET /users/me)
 class MyProfileScreen extends StatefulWidget {
@@ -73,6 +74,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildProfileHeader(_profile!),
+                  const SizedBox(height: 16),
+                  _buildCertificateMenu(),
                   const SizedBox(height: 24),
                   _buildSection('기본 정보', [
                     _row('닉네임', _profile!.nickname),
@@ -136,6 +139,73 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildCertificateMenu() {
+    return Material(
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const CertificateScreen()),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.lightGrey),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.qr_code_scanner,
+                  size: 20,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '정품 인증 · 디지털 소유권',
+                      style: GoogleFonts.gowunDodum(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'QR 스캔으로 정품 인증서를 확인하세요',
+                      style: GoogleFonts.gowunDodum(
+                        fontSize: 12,
+                        color: AppColors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.grey,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
