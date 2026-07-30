@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/sale.dart';
+import '../services/image_api_service.dart';
 import '../services/sale_api_service.dart';
 
 class SellScreen extends StatefulWidget {
@@ -27,6 +31,12 @@ class _SellScreenState extends State<SellScreen> {
   bool _submitting = false;
   List<Sale> _sales = const [];
 
+  final _imagePicker = ImagePicker();
+  final _imageApi = const ImageApiService();
+  String? _localImagePath;
+  String? _imageUrl;
+  bool _uploadingImage = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +61,29 @@ class _SellScreenState extends State<SellScreen> {
       if (mounted) setState(() => _sales = sales);
     } catch (_) {
       // 목록 조회 실패는 등록 폼 사용을 막지 않는다.
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picked = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+    setState(() {
+      _localImagePath = picked.path;
+      _imageUrl = null;
+      _uploadingImage = true;
+    });
+    try {
+      final url = await _imageApi.upload(picked.path);
+      if (mounted) setState(() => _imageUrl = url);
+    } catch (error) {
+      if (mounted) setState(() => _localImagePath = null);
+      _showMessage(error is StateError ? error.message : '이미지 업로드에 실패했습니다');
+    } finally {
+      if (mounted) setState(() => _uploadingImage = false);
     }
   }
 
@@ -87,6 +120,7 @@ class _SellScreenState extends State<SellScreen> {
         auctionEndDate: _auctionEnabled
             ? _auctionEndDate!.toIso8601String().substring(0, 10)
             : null,
+        imageUrl: _imageUrl,
       );
       if (!mounted) return;
       _formKey.currentState!.reset();
@@ -100,6 +134,8 @@ class _SellScreenState extends State<SellScreen> {
       setState(() {
         _auctionEnabled = false;
         _auctionEndDate = null;
+        _localImagePath = null;
+        _imageUrl = null;
       });
       _showMessage('판매 등록이 완료되었습니다. 검수 후 피드에 노출됩니다.');
       await _loadSales();
@@ -129,7 +165,11 @@ class _SellScreenState extends State<SellScreen> {
           const Text('등록한 작품은 전문가 검수 후 피드에 노출됩니다. 판매 수수료 8%',
               style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
           const SizedBox(height: 20),
-          _ImageUploadBox(onTap: () => _showMessage('이미지 업로드는 준비 중입니다')),
+          _ImageUploadBox(
+            onTap: _uploadingImage ? null : _pickImage,
+            localImagePath: _localImagePath,
+            uploading: _uploadingImage,
+          ),
           const SizedBox(height: 16),
           _LabeledField(
             label: '작품명 *',
@@ -295,9 +335,15 @@ class _LabeledField extends StatelessWidget {
 }
 
 class _ImageUploadBox extends StatelessWidget {
-  const _ImageUploadBox({required this.onTap});
+  const _ImageUploadBox({
+    required this.onTap,
+    required this.localImagePath,
+    required this.uploading,
+  });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final String? localImagePath;
+  final bool uploading;
 
   @override
   Widget build(BuildContext context) {
@@ -307,21 +353,37 @@ class _ImageUploadBox extends StatelessWidget {
         height: 160,
         width: double.infinity,
         alignment: Alignment.center,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: const Color(0xFFF9FAFB),
           border: Border.all(color: const Color(0xFFD1D5DB)),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add_photo_alternate_outlined,
-                size: 32, color: Color(0xFF9CA3AF)),
-            SizedBox(height: 8),
-            Text('작품 사진 등록 (최대 5장)',
-                style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
-          ],
-        ),
+        child: localImagePath != null
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.file(File(localImagePath!), fit: BoxFit.cover),
+                  if (uploading)
+                    Container(
+                      color: Colors.black38,
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(
+                          color: Colors.white),
+                    ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.add_photo_alternate_outlined,
+                      size: 32, color: Color(0xFF9CA3AF)),
+                  SizedBox(height: 8),
+                  Text('작품 사진 등록',
+                      style:
+                          TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                ],
+              ),
       ),
     );
   }

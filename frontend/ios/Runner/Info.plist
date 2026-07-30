@@ -102,5 +102,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>작품 사진과 의뢰 참고 이미지를 등록하기 위해 사진 보관함 접근이 필요합니다.</string>
 </dict>
 </plist>

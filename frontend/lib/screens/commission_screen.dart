@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/commission.dart';
 import '../services/commission_api_service.dart';
+import '../services/image_api_service.dart';
 
 const _categories = ['회화', '일러스트', '조소', '공예', '디지털 아트'];
 
@@ -24,6 +28,12 @@ class _CommissionScreenState extends State<CommissionScreen> {
   DateTime? _desiredDate;
   bool _submitting = false;
   List<Commission> _commissions = const [];
+
+  final _imagePicker = ImagePicker();
+  final _imageApi = const ImageApiService();
+  String? _localImagePath;
+  String? _referenceImageUrl;
+  bool _uploadingImage = false;
 
   @override
   void initState() {
@@ -48,6 +58,29 @@ class _CommissionScreenState extends State<CommissionScreen> {
     }
   }
 
+  Future<void> _pickImage() async {
+    final picked = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+    setState(() {
+      _localImagePath = picked.path;
+      _referenceImageUrl = null;
+      _uploadingImage = true;
+    });
+    try {
+      final url = await _imageApi.upload(picked.path);
+      if (mounted) setState(() => _referenceImageUrl = url);
+    } catch (error) {
+      if (mounted) setState(() => _localImagePath = null);
+      _showMessage(error is StateError ? error.message : '이미지 업로드에 실패했습니다');
+    } finally {
+      if (mounted) setState(() => _uploadingImage = false);
+    }
+  }
+
   Future<void> _pickDesiredDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -69,6 +102,7 @@ class _CommissionScreenState extends State<CommissionScreen> {
         category: _category,
         budget: int.parse(_budgetController.text),
         desiredDate: _desiredDate?.toIso8601String().substring(0, 10),
+        referenceImageUrl: _referenceImageUrl,
       );
       if (!mounted) return;
       _formKey.currentState!.reset();
@@ -78,6 +112,8 @@ class _CommissionScreenState extends State<CommissionScreen> {
       setState(() {
         _category = _categories.first;
         _desiredDate = null;
+        _localImagePath = null;
+        _referenceImageUrl = null;
       });
       _showMessage(
           '의뢰가 등록되었습니다. ${created.category} 작가 ${created.notifiedArtistCount}명에게 알림을 보냈어요.');
@@ -108,7 +144,11 @@ class _CommissionScreenState extends State<CommissionScreen> {
           const Text('원하는 작품을 설명하면 카테고리 매칭 작가 전원에게 알림이 발송되고,\n최저가 역경매로 작가가 정해집니다.',
               style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
           const SizedBox(height: 20),
-          _ReferenceImageBox(onTap: () => _showMessage('참고 이미지 업로드는 준비 중입니다')),
+          _ReferenceImageBox(
+            onTap: _uploadingImage ? null : _pickImage,
+            localImagePath: _localImagePath,
+            uploading: _uploadingImage,
+          ),
           const SizedBox(height: 16),
           _LabeledField(
             label: '의뢰 제목 *',
@@ -228,9 +268,15 @@ class _LabeledField extends StatelessWidget {
 }
 
 class _ReferenceImageBox extends StatelessWidget {
-  const _ReferenceImageBox({required this.onTap});
+  const _ReferenceImageBox({
+    required this.onTap,
+    required this.localImagePath,
+    required this.uploading,
+  });
 
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final String? localImagePath;
+  final bool uploading;
 
   @override
   Widget build(BuildContext context) {
@@ -240,20 +286,37 @@ class _ReferenceImageBox extends StatelessWidget {
         height: 140,
         width: double.infinity,
         alignment: Alignment.center,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: const Color(0xFFF9FAFB),
           border: Border.all(color: const Color(0xFFD1D5DB)),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.image_outlined, size: 32, color: Color(0xFF9CA3AF)),
-            SizedBox(height: 8),
-            Text('참고 이미지 등록',
-                style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
-          ],
-        ),
+        child: localImagePath != null
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.file(File(localImagePath!), fit: BoxFit.cover),
+                  if (uploading)
+                    Container(
+                      color: Colors.black38,
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(
+                          color: Colors.white),
+                    ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.image_outlined,
+                      size: 32, color: Color(0xFF9CA3AF)),
+                  SizedBox(height: 8),
+                  Text('참고 이미지 등록',
+                      style:
+                          TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                ],
+              ),
       ),
     );
   }

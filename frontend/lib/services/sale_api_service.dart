@@ -30,6 +30,7 @@ class SaleApiService {
     required bool auctionEnabled,
     int? auctionStartPrice,
     String? auctionEndDate,
+    String? imageUrl,
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/sales'),
@@ -44,6 +45,7 @@ class SaleApiService {
         'auctionEnabled': auctionEnabled,
         'auctionStartPrice': auctionStartPrice,
         'auctionEndDate': auctionEndDate,
+        'imageUrl': imageUrl,
       }),
     );
     final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;

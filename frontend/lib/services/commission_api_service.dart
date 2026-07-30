@@ -29,6 +29,7 @@ class CommissionApiService {
     required String category,
     required int budget,
     String? desiredDate,
+    String? referenceImageUrl,
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/commissions'),
@@ -39,6 +40,7 @@ class CommissionApiService {
         'category': category,
         'budget': budget,
         'desiredDate': desiredDate,
+        'referenceImageUrl': referenceImageUrl,
       }),
     );
     final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
