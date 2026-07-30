@@ -17,7 +17,9 @@
 
 - 기능 하나마다 **frontend / backend 커밋을 분리**해서 만들고 origin/master로 푸시. 커밋 메시지는 `feat(backend): ...` / `feat(frontend): ...` 형식.
 - 커밋 전 검증: 프론트 `flutter test`(flutter는 `C:\Users\worms\dev\flutter\bin\flutter.bat`), 백엔드 `./gradlew test`(JDK 17 — Java 21 API 금지).
-- **새 화면 디자인이 필요하면 Figma "Manyfast Wireframe to Figma (커뮤니티)" 파일에 먼저 그린 뒤 구현할 것.** Figma 작업은 이 레포의 `.mcp.json`에 등록된 프로젝트 전용 `figma-dustart` 서버로만 할 것 (다른 Figma 커넥터 계정은 별개 프로젝트 소속이므로 사용 금지).
+- **새 화면 디자인이 필요하면 Figma "Manyfast Wireframe to Figma (커뮤니티)" 파일에 먼저 그린 뒤 구현할 것.**
+- Figma 작업은 이 레포 `.mcp.json`의 `figma-dustart`(Figma 데스크톱 앱 로컬 MCP 서버, `http://127.0.0.1:3845/mcp`)로만 할 것. 데스크톱 앱에 로그인된 계정을 그대로 쓰므로 Claude 계정에 Figma 계정이 연결되지 않는다. **계정 연동형 Figma 커넥터는 다른 프로젝트(Knot) 소속이므로 이 레포에서 사용 금지** — 아트나라 정보가 그 계정에 남으면 안 됨.
+- 같은 이유로 아트나라 컨텍스트는 계정 메모리에 저장하지 말고 이 파일(CLAUDE.md)에 기록할 것.
 
 ## 백엔드 컨벤션
 
