@@ -8,9 +8,17 @@
 - `frontend/` — Flutter 앱 (상세 규칙은 frontend/CLAUDE.md). 하단 탭: 맵/판매/홈/채팅/의뢰.
 - `backend/` — Spring Boot 3, 패키지 `com.example.artnara`, H2(dev)/JPA.
 
-## 브랜딩
+## 디자인 시스템 (DUST-ART)
 
-- 스플래시/로그인 워드마크는 Figma 디자인대로 **DUST-ART** (크림 0xFFF6F1E8 + 네이비 0xFF25333B 팔레트), 서비스 내부 텍스트는 ART NARA 혼용 중 — 통일 여부는 사용자 결정 대기.
+- Figma "DUST-ART Foundations"(파일 `LghoZTZPejVsF7jndmqJEm`, node `25:210`)에서 추출한 토큰을 `frontend/lib/constants/dust_tokens.dart`에 정의해 둠. **새 화면은 하드코딩 대신 이 토큰 사용.**
+  - 브랜드: teal `#07524E` / deep `#084742` (네이비 아님)
+  - 배경: canvas ivory `#F8F3E8`, surface `#FEFCF7`, subtle `#F0EBE3`
+  - 텍스트: primary `#141413`, secondary `#6B665E`, on-brand `#FFFFFF`, 테두리 `#E0DBD1`
+  - 타이포: Noto Sans KR — Heading 28 Bold / Section 22 Bold / Body 16 Regular / Caption 12 Regular
+  - Spacing 8·12·16·24, Radius 8·14·22·Full
+- 워드마크/배경은 Figma에서 내려받은 에셋 사용: `assets/images/dust_wordmark.png`(흰 배경이라 `BlendMode.multiply`로 합성), `dust_splash_bg.jpg`.
+- 서비스 내부 텍스트는 ART NARA 혼용 중 — 통일 여부는 사용자 결정 대기.
+- 주요 화면 node id: 스플래시/온보딩 `1:309`, 홈 피드 `1:325`·`1:437`, 작품 판매 등록 `1:274`, 제작 의뢰 신청 `23:67`, 작가 포트폴리오 `41:850`, 정품 인증서 `50:1034`·`60:302`.
 - 코드베이스는 Knot/UniTrip(여행 매칭 앱)에서 가져와 리네임한 것이라 여행 도메인(booking, festival, magazine 등)이 남아 있음 — 점진적으로 대체 중.
 
 ## 작업 규칙 (사용자 요구)
