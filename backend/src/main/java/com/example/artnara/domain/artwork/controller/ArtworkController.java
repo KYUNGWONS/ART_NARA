@@ -37,6 +37,12 @@ public class ArtworkController {
         return BaseResponse.success("작품 상세 조회", artworkService.getDetail(artworkId));
     }
 
+    @PostMapping("/{artworkId}/close")
+    @Operation(summary = "경매 마감 처리", description = "경매를 마감하고 최고 입찰자를 낙찰자로 확정합니다. (프로토타입: 수동 마감)")
+    public BaseResponse<ArtworkDetailDto> closeAuction(@PathVariable Long artworkId) {
+        return BaseResponse.success("경매 마감 처리", artworkService.closeAuction(artworkId));
+    }
+
     @PostMapping("/{artworkId}/bids")
     @Operation(summary = "작품 입찰", description = "경매 작품에 입찰합니다. 입찰가는 현재가보다 최소 입찰 단위 이상 높아야 합니다.")
     public BaseResponse<ArtworkDetailDto> bid(

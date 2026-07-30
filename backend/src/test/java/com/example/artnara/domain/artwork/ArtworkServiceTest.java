@@ -59,6 +59,46 @@ class ArtworkServiceTest {
     }
 
     @Test
+    @DisplayName("경매 마감 시 최고 입찰자가 낙찰자가 된다")
+    void closeAuction() {
+        artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000));
+        ArtworkDetailDto closed = artworkService.closeAuction(5L);
+        assertThat(closed.auctionClosed()).isTrue();
+        assertThat(closed.winnerName()).isEqualTo("나");
+        assertThat(closed.currentBid()).isEqualTo(800000);
+        assertThat(closed.remainingTime()).isEqualTo("00:00:00");
+    }
+
+    @Test
+    @DisplayName("이미 마감된 경매를 다시 마감하면 409")
+    void closeAuctionTwice() {
+        artworkService.closeAuction(6L);
+        assertThatThrownBy(() -> artworkService.closeAuction(6L))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.AUCTION_ALREADY_CLOSED);
+    }
+
+    @Test
+    @DisplayName("마감된 경매에 입찰 시 409")
+    void placeBidAfterClose() {
+        artworkService.closeAuction(7L);
+        assertThatThrownBy(() -> artworkService.placeBid(7L, new ArtworkDetailDto.BidRequest(600000)))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.AUCTION_ALREADY_CLOSED);
+    }
+
+    @Test
+    @DisplayName("일반 판매 작품 마감 시도 시 400")
+    void closeNonAuction() {
+        assertThatThrownBy(() -> artworkService.closeAuction(1L))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.ARTWORK_NOT_AUCTION);
+    }
+
+    @Test
     @DisplayName("집 주변 작품은 가까운 순으로 정렬된다")
     void getNearby() {
         // 홍대입구 좌표 기준

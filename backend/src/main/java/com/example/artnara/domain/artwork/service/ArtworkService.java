@@ -98,6 +98,9 @@ public class ArtworkService {
         if (!artwork.auction) {
             throw new GlobalException(DomainResultCode.ARTWORK_NOT_AUCTION);
         }
+        if (artwork.auctionClosed) {
+            throw new GlobalException(DomainResultCode.AUCTION_ALREADY_CLOSED);
+        }
         int minimumBid = artwork.currentBid + MIN_BID_INCREMENT;
         if (request.amount() < minimumBid) {
             throw new GlobalException(DomainResultCode.BID_AMOUNT_TOO_LOW,
@@ -105,6 +108,21 @@ public class ArtworkService {
         }
         artwork.currentBid = request.amount();
         artwork.bidHistory.addFirst(new ArtworkDetailDto.Bid("나", request.amount(), "방금 전"));
+        return artwork.toDto();
+    }
+
+    /** 경매 마감 처리 — 최고 입찰자가 낙찰자로 확정된다. (프로토타입: 수동 마감) */
+    public synchronized ArtworkDetailDto closeAuction(Long artworkId) {
+        MutableArtwork artwork = find(artworkId);
+        if (!artwork.auction) {
+            throw new GlobalException(DomainResultCode.ARTWORK_NOT_AUCTION);
+        }
+        if (artwork.auctionClosed) {
+            throw new GlobalException(DomainResultCode.AUCTION_ALREADY_CLOSED);
+        }
+        artwork.auctionClosed = true;
+        artwork.winnerName = artwork.bidHistory.isEmpty()
+                ? null : artwork.bidHistory.peekFirst().bidderName();
         return artwork.toDto();
     }
 
@@ -144,6 +162,8 @@ public class ArtworkService {
         private final boolean auction;
         private final String remainingTime;
         private int currentBid;
+        private boolean auctionClosed;
+        private String winnerName;
         private final Deque<ArtworkDetailDto.Bid> bidHistory = new ArrayDeque<>();
 
         private MutableArtwork(Long id, String title, String artistName, String artistIntroduction,
@@ -166,7 +186,9 @@ public class ArtworkService {
             return new ArtworkDetailDto(
                     id, title, artistName, artistIntroduction, description, "",
                     medium, size, year, price, auction,
-                    auction ? currentBid : null, MIN_BID_INCREMENT, remainingTime,
+                    auction ? currentBid : null, MIN_BID_INCREMENT,
+                    auctionClosed ? "00:00:00" : remainingTime,
+                    auctionClosed, winnerName,
                     true, "전문 포장 후 배송 (3~5일 소요)",
                     List.copyOf(new ArrayList<>(bidHistory)));
         }

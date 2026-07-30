@@ -17,6 +17,8 @@ public record ArtworkDetailDto(
         Integer currentBid,
         int minBidIncrement,
         String remainingTime,
+        boolean auctionClosed,
+        String winnerName,
         boolean certified,
         String deliveryInfo,
         List<Bid> bidHistory

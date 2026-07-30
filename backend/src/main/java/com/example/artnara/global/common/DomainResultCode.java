@@ -44,7 +44,10 @@ public enum DomainResultCode implements ResultCode {
     ORDER_INVALID_PAYMENT_METHOD("ORDER_400_PAYMENT", "지원하지 않는 결제 수단입니다.", HttpStatus.BAD_REQUEST),
     ORDER_ADDRESS_REQUIRED("ORDER_400_ADDRESS", "수령인과 배송지를 입력해주세요.", HttpStatus.BAD_REQUEST),
     ORDER_AUCTION_NOT_BUYABLE("ORDER_400_AUCTION", "경매 작품은 입찰로만 구매할 수 있습니다.", HttpStatus.BAD_REQUEST),
-    ORDER_ALREADY_SOLD("ORDER_409", "이미 판매 완료된 작품입니다.", HttpStatus.CONFLICT);
+    ORDER_ALREADY_SOLD("ORDER_409", "이미 판매 완료된 작품입니다.", HttpStatus.CONFLICT),
+    AUCTION_ALREADY_CLOSED("AUCTION_409", "이미 마감된 경매입니다.", HttpStatus.CONFLICT),
+    ORDER_AUCTION_NO_WINNER("ORDER_400_NO_WINNER", "유찰된 경매 작품은 결제할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_WINNER("ORDER_403_WINNER", "낙찰자만 결제할 수 있습니다.", HttpStatus.FORBIDDEN);
 
     private final String code;
     private final String message;

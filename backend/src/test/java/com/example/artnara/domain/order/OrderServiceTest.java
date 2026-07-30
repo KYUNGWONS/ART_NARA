@@ -15,13 +15,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OrderServiceTest {
 
+    private ArtworkService artworkService;
     private CertificateService certificateService;
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
+        artworkService = new ArtworkService();
         certificateService = new CertificateService();
-        orderService = new OrderService(new ArtworkService(), certificateService);
+        orderService = new OrderService(artworkService, certificateService);
     }
 
     private OrderDto.CreateRequest request(Long artworkId) {
@@ -65,12 +67,36 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("경매 작품 즉시 구매 시 400")
+    @DisplayName("진행 중인 경매 작품 즉시 구매 시 400")
     void createAuctionArtwork() {
         assertThatThrownBy(() -> orderService.create(request(5L)))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ORDER_AUCTION_NOT_BUYABLE);
+    }
+
+    @Test
+    @DisplayName("낙찰자는 마감된 경매 작품을 낙찰가로 결제할 수 있다")
+    void createForWonAuction() {
+        artworkService.placeBid(5L, new com.example.artnara.domain.artwork.dto.ArtworkDetailDto.BidRequest(800000));
+        artworkService.closeAuction(5L);
+
+        OrderDto.Response order = orderService.create(request(5L));
+
+        assertThat(order.price()).isEqualTo(800000);
+        assertThat(order.totalAmount()).isEqualTo(800000 + order.deliveryFee());
+        assertThat(order.status()).isEqualTo("결제 완료");
+    }
+
+    @Test
+    @DisplayName("낙찰자가 아니면 마감된 경매 작품 결제 시 403")
+    void createForLostAuction() {
+        // 입찰 없이 마감 → 낙찰자는 시드 최고 입찰자(박*현)
+        artworkService.closeAuction(6L);
+        assertThatThrownBy(() -> orderService.create(request(6L)))
+                .isInstanceOf(GlobalException.class)
+                .extracting(e -> ((GlobalException) e).getResultCode())
+                .isEqualTo(DomainResultCode.ORDER_NOT_WINNER);
     }
 
     @Test

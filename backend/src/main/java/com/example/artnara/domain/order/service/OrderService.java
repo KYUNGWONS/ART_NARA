@@ -24,6 +24,9 @@ public class OrderService {
     /** 배송 중개비 (전문 포장 + 배송, 사업계획서 기준 1~2만원) */
     private static final int DELIVERY_FEE = 15000;
 
+    /** 프로토타입 단일 사용자 — ArtworkService.placeBid 가 기록하는 입찰자명과 동일해야 한다. */
+    private static final String BUYER_NAME = "나";
+
     private static final Set<String> PAYMENT_METHODS =
             Set.of("CARD", "KAKAO_PAY", "NAVER_PAY", "TOSS");
 
@@ -38,8 +41,19 @@ public class OrderService {
     public synchronized OrderDto.Response create(OrderDto.CreateRequest request) {
         validate(request);
         ArtworkDetailDto artwork = artworkService.getDetail(request.artworkId());
+        int amount = artwork.price();
         if (artwork.auction()) {
-            throw new GlobalException(DomainResultCode.ORDER_AUCTION_NOT_BUYABLE);
+            // 경매 작품은 마감 후 낙찰자만 낙찰가로 결제할 수 있다.
+            if (!artwork.auctionClosed()) {
+                throw new GlobalException(DomainResultCode.ORDER_AUCTION_NOT_BUYABLE);
+            }
+            if (artwork.winnerName() == null) {
+                throw new GlobalException(DomainResultCode.ORDER_AUCTION_NO_WINNER);
+            }
+            if (!BUYER_NAME.equals(artwork.winnerName())) {
+                throw new GlobalException(DomainResultCode.ORDER_NOT_WINNER);
+            }
+            amount = artwork.currentBid();
         }
         if (soldArtworkIds.contains(artwork.id())) {
             throw new GlobalException(DomainResultCode.ORDER_ALREADY_SOLD);
@@ -52,7 +66,7 @@ public class OrderService {
         OrderDto.Response order = new OrderDto.Response(
                 idSequence.incrementAndGet(),
                 artwork.id(), artwork.title(), artwork.artistName(),
-                artwork.price(), DELIVERY_FEE, artwork.price() + DELIVERY_FEE,
+                amount, DELIVERY_FEE, amount + DELIVERY_FEE,
                 request.paymentMethod(),
                 request.receiverName().trim(),
                 request.deliveryAddress().trim(),
