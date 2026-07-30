@@ -16,6 +16,7 @@ import 'art_home_feed_screen.dart';
 import 'landing_screen.dart';
 import 'map_screen.dart';
 import 'my_profile_screen.dart';
+import 'sell_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -318,9 +319,8 @@ class _MainScreenState extends State<MainScreen>
     switch (_currentTab) {
       case 0: // 맵
         return const MapScreen();
-      case 1: // 매거진 (준비중)
-        // TODO: 매거진 화면 연동 후 복구 — 현재는 준비중 표시
-        return _buildPlaceholder(locale);
+      case 1: // 판매 등록
+        return const SellScreen();
       case 2:
         return const ArtHomeFeedScreen();
       case 3: // 채팅 (참여 중인 채팅방 목록)
@@ -333,14 +333,14 @@ class _MainScreenState extends State<MainScreen>
   Widget _buildPlaceholder(LocaleProvider locale) {
     final labels = [
       AppStrings.navMap,
-      AppStrings.navMagazine,
+      AppStrings.navSell,
       AppStrings.navHome,
       AppStrings.navChat,
       AppStrings.navWish,
     ];
     final icons = [
       Icons.map_outlined,
-      Icons.menu_book_outlined,
+      Icons.storefront_outlined,
       Icons.home_rounded,
       Icons.chat_bubble_outline_rounded,
       Icons.favorite_outline_rounded,
@@ -383,9 +383,9 @@ class _MainScreenState extends State<MainScreen>
         label: AppStrings.navMap,
       ),
       _NavItem(
-        icon: Icons.menu_book_outlined,
-        activeIcon: Icons.menu_book_rounded,
-        label: AppStrings.navMagazine,
+        icon: Icons.storefront_outlined,
+        activeIcon: Icons.storefront_rounded,
+        label: AppStrings.navSell,
       ),
       _NavItem(
         icon: Icons.home_outlined,

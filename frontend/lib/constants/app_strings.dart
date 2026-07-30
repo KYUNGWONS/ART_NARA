@@ -918,6 +918,13 @@ class AppStrings {
     AppLanguage.zh: '杂志',
   };
 
+  static const Map<AppLanguage, String> navSell = {
+    AppLanguage.ko: '판매',
+    AppLanguage.en: 'Sell',
+    AppLanguage.ja: '出品',
+    AppLanguage.zh: '出售',
+  };
+
   static const Map<AppLanguage, String> navHome = {
     AppLanguage.ko: '홈',
     AppLanguage.en: 'Home',
