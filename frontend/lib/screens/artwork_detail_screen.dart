@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../models/artwork_detail.dart';
 import '../services/artwork_api_service.dart';
+import 'checkout_screen.dart';
 
 class ArtworkDetailScreen extends StatefulWidget {
   const ArtworkDetailScreen({super.key, required this.artworkId});
@@ -93,7 +94,13 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                 else
                   _BuyBar(
                     price: detail.price,
-                    onBuy: () => _showMessage('구매 기능은 준비 중입니다'),
+                    onBuy: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => CheckoutScreen(artwork: detail),
+                        ),
+                      );
+                    },
                   ),
               ],
             );
