@@ -279,11 +279,11 @@ class _LoginScreenState extends State<LoginScreen>
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFF6F1E8),
           body: Container(
             width: double.infinity,
             height: double.infinity,
-            color: Colors.white,
+            color: const Color(0xFFF6F1E8),
             child: SafeArea(
               child: Column(
                 children: [
@@ -318,47 +318,33 @@ class _LoginScreenState extends State<LoginScreen>
                       position: _slideAnimation,
                       child: Column(
                         children: [
-                          // ART NARA 워드마크
-                          Container(
-                            width: 96,
-                            height: 96,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1F2937),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: const Icon(
-                              Icons.palette_outlined,
-                              size: 44,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
+                          // DUST-ART 워드마크 (Figma 스플래시 디자인과 동일 팔레트)
                           const Text(
-                            'ART NARA',
+                            'DUST-ART',
                             style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 4,
-                              color: Color(0xFF1F2937),
+                              fontSize: 32,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 8,
+                              color: Color(0xFF25333B),
                             ),
                           ),
                           const SizedBox(height: 8),
                           const Text(
                             '창고 속 예술을 거실로',
                             style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF6B7280),
+                              fontSize: 12,
+                              letterSpacing: 2,
+                              color: Color(0xFF8A857B),
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 48),
                           // 타이틀
                           Text(
                             locale.tr(AppStrings.loginTitle),
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 19,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF111827),
+                              color: Color(0xFF25333B),
                             ),
                             textAlign: TextAlign.center,
                           ),

@@ -6,7 +6,7 @@ import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:provider/provider.dart';
 import 'constants/app_colors.dart';
 import 'providers/locale_provider.dart';
-import 'screens/brand_intro_screen.dart';
+import 'screens/splash_onboarding_screen.dart';
 
 /// 네이버 지도 SDK 초기화 상태 (앱 전역)
 bool isNaverMapInitialized = false;
@@ -63,7 +63,7 @@ class ArtNaraApp extends StatelessWidget {
           scaffoldBackgroundColor: AppColors.white,
           textTheme: GoogleFonts.gowunDodumTextTheme(),
         ),
-        home: const BrandIntroScreen(),
+        home: const SplashOnboardingScreen(),
       ),
     );
   }
