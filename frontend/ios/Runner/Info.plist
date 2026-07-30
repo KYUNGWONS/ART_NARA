@@ -104,5 +104,7 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>작품 사진과 의뢰 참고 이미지를 등록하기 위해 사진 보관함 접근이 필요합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>작품의 정품 인증 QR 코드를 스캔하기 위해 카메라 접근이 필요합니다.</string>
 </dict>
 </plist>

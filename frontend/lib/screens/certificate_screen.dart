@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/certificate.dart';
 import '../services/certificate_api_service.dart';
+import 'qr_scan_screen.dart';
 
 class CertificateScreen extends StatefulWidget {
   const CertificateScreen({super.key});
@@ -36,6 +37,15 @@ class _CertificateScreenState extends State<CertificateScreen> {
     } catch (_) {
       // 소유권 목록 조회 실패는 QR 스캔 사용을 막지 않는다.
     }
+  }
+
+  Future<void> _openCameraScan() async {
+    final code = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const QrScanScreen()),
+    );
+    if (code == null || code.isEmpty || !mounted) return;
+    _qrController.text = code;
+    await _scan();
   }
 
   Future<void> _scan() async {
@@ -90,7 +100,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
               style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
           const SizedBox(height: 16),
           GestureDetector(
-            onTap: () => _showMessage('카메라 스캔은 준비 중입니다. 코드를 직접 입력해주세요.'),
+            onTap: _openCameraScan,
             child: Container(
               height: 160,
               alignment: Alignment.center,
