@@ -15,6 +15,8 @@ class ArtworkDetail {
     required this.certified,
     required this.deliveryInfo,
     required this.bidHistory,
+    required this.auctionClosed,
+    this.winnerName,
     this.currentBid,
     this.remainingTime,
   });
@@ -33,6 +35,8 @@ class ArtworkDetail {
   final int? currentBid;
   final int minBidIncrement;
   final String? remainingTime;
+  final bool auctionClosed;
+  final String? winnerName;
   final bool certified;
   final String deliveryInfo;
   final List<ArtworkBid> bidHistory;
@@ -59,6 +63,8 @@ class ArtworkDetail {
       currentBid: json['currentBid'] as int?,
       minBidIncrement: json['minBidIncrement'] as int? ?? 0,
       remainingTime: json['remainingTime'] as String?,
+      auctionClosed: json['auctionClosed'] as bool? ?? false,
+      winnerName: json['winnerName'] as String?,
       certified: json['certified'] as bool? ?? false,
       deliveryInfo: json['deliveryInfo'] as String? ?? '',
       bidHistory: bids,

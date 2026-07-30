@@ -32,6 +32,28 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
     super.dispose();
   }
 
+  Future<void> _closeAuction() async {
+    try {
+      final updated = await _api.closeAuction(widget.artworkId);
+      if (!mounted) return;
+      setState(() => _detailFuture = Future.value(updated));
+      _showMessage(updated.winnerName == null
+          ? '경매가 유찰로 종료되었습니다'
+          : '경매 마감! 낙찰자: ${updated.winnerName}');
+    } catch (error) {
+      _showMessage(error is StateError ? error.message : '경매 마감에 실패했습니다');
+    }
+  }
+
+  void _openCheckout(ArtworkDetail detail, {int? priceOverride}) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            CheckoutScreen(artwork: detail, priceOverride: priceOverride),
+      ),
+    );
+  }
+
   Future<void> _placeBid() async {
     final amount = int.tryParse(_bidController.text.replaceAll(',', ''));
     if (amount == null) {
@@ -83,24 +105,28 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
               children: [
                 _Header(title: detail.title),
                 Expanded(child: _DetailBody(detail: detail)),
-                if (detail.auction)
+                if (detail.auction && !detail.auctionClosed)
                   _BidBar(
                     controller: _bidController,
                     bidding: _bidding,
                     minimumBid: (detail.currentBid ?? detail.price) +
                         detail.minBidIncrement,
                     onBid: _placeBid,
+                    onClose: _closeAuction,
                   )
+                else if (detail.auction && detail.winnerName == '나')
+                  _BuyBar(
+                    price: detail.currentBid ?? detail.price,
+                    label: '낙찰가 결제하기',
+                    onBuy: () => _openCheckout(detail,
+                        priceOverride: detail.currentBid),
+                  )
+                else if (detail.auction)
+                  const _ClosedBar()
                 else
                   _BuyBar(
                     price: detail.price,
-                    onBuy: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => CheckoutScreen(artwork: detail),
-                        ),
-                      );
-                    },
+                    onBuy: () => _openCheckout(detail),
                   ),
               ],
             );
@@ -236,7 +262,23 @@ class _PriceSection extends StatelessWidget {
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ],
           ),
-          if (detail.remainingTime != null)
+          if (detail.auctionClosed)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Text('경매 종료',
+                    style: TextStyle(fontSize: 11, color: Color(0xFFDC2626))),
+                const SizedBox(height: 4),
+                Text(
+                  detail.winnerName == null
+                      ? '유찰'
+                      : '낙찰자 ${detail.winnerName}',
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ],
+            )
+          else if (detail.remainingTime != null)
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -373,12 +415,14 @@ class _BidBar extends StatelessWidget {
     required this.bidding,
     required this.minimumBid,
     required this.onBid,
+    required this.onClose,
   });
 
   final TextEditingController controller;
   final bool bidding;
   final int minimumBid;
   final VoidCallback onBid;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -389,6 +433,13 @@ class _BidBar extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // 프로토타입 전용: 마감 스케줄러 대신 수동으로 경매를 종료한다.
+          IconButton(
+            onPressed: onClose,
+            tooltip: '경매 마감 (데모)',
+            icon: const Icon(Icons.timer_off_outlined,
+                size: 20, color: Color(0xFF6B7280)),
+          ),
           Expanded(
             child: TextField(
               controller: controller,
@@ -420,11 +471,32 @@ class _BidBar extends StatelessWidget {
   }
 }
 
+class _ClosedBar extends StatelessWidget {
+  const _ClosedBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+      ),
+      child: const Text(
+        '경매가 종료되었습니다',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+      ),
+    );
+  }
+}
+
 class _BuyBar extends StatelessWidget {
-  const _BuyBar({required this.price, required this.onBuy});
+  const _BuyBar({required this.price, required this.onBuy, this.label = '구매하기'});
 
   final int price;
   final VoidCallback onBuy;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -448,7 +520,7 @@ class _BuyBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
             ),
-            child: const Text('구매하기'),
+            child: Text(label),
           ),
         ],
       ),

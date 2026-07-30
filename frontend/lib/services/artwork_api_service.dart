@@ -43,6 +43,17 @@ class ArtworkApiService {
     return ArtworkDetail.fromJson(body['data'] as Map<String, dynamic>);
   }
 
+  Future<ArtworkDetail> closeAuction(int artworkId) async {
+    final response = await http.post(
+      Uri.parse('$apiBaseUrl/api/artworks/$artworkId/close'),
+    );
+    final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    if (response.statusCode != 200) {
+      throw StateError(body['message'] as String? ?? '경매 마감 실패: ${response.statusCode}');
+    }
+    return ArtworkDetail.fromJson(body['data'] as Map<String, dynamic>);
+  }
+
   Future<ArtworkDetail> placeBid(int artworkId, int amount) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/artworks/$artworkId/bids'),

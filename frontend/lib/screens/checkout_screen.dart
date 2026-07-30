@@ -15,9 +15,12 @@ const _paymentMethods = [
 const _deliveryFee = 15000;
 
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({super.key, required this.artwork});
+  const CheckoutScreen({super.key, required this.artwork, this.priceOverride});
 
   final ArtworkDetail artwork;
+
+  /// 경매 낙찰 결제 시 낙찰가. null 이면 즉시 판매가로 결제한다.
+  final int? priceOverride;
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -32,6 +35,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   String _paymentMethod = _paymentMethods.first.$1;
   bool _paying = false;
+
+  int get _price => widget.priceOverride ?? widget.artwork.price;
 
   @override
   void dispose() {
@@ -140,7 +145,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           children: [
-            _ArtworkSummary(artwork: artwork),
+            _ArtworkSummary(artwork: artwork, price: _price),
+            if (widget.priceOverride != null) ...[
+              const SizedBox(height: 8),
+              const Text(
+                '🎉 낙찰을 축하합니다! 낙찰가로 결제가 진행됩니다.',
+                style: TextStyle(fontSize: 12, color: Color(0xFF059669)),
+              ),
+            ],
             const SizedBox(height: 24),
             const Text('배송지 정보',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -180,7 +192,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            _PriceSummary(price: artwork.price),
+            _PriceSummary(price: _price),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: _paying ? null : _pay,
@@ -194,7 +206,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Text(
                 _paying
                     ? '결제 중...'
-                    : '₩${_formatPrice(artwork.price + _deliveryFee)} 결제하기',
+                    : '₩${_formatPrice(_price + _deliveryFee)} 결제하기',
               ),
             ),
             const SizedBox(height: 8),
@@ -222,9 +234,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 }
 
 class _ArtworkSummary extends StatelessWidget {
-  const _ArtworkSummary({required this.artwork});
+  const _ArtworkSummary({required this.artwork, required this.price});
 
   final ArtworkDetail artwork;
+  final int price;
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +275,7 @@ class _ArtworkSummary extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 11, color: Color(0xFF6B7280))),
                 const SizedBox(height: 4),
-                Text('₩${_formatPrice(artwork.price)}',
+                Text('₩${_formatPrice(price)}',
                     style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.bold)),
               ],
