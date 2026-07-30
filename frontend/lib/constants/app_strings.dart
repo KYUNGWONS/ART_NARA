@@ -136,10 +136,10 @@ class AppStrings {
 
   // ─── 로그인 화면 ───
   static const Map<AppLanguage, String> loginTitle = {
-    AppLanguage.ko: '여행을 시작해볼까요?',
-    AppLanguage.en: 'Ready to start your trip?',
-    AppLanguage.ja: '旅を始めましょう！',
-    AppLanguage.zh: '准备开始旅行了吗？',
+    AppLanguage.ko: '나만의 작품을 만나볼까요?',
+    AppLanguage.en: 'Ready to discover your art?',
+    AppLanguage.ja: '自分だけの作品に出会いましょう',
+    AppLanguage.zh: '准备遇见属于你的艺术品了吗？',
   };
 
   static const Map<AppLanguage, String> loginWithKakao = {

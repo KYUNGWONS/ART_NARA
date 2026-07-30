@@ -279,20 +279,11 @@ class _LoginScreenState extends State<LoginScreen>
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
+          backgroundColor: Colors.white,
           body: Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFFFFFFF),
-                  Color(0xFFF0F5FF),
-                  Color(0xFFFFF5F2),
-                ],
-              ),
-            ),
+            color: Colors.white,
             child: SafeArea(
               child: Column(
                 children: [
@@ -327,39 +318,47 @@ class _LoginScreenState extends State<LoginScreen>
                       position: _slideAnimation,
                       child: Column(
                         children: [
-                          // 로고 (랜딩 화면과 동일한 크기)
+                          // ART NARA 워드마크
                           Container(
-                            width: 280,
-                            height: 280,
+                            width: 96,
+                            height: 96,
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(28),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
+                              color: const Color(0xFF1F2937),
+                              borderRadius: BorderRadius.circular(24),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(28),
-                              child: Image.asset(
-                                'assets/images/knot_logo.png',
-                                width: 280,
-                                fit: BoxFit.contain,
-                              ),
+                            child: const Icon(
+                              Icons.palette_outlined,
+                              size: 44,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'ART NARA',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 4,
+                              color: Color(0xFF1F2937),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            '창고 속 예술을 거실로',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF6B7280),
                             ),
                           ),
                           const SizedBox(height: 32),
                           // 타이틀
                           Text(
                             locale.tr(AppStrings.loginTitle),
-                            style: GoogleFonts.gowunDodum(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.black,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF111827),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -423,10 +422,10 @@ class _LoginScreenState extends State<LoginScreen>
                                         const SizedBox(width: 8),
                                         Text(
                                           locale.tr(AppStrings.loginWithKakao),
-                                          style: GoogleFonts.gowunDodum(
-                                            fontSize: 16,
+                                          style: const TextStyle(
+                                            fontSize: 15,
                                             fontWeight: FontWeight.w700,
-                                            color: const Color(0xFF191919),
+                                            color: Color(0xFF191919),
                                           ),
                                         ),
                                       ],
@@ -481,8 +480,8 @@ class _LoginScreenState extends State<LoginScreen>
                                         const SizedBox(width: 8),
                                         Text(
                                           locale.tr(AppStrings.loginWithGoogle),
-                                          style: GoogleFonts.gowunDodum(
-                                            fontSize: 16,
+                                          style: const TextStyle(
+                                            fontSize: 15,
                                             fontWeight: FontWeight.w700,
                                             color: AppColors.darkGrey,
                                           ),
