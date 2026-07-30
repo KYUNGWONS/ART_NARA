@@ -103,6 +103,22 @@ class ArtworkServiceTest {
     }
 
     @Test
+    @DisplayName("마감 시각이 지난 경매는 스케줄러 로직이 자동 마감한다")
+    void closeExpiredAuctions() {
+        Long expiredId = artworkService.register(new com.example.artnara.domain.artwork.dto.ArtworkCreate(
+                "만료 경매", "나", "소개", "설명", "유화", "10호", 2026,
+                100000, true, 50000, "2020-01-01", ""));
+
+        int closed = artworkService.closeExpiredAuctions();
+
+        assertThat(closed).isGreaterThanOrEqualTo(1);
+        ArtworkDetailDto detail = artworkService.getDetail(expiredId);
+        assertThat(detail.auctionClosed()).isTrue();
+        assertThat(detail.winnerName()).isNull(); // 입찰 없이 마감 → 유찰
+        assertThat(detail.remainingTime()).isEqualTo("00:00:00");
+    }
+
+    @Test
     @DisplayName("일반 판매 작품 마감 시도 시 400")
     void closeNonAuction() {
         assertThatThrownBy(() -> artworkService.closeAuction(1L))

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * ART NARA 데모 시드 데이터.
@@ -58,21 +59,25 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 "캔버스에 유화", "65.1 x 50.0cm (15호)", 2025, 260000, false, null);
         seedArtwork("붉은 기억", "한지원", "기억의 잔상을 붉은 색채로 남깁니다",
                 "지나간 기억의 온도를 붉은 색층으로 표현한 졸업 전시 출품작입니다.",
-                "캔버스에 유화", "90.9 x 72.7cm (30호)", 2026, 780000, true, "02:14:33");
+                "캔버스에 유화", "90.9 x 72.7cm (30호)", 2026, 780000, true, hoursFromNow(26));
         seedArtwork("도시의 새벽", "오민서", "도시의 표정을 기록합니다",
                 "아무도 깨지 않은 새벽 도시의 푸른 공기를 담았습니다.",
-                "캔버스에 아크릴", "72.7 x 53.0cm (20호)", 2026, 340000, true, "05:47:10");
+                "캔버스에 아크릴", "72.7 x 53.0cm (20호)", 2026, 340000, true, hoursFromNow(53));
         seedArtwork("흐린 날의 숲", "정다은", "숲의 사계를 그리는 작가",
                 "비 오기 직전 흐린 날 숲의 습기와 냄새까지 담고자 했습니다.",
-                "종이에 수채", "56.0 x 38.0cm", 2025, 520000, true, "00:58:22");
+                "종이에 수채", "56.0 x 38.0cm", 2025, 520000, true, hoursFromNow(1));
         seedArtwork("기억의 조각", "윤재호", "조각난 기억을 화면 위에 재조립합니다",
                 "콜라주 기법으로 기억의 파편들을 하나의 화면에 재구성한 작품입니다.",
-                "혼합 매체", "60.6 x 60.6cm", 2026, 190000, true, "09:30:05");
+                "혼합 매체", "60.6 x 60.6cm", 2026, 190000, true, hoursFromNow(9));
+    }
+
+    private LocalDateTime hoursFromNow(int hours) {
+        return LocalDateTime.now().plusHours(hours);
     }
 
     private void seedArtwork(String title, String artistName, String artistIntroduction,
                              String description, String medium, String sizeInfo, int yearCreated,
-                             int price, boolean auction, String remainingTime) {
+                             int price, boolean auction, LocalDateTime auctionEndAt) {
         Artwork artwork = artworkRepository.save(Artwork.builder()
                 .title(title)
                 .artistName(artistName)
@@ -85,7 +90,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 .auction(auction)
                 .currentBid(auction ? price : null)
                 .imageUrl("")
-                .remainingTime(remainingTime)
+                .auctionEndAt(auctionEndAt)
                 .build());
         if (auction) {
             seedBid(artwork.getId(), "김*진", price - BID_STEP * 2, "1시간 전");

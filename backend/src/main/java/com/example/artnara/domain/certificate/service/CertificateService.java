@@ -16,16 +16,16 @@ import java.util.Map;
 @Transactional
 public class CertificateService {
 
-    // QR 코드 → 디지털 인증서 mock (실서비스에서는 블록체인 원장 조회로 대체)
+    // QR 코드 → 디지털 인증서 mock (실서비스에서는 인증 원장 조회로 대체)
     private static final Map<String, CertificateDto.Certificate> CERTIFICATES = Map.of(
             "ARTNARA-QR-0001", new CertificateDto.Certificate(
                     "ARTNARA-2026-0001", "봄의 정원", "김예진", "나",
                     "2026-05-12", true,
-                    "블록체인 원장에 기록된 정품 인증 작품입니다."),
+                    "ART NARA 전문가 검수를 통과한 정품 인증 작품입니다."),
             "ARTNARA-QR-0002", new CertificateDto.Certificate(
                     "ARTNARA-2026-0002", "무채색의 위로", "박소현", "나",
                     "2026-06-30", true,
-                    "블록체인 원장에 기록된 정품 인증 작품입니다.")
+                    "ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.")
     );
 
     private final OwnershipRepository ownershipRepository;

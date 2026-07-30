@@ -28,8 +28,7 @@ class OrderServiceTest {
     CertificateService certificateService;
 
     private OrderDto.CreateRequest request(Long artworkId) {
-        return new OrderDto.CreateRequest(
-                artworkId, "CARD", "신경원", "010-1234-5678", "서울 마포구 홍대입구 1길 1");
+        return new OrderDto.CreateRequest(artworkId, "CARD");
     }
 
     @Test
@@ -40,7 +39,7 @@ class OrderServiceTest {
         OrderDto.Response order = orderService.create(request(1L));
 
         assertThat(order.status()).isEqualTo("결제 완료");
-        assertThat(order.totalAmount()).isEqualTo(order.price() + order.deliveryFee());
+        assertThat(order.amount()).isEqualTo(320000);
         assertThat(order.certificateNo()).startsWith("ARTNARA-2026-");
         assertThat(certificateService.listOwnerships().ownerships())
                 .hasSize(ownershipsBefore + 1);
@@ -84,8 +83,7 @@ class OrderServiceTest {
 
         OrderDto.Response order = orderService.create(request(5L));
 
-        assertThat(order.price()).isEqualTo(800000);
-        assertThat(order.totalAmount()).isEqualTo(800000 + order.deliveryFee());
+        assertThat(order.amount()).isEqualTo(800000);
         assertThat(order.status()).isEqualTo("결제 완료");
     }
 
@@ -103,23 +101,11 @@ class OrderServiceTest {
     @Test
     @DisplayName("지원하지 않는 결제 수단이면 400")
     void createInvalidPaymentMethod() {
-        var invalid = new OrderDto.CreateRequest(
-                1L, "BITCOIN", "신경원", "010-1234-5678", "서울 마포구");
+        var invalid = new OrderDto.CreateRequest(1L, "BITCOIN");
         assertThatThrownBy(() -> orderService.create(invalid))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ORDER_INVALID_PAYMENT_METHOD);
-    }
-
-    @Test
-    @DisplayName("배송지 없이 결제 시 400")
-    void createWithoutAddress() {
-        var invalid = new OrderDto.CreateRequest(
-                1L, "CARD", "신경원", "010-1234-5678", " ");
-        assertThatThrownBy(() -> orderService.create(invalid))
-                .isInstanceOf(GlobalException.class)
-                .extracting(e -> ((GlobalException) e).getResultCode())
-                .isEqualTo(DomainResultCode.ORDER_ADDRESS_REQUIRED);
     }
 
     @Test

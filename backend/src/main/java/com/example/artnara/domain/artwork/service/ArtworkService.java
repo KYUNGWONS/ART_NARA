@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +78,9 @@ public class ArtworkService {
                                 ? create.auctionStartPrice() : create.price())
                         : null)
                 .imageUrl(create.imageUrl())
-                .remainingTime(create.auction() ? "~" + create.auctionEndDate() : null)
+                .auctionEndAt(create.auction() && create.auctionEndDate() != null
+                        ? LocalDate.parse(create.auctionEndDate()).atTime(23, 59, 59)
+                        : null)
                 .build();
         return artworkRepository.save(artwork).getId();
     }
@@ -114,12 +119,23 @@ public class ArtworkService {
         if (artwork.isAuctionClosed()) {
             throw new GlobalException(DomainResultCode.AUCTION_ALREADY_CLOSED);
         }
-        String winnerName = artworkBidRepository
+        artwork.closeAuction(topBidderName(artworkId));
+        return toDto(artwork);
+    }
+
+    /** 마감 시각이 지난 경매를 일괄 마감한다. 스케줄러가 주기적으로 호출한다. */
+    public int closeExpiredAuctions() {
+        List<Artwork> expired = artworkRepository
+                .findByAuctionTrueAndAuctionClosedFalseAndAuctionEndAtLessThanEqual(LocalDateTime.now());
+        expired.forEach(artwork -> artwork.closeAuction(topBidderName(artwork.getId())));
+        return expired.size();
+    }
+
+    private String topBidderName(Long artworkId) {
+        return artworkBidRepository
                 .findFirstByArtworkIdOrderByAmountDesc(artworkId)
                 .map(ArtworkBid::getBidderName)
                 .orElse(null);
-        artwork.closeAuction(winnerName);
-        return toDto(artwork);
     }
 
     @Transactional(readOnly = true)
@@ -160,9 +176,21 @@ public class ArtworkService {
                 artwork.getYearCreated(), artwork.getPrice(), artwork.isAuction(),
                 artwork.isAuction() ? artwork.getCurrentBid() : null,
                 MIN_BID_INCREMENT,
-                artwork.isAuctionClosed() ? "00:00:00" : artwork.getRemainingTime(),
+                remainingTimeOf(artwork),
                 artwork.isAuctionClosed(), artwork.getWinnerName(),
-                true, "전문 포장 후 배송 (3~5일 소요)", bids);
+                true, bids);
+    }
+
+    private String remainingTimeOf(Artwork artwork) {
+        if (!artwork.isAuction()) return null;
+        if (artwork.isAuctionClosed()) return "00:00:00";
+        if (artwork.getAuctionEndAt() == null) return null;
+        Duration remaining = Duration.between(LocalDateTime.now(), artwork.getAuctionEndAt());
+        if (remaining.isNegative() || remaining.isZero()) return "00:00:00";
+        long days = remaining.toDays();
+        if (days > 0) return "D-" + days;
+        return String.format("%02d:%02d:%02d",
+                remaining.toHours(), remaining.toMinutesPart(), remaining.toSecondsPart());
     }
 
     private static double haversineKm(double lat1, double lng1, double lat2, double lng2) {

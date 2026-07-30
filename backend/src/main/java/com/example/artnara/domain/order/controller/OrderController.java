@@ -22,7 +22,7 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "작품 구매(결제)",
-            description = "배송지와 결제 수단으로 작품을 결제합니다. 결제 완료 시 디지털 소유권이 자동 발급됩니다.")
+            description = "결제 수단을 선택해 작품을 결제합니다. 결제 완료 시 디지털 소유권이 자동 발급됩니다.")
     public BaseResponse<OrderDto.Response> create(@RequestBody OrderDto.CreateRequest request) {
         return BaseResponse.success("작품 결제 완료", orderService.create(request));
     }

@@ -6,10 +6,7 @@ public class OrderDto {
 
     public record CreateRequest(
             Long artworkId,
-            String paymentMethod,
-            String receiverName,
-            String phone,
-            String deliveryAddress
+            String paymentMethod
     ) {}
 
     public record Response(
@@ -17,12 +14,8 @@ public class OrderDto {
             Long artworkId,
             String artworkTitle,
             String artistName,
-            int price,
-            int deliveryFee,
-            int totalAmount,
+            int amount,
             String paymentMethod,
-            String receiverName,
-            String deliveryAddress,
             String status,
             String certificateNo,
             String orderedDate

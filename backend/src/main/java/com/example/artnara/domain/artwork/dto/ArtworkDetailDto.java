@@ -20,7 +20,6 @@ public record ArtworkDetailDto(
         boolean auctionClosed,
         String winnerName,
         boolean certified,
-        String deliveryInfo,
         List<Bid> bidHistory
 ) {
     public record Bid(String bidderName, int amount, String bidTime) {}

@@ -12,6 +12,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Table(name = "artworks")
@@ -54,13 +56,14 @@ public class Artwork extends BaseTimeEntity {
 
     private String imageUrl;
 
-    private String remainingTime;
+    /** 경매 마감 시각 — 스케줄러가 이 시각이 지나면 자동 마감한다. */
+    private LocalDateTime auctionEndAt;
 
     @Builder
     public Artwork(String title, String artistName, String artistIntroduction,
                    String description, String medium, String sizeInfo, int yearCreated,
                    int price, boolean auction, Integer currentBid,
-                   String imageUrl, String remainingTime) {
+                   String imageUrl, LocalDateTime auctionEndAt) {
         this.title = title;
         this.artistName = artistName;
         this.artistIntroduction = artistIntroduction;
@@ -73,7 +76,7 @@ public class Artwork extends BaseTimeEntity {
         this.currentBid = currentBid;
         this.auctionClosed = false;
         this.imageUrl = imageUrl == null ? "" : imageUrl;
-        this.remainingTime = remainingTime;
+        this.auctionEndAt = auctionEndAt;
     }
 
     public void updateCurrentBid(int amount) {

@@ -33,24 +33,10 @@ public class ArtOrder extends BaseTimeEntity {
     private String artistName;
 
     @Column(nullable = false)
-    private int price;
-
-    @Column(nullable = false)
-    private int deliveryFee;
-
-    @Column(nullable = false)
-    private int totalAmount;
+    private int amount;
 
     @Column(nullable = false)
     private String paymentMethod;
-
-    @Column(nullable = false)
-    private String receiverName;
-
-    private String phone;
-
-    @Column(nullable = false)
-    private String deliveryAddress;
 
     @Column(nullable = false)
     private String status;
@@ -63,19 +49,13 @@ public class ArtOrder extends BaseTimeEntity {
 
     @Builder
     public ArtOrder(Long artworkId, String artworkTitle, String artistName,
-                    int price, int deliveryFee, int totalAmount, String paymentMethod,
-                    String receiverName, String phone, String deliveryAddress,
-                    String status, String certificateNo, String orderedDate) {
+                    int amount, String paymentMethod, String status,
+                    String certificateNo, String orderedDate) {
         this.artworkId = artworkId;
         this.artworkTitle = artworkTitle;
         this.artistName = artistName;
-        this.price = price;
-        this.deliveryFee = deliveryFee;
-        this.totalAmount = totalAmount;
+        this.amount = amount;
         this.paymentMethod = paymentMethod;
-        this.receiverName = receiverName;
-        this.phone = phone;
-        this.deliveryAddress = deliveryAddress;
         this.status = status;
         this.certificateNo = certificateNo;
         this.orderedDate = orderedDate;

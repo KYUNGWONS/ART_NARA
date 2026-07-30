@@ -21,9 +21,6 @@ import java.util.Set;
 @Transactional
 public class OrderService {
 
-    /** 배송 중개비 (전문 포장 + 배송, 사업계획서 기준 1~2만원) */
-    private static final int DELIVERY_FEE = 15000;
-
     /** 프로토타입 단일 사용자 — ArtworkService.placeBid 가 기록하는 입찰자명과 동일해야 한다. */
     private static final String BUYER_NAME = "나";
 
@@ -61,13 +58,8 @@ public class OrderService {
                 .artworkId(artwork.id())
                 .artworkTitle(artwork.title())
                 .artistName(artwork.artistName())
-                .price(amount)
-                .deliveryFee(DELIVERY_FEE)
-                .totalAmount(amount + DELIVERY_FEE)
+                .amount(amount)
                 .paymentMethod(request.paymentMethod())
-                .receiverName(request.receiverName().trim())
-                .phone(request.phone())
-                .deliveryAddress(request.deliveryAddress().trim())
                 .status("결제 완료")
                 .certificateNo("ARTNARA-2026-PENDING")
                 .orderedDate(today)
@@ -93,9 +85,7 @@ public class OrderService {
     private OrderDto.Response toDto(ArtOrder order) {
         return new OrderDto.Response(
                 order.getId(), order.getArtworkId(), order.getArtworkTitle(),
-                order.getArtistName(), order.getPrice(), order.getDeliveryFee(),
-                order.getTotalAmount(), order.getPaymentMethod(),
-                order.getReceiverName(), order.getDeliveryAddress(),
+                order.getArtistName(), order.getAmount(), order.getPaymentMethod(),
                 order.getStatus(), order.getCertificateNo(), order.getOrderedDate());
     }
 
@@ -106,10 +96,6 @@ public class OrderService {
         if (request.paymentMethod() == null
                 || !PAYMENT_METHODS.contains(request.paymentMethod())) {
             throw new GlobalException(DomainResultCode.ORDER_INVALID_PAYMENT_METHOD);
-        }
-        if (request.receiverName() == null || request.receiverName().isBlank()
-                || request.deliveryAddress() == null || request.deliveryAddress().isBlank()) {
-            throw new GlobalException(DomainResultCode.ORDER_ADDRESS_REQUIRED);
         }
     }
 }
