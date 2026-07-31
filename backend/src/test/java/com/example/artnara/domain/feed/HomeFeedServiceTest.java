@@ -42,7 +42,7 @@ class HomeFeedServiceTest {
     void registeredArtworkAppearsInFeed() {
         artworkService.register(new ArtworkCreate(
                 "새 작품", "나", "소개", "설명", "유화", "10호", 2026,
-                150000, false, null, null, "/images/new.jpg"));
+                150000, false, null, null, "/images/new.jpg", "회화"));
 
         HomeFeedDto feed = homeFeedService.getHomeFeed("새 작품");
 

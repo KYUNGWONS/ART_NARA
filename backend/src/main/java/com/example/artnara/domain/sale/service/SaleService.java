@@ -37,6 +37,7 @@ public class SaleService {
                 .auctionStartPrice(request.auctionEnabled() ? request.auctionStartPrice() : null)
                 .auctionEndDate(request.auctionEnabled() ? request.auctionEndDate() : null)
                 .imageUrl(request.imageUrl() == null ? "" : request.imageUrl().trim())
+                .category(request.category() == null ? "회화" : request.category().trim())
                 .status("검수 대기")
                 .build());
 
@@ -48,7 +49,7 @@ public class SaleService {
                 sale.getBuyNowPrice(), sale.isAuctionEnabled(),
                 sale.getAuctionStartPrice(),
                 sale.getAuctionEndDate() == null ? null : sale.getAuctionEndDate().toString(),
-                sale.getImageUrl()));
+                sale.getImageUrl(), sale.getCategory()));
         return toDto(sale);
     }
 
@@ -66,7 +67,7 @@ public class SaleService {
                 sale.getMedium(), sale.getSizeInfo(), sale.getYearCreated(),
                 sale.getBuyNowPrice(), sale.isAuctionEnabled(),
                 sale.getAuctionStartPrice(), sale.getAuctionEndDate(),
-                sale.getImageUrl(), sale.getStatus());
+                sale.getImageUrl(), sale.getCategory(), sale.getStatus());
     }
 
     private void validate(SaleDto.CreateRequest request) {

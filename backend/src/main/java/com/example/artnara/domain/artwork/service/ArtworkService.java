@@ -78,6 +78,7 @@ public class ArtworkService {
                                 ? create.auctionStartPrice() : create.price())
                         : null)
                 .imageUrl(create.imageUrl())
+                .category(create.category())
                 .auctionEndAt(create.auction() && create.auctionEndDate() != null
                         ? LocalDate.parse(create.auctionEndDate()).atTime(23, 59, 59)
                         : null)
@@ -178,7 +179,7 @@ public class ArtworkService {
                 MIN_BID_INCREMENT,
                 remainingTimeOf(artwork),
                 artwork.isAuctionClosed(), artwork.getWinnerName(),
-                true, bids);
+                true, artwork.getCategory(), bids);
     }
 
     private String remainingTimeOf(Artwork artwork) {

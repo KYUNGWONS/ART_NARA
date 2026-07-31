@@ -107,7 +107,7 @@ class ArtworkServiceTest {
     void closeExpiredAuctions() {
         Long expiredId = artworkService.register(new com.example.artnara.domain.artwork.dto.ArtworkCreate(
                 "만료 경매", "나", "소개", "설명", "유화", "10호", 2026,
-                100000, true, 50000, "2020-01-01", ""));
+                100000, true, 50000, "2020-01-01", "", "회화"));
 
         int closed = artworkService.closeExpiredAuctions();
 

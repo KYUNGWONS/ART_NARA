@@ -48,6 +48,8 @@ public class Sale extends BaseTimeEntity {
 
     private String imageUrl;
 
+    private String category;
+
     @Column(nullable = false)
     private String status;
 
@@ -55,7 +57,7 @@ public class Sale extends BaseTimeEntity {
     public Sale(String title, String description, String medium, String sizeInfo,
                 Integer yearCreated, int buyNowPrice, boolean auctionEnabled,
                 Integer auctionStartPrice, LocalDate auctionEndDate,
-                String imageUrl, String status) {
+                String imageUrl, String category, String status) {
         this.title = title;
         this.description = description;
         this.medium = medium;
@@ -66,6 +68,7 @@ public class Sale extends BaseTimeEntity {
         this.auctionStartPrice = auctionStartPrice;
         this.auctionEndDate = auctionEndDate;
         this.imageUrl = imageUrl;
+        this.category = category;
         this.status = status;
     }
 }

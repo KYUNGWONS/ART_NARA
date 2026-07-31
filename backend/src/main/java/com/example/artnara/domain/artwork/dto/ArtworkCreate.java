@@ -13,5 +13,6 @@ public record ArtworkCreate(
         boolean auction,
         Integer auctionStartPrice,
         String auctionEndDate,
-        String imageUrl
+        String imageUrl,
+        String category
 ) {}

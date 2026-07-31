@@ -47,28 +47,28 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
         seedOwnerships();
         seedArtwork("봄의 정원", "김예진", "자연의 빛을 기록하는 작가",
                 "따스한 봄 햇살 아래 피어난 정원의 색을 캔버스에 옮겼습니다. 유화 특유의 두터운 질감으로 꽃잎의 생동감을 살렸습니다.",
-                "캔버스에 유화", "53.0 x 45.5cm (10호)", 2026, 320000, false, null);
+                "캔버스에 유화", "53.0 x 45.5cm (10호)", 2026, 320000, false, null, "회화");
         seedArtwork("무채색의 위로", "박소현", "고요한 순간을 그립니다",
                 "말 없는 위로가 필요한 날, 무채색의 결로 마음의 온도를 담아낸 작품입니다.",
-                "종이에 목탄", "42.0 x 29.7cm (A3)", 2025, 180000, false, null);
+                "종이에 목탄", "42.0 x 29.7cm (A3)", 2025, 180000, false, null, "일러스트");
         seedArtwork("빛과 그림자 사이", "이수민", "일상의 감정을 색으로 표현합니다",
                 "창가에 스며드는 오후의 빛과 그림자의 경계를 관찰하며 그린 연작 중 세 번째 작품입니다.",
-                "캔버스에 아크릴", "72.7 x 60.6cm (20호)", 2026, 450000, false, null);
+                "캔버스에 아크릴", "72.7 x 60.6cm (20호)", 2026, 450000, false, null, "회화");
         seedArtwork("고요한 파도", "최준혁", "바다의 시간을 수집하는 작가",
                 "새벽 바다의 잔잔한 파도를 푸른 색층으로 쌓아 올렸습니다.",
-                "캔버스에 유화", "65.1 x 50.0cm (15호)", 2025, 260000, false, null);
+                "캔버스에 유화", "65.1 x 50.0cm (15호)", 2025, 260000, false, null, "사진");
         seedArtwork("붉은 기억", "한지원", "기억의 잔상을 붉은 색채로 남깁니다",
                 "지나간 기억의 온도를 붉은 색층으로 표현한 졸업 전시 출품작입니다.",
-                "캔버스에 유화", "90.9 x 72.7cm (30호)", 2026, 780000, true, hoursFromNow(26));
+                "캔버스에 유화", "90.9 x 72.7cm (30호)", 2026, 780000, true, hoursFromNow(26), "회화");
         seedArtwork("도시의 새벽", "오민서", "도시의 표정을 기록합니다",
                 "아무도 깨지 않은 새벽 도시의 푸른 공기를 담았습니다.",
-                "캔버스에 아크릴", "72.7 x 53.0cm (20호)", 2026, 340000, true, hoursFromNow(53));
+                "캔버스에 아크릴", "72.7 x 53.0cm (20호)", 2026, 340000, true, hoursFromNow(53), "디지털");
         seedArtwork("흐린 날의 숲", "정다은", "숲의 사계를 그리는 작가",
                 "비 오기 직전 흐린 날 숲의 습기와 냄새까지 담고자 했습니다.",
-                "종이에 수채", "56.0 x 38.0cm", 2025, 520000, true, hoursFromNow(1));
+                "종이에 수채", "56.0 x 38.0cm", 2025, 520000, true, hoursFromNow(1), "회화");
         seedArtwork("기억의 조각", "윤재호", "조각난 기억을 화면 위에 재조립합니다",
                 "콜라주 기법으로 기억의 파편들을 하나의 화면에 재구성한 작품입니다.",
-                "혼합 매체", "60.6 x 60.6cm", 2026, 190000, true, hoursFromNow(9));
+                "혼합 매체", "60.6 x 60.6cm", 2026, 190000, true, hoursFromNow(9), "조각");
     }
 
     private LocalDateTime hoursFromNow(int hours) {
@@ -77,7 +77,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
 
     private void seedArtwork(String title, String artistName, String artistIntroduction,
                              String description, String medium, String sizeInfo, int yearCreated,
-                             int price, boolean auction, LocalDateTime auctionEndAt) {
+                             int price, boolean auction, LocalDateTime auctionEndAt, String category) {
         Artwork artwork = artworkRepository.save(Artwork.builder()
                 .title(title)
                 .artistName(artistName)
@@ -91,6 +91,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 .currentBid(auction ? price : null)
                 .imageUrl("")
                 .auctionEndAt(auctionEndAt)
+                .category(category)
                 .build());
         if (auction) {
             seedBid(artwork.getId(), "김*진", price - BID_STEP * 2, "1시간 전");

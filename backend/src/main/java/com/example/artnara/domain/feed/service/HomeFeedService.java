@@ -21,21 +21,28 @@ public class HomeFeedService {
     private final ArtworkService artworkService;
 
     public HomeFeedDto getHomeFeed(String query) {
+        return getHomeFeed(query, null);
+    }
+
+    public HomeFeedDto getHomeFeed(String query, String category) {
         String normalizedQuery = query == null ? "" : query.trim().toLowerCase();
+        String normalizedCategory = category == null || category.isBlank()
+                || category.equals("추천") ? null : category.trim();
         List<ArtworkDetailDto> artworks = artworkService.listAll();
         return new HomeFeedDto(
                 "봄빛을 담은 작가들의 이야기",
                 "ART NARA 에디터가 직접 고른 이번 주 주목작",
-                filter(artworks, normalizedQuery, false),
-                filter(artworks, normalizedQuery, true),
+                filter(artworks, normalizedQuery, normalizedCategory, false),
+                filter(artworks, normalizedQuery, normalizedCategory, true),
                 filterArtists(normalizedQuery)
         );
     }
 
     private List<HomeFeedDto.Artwork> filter(
-            List<ArtworkDetailDto> artworks, String query, boolean auction) {
+            List<ArtworkDetailDto> artworks, String query, String category, boolean auction) {
         return artworks.stream()
                 .filter(artwork -> artwork.auction() == auction)
+                .filter(artwork -> category == null || category.equals(artwork.category()))
                 .filter(artwork -> !artwork.auctionClosed())
                 .filter(artwork -> query.isEmpty()
                         || artwork.title().toLowerCase().contains(query)

@@ -56,6 +56,9 @@ public class Artwork extends BaseTimeEntity {
 
     private String imageUrl;
 
+    /** 카테고리 (회화·조각·디지털·사진·일러스트 등) */
+    private String category;
+
     /** 경매 마감 시각 — 스케줄러가 이 시각이 지나면 자동 마감한다. */
     private LocalDateTime auctionEndAt;
 
@@ -63,7 +66,7 @@ public class Artwork extends BaseTimeEntity {
     public Artwork(String title, String artistName, String artistIntroduction,
                    String description, String medium, String sizeInfo, int yearCreated,
                    int price, boolean auction, Integer currentBid,
-                   String imageUrl, LocalDateTime auctionEndAt) {
+                   String imageUrl, LocalDateTime auctionEndAt, String category) {
         this.title = title;
         this.artistName = artistName;
         this.artistIntroduction = artistIntroduction;
@@ -77,6 +80,7 @@ public class Artwork extends BaseTimeEntity {
         this.auctionClosed = false;
         this.imageUrl = imageUrl == null ? "" : imageUrl;
         this.auctionEndAt = auctionEndAt;
+        this.category = category == null ? "회화" : category;
     }
 
     public void updateCurrentBid(int amount) {
