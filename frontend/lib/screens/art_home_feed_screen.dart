@@ -36,7 +36,10 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
 
   void _search() {
     setState(() {
-      _feedFuture = _api.fetch(query: _searchController.text);
+      _feedFuture = _api.fetch(
+        query: _searchController.text,
+        category: _categories[_selectedCategory],
+      );
     });
   }
 
@@ -57,7 +60,7 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
         final feed = snapshot.data!;
         return RefreshIndicator(
           color: DustColors.brandPrimary,
-          onRefresh: () async => setState(() => _feedFuture = _api.fetch()),
+          onRefresh: () async => _search(),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(
                 DustSpacing.md, DustSpacing.md, DustSpacing.md, 32),
@@ -69,8 +72,10 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
               const SizedBox(height: DustSpacing.lg),
               _CategoryTabs(
                 selected: _selectedCategory,
-                onSelected: (index) =>
-                    setState(() => _selectedCategory = index),
+                onSelected: (index) {
+                  _selectedCategory = index;
+                  _search();
+                },
               ),
               const SizedBox(height: DustSpacing.lg),
               const _SectionHeader(title: '추천 작품'),

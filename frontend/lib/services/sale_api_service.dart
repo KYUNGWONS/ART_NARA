@@ -31,6 +31,7 @@ class SaleApiService {
     int? auctionStartPrice,
     String? auctionEndDate,
     String? imageUrl,
+    String? category,
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/sales'),
@@ -46,6 +47,7 @@ class SaleApiService {
         'auctionStartPrice': auctionStartPrice,
         'auctionEndDate': auctionEndDate,
         'imageUrl': imageUrl,
+        'category': category,
       }),
     );
     final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
