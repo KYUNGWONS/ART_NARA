@@ -41,13 +41,12 @@
 - 서비스 테스트는 `@IntegrationTest`(@SpringBootTest + @Transactional + test 프로필).
 - 새 공개 API는 `SecurityConstant.PUBLIC_URLS`에 경로 추가 필요.
 - 경매: `Artwork.auctionEndAt` 기준 `AuctionScheduler`가 1분 주기 자동 마감, remainingTime은 동적 계산("D-n"/"HH:mm:ss"). 낙찰자("나")만 낙찰가로 `/api/orders` 결제 가능.
-- 주문: 결제수단만 받음(CARD/KAKAO_PAY/NAVER_PAY/TOSS, mock PG). 결제 완료 시 디지털 소유권 자동 등록.
+- 주문: 결제수단만 받음(CARD/KAKAO_PAY/NAVER_PAY/TOSS, mock PG). 결제 완료 시 디지털 소유권 + QR 인증서(Certificate 엔티티, `ARTNARA-QR-xxxx`) 자동 발급 — 마이페이지 QR 스캔으로 즉시 조회 가능.
 - 이미지: `POST /api/images` multipart → `/images/{파일명}` 정적 서빙, 저장 위치 `app.upload-dir`(기본 uploads/, gitignore됨).
 
 ## 남은 작업 후보
 
 - 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
-- QR 인증서 mock(CertificateService의 정적 CERTIFICATES 맵) DB 전환
 
 ## 환경 주의사항
 
