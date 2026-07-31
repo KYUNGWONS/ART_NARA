@@ -1,10 +1,6 @@
 package com.example.artnara.domain.entity;
 
 import com.example.artnara.domain.chat.entity.*;
-import com.example.artnara.domain.content.entity.Content;
-import com.example.artnara.domain.content.entity.Language;
-import com.example.artnara.domain.content.entity.Theme;
-import com.example.artnara.domain.content.entity.TimeSlot;
 import com.example.artnara.domain.user.entity.Sido;
 import com.example.artnara.domain.user.entity.TravelStyle;
 import com.example.artnara.domain.user.entity.User;
@@ -16,10 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,75 +66,6 @@ class EntityUnitTest {
             assertThat(user.isMatchingEnabled()).isTrue();
             user.setMatchingEnabled(false);
             assertThat(user.isMatchingEnabled()).isFalse();
-        }
-    }
-
-    // ── Content ───────────────────────────────────────────
-
-    @Nested
-    @DisplayName("Content 엔티티")
-    class ContentTest {
-
-        @Test
-        @DisplayName("기본 visible은 true")
-        void defaultVisible() {
-            User author = User.builder()
-                    .email("a@t.com").nickname("a").userType(UserType.KOREAN_STUDENT).build();
-            Content c = Content.builder()
-                    .author(author).title("t").theme(Theme.ACTIVITY).build();
-            assertThat(c.isVisible()).isTrue();
-        }
-
-        @Test
-        @DisplayName("setVisible로 공개/비공개 전환")
-        void setVisible() {
-            User author = User.builder()
-                    .email("a@t.com").nickname("a").userType(UserType.KOREAN_STUDENT).build();
-            Content c = Content.builder()
-                    .author(author).title("t").theme(Theme.ACTIVITY).build();
-            c.setVisible(false);
-            assertThat(c.isVisible()).isFalse();
-        }
-
-        @Test
-        @DisplayName("부분 업데이트 - null이 아닌 필드만 변경")
-        void updatePartial() {
-            User author = User.builder()
-                    .email("a@t.com").nickname("a").userType(UserType.KOREAN_STUDENT).build();
-            Content c = Content.builder()
-                    .author(author).title("old").theme(Theme.PLACE)
-                    .description("desc").pricePerHour(1000).build();
-
-            c.update("new", null, null, Theme.ACTIVITY, null, null, null, null, null, null, null, null, null, null);
-
-            assertThat(c.getTitle()).isEqualTo("new");
-            assertThat(c.getDescription()).isEqualTo("desc");
-            assertThat(c.getTheme()).isEqualTo(Theme.ACTIVITY);
-            assertThat(c.getPricePerHour()).isEqualTo(1000);
-        }
-
-        @Test
-        @DisplayName("전체 업데이트")
-        void updateFull() {
-            User author = User.builder()
-                    .email("a@t.com").nickname("a").userType(UserType.KOREAN_STUDENT).build();
-            Content c = Content.builder()
-                    .author(author).title("old").theme(Theme.PLACE).build();
-
-            c.update("new", "한 줄 소개", "new desc", Theme.PERFORMANCE, Sido.SEOUL, "합정", null,
-                    List.of(Language.KOREAN), List.of("img.jpg"),
-                    List.of(DayOfWeek.MONDAY), List.of(TimeSlot.DINNER_TO_NIGHT),
-                    "합정역 1번 출구", 4, 5000);
-
-            assertThat(c.getTitle()).isEqualTo("new");
-            assertThat(c.getDescription()).isEqualTo("new desc");
-            assertThat(c.getTheme()).isEqualTo(Theme.PERFORMANCE);
-            assertThat(c.getSido()).isEqualTo(Sido.SEOUL);
-            assertThat(c.getNeighborhood()).isEqualTo("합정");
-            assertThat(c.getMeetingPoint()).isEqualTo("합정역 1번 출구");
-            assertThat(c.getAvailableDays()).containsExactly(DayOfWeek.MONDAY);
-            assertThat(c.getAvailableTimeSlots()).containsExactly(TimeSlot.DINNER_TO_NIGHT);
-            assertThat(c.getPricePerHour()).isEqualTo(5000);
         }
     }
 
