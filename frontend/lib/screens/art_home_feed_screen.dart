@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/dust_tokens.dart';
 import '../models/home_feed.dart';
 import '../services/home_feed_api_service.dart';
+import 'artist_portfolio_screen.dart';
 import 'artwork_detail_screen.dart';
 
 /// 카테고리 필터 칩 (Figma 홈 피드 1:437).
@@ -366,6 +367,12 @@ class _ArtistSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(DustRadius.md),
             ),
             child: ListTile(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      ArtistPortfolioScreen(artistName: artist.name),
+                ),
+              ),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: DustSpacing.md),
               leading: const CircleAvatar(

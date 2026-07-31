@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../models/artwork_detail.dart';
 import '../services/artwork_api_service.dart';
+import 'artist_portfolio_screen.dart';
 import 'checkout_screen.dart';
 
 class ArtworkDetailScreen extends StatefulWidget {
@@ -351,6 +352,11 @@ class _ArtistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ArtistPortfolioScreen(artistName: name),
+        ),
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 13),
       shape: RoundedRectangleBorder(
         side: const BorderSide(color: DustColors.borderSoft),
