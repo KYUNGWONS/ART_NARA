@@ -1,17 +1,10 @@
 package com.example.artnara.domain.entity;
 
-import com.example.artnara.domain.booking.entity.Booking;
-import com.example.artnara.domain.booking.entity.BookingStatus;
 import com.example.artnara.domain.chat.entity.*;
 import com.example.artnara.domain.content.entity.Content;
 import com.example.artnara.domain.content.entity.Language;
 import com.example.artnara.domain.content.entity.Theme;
 import com.example.artnara.domain.content.entity.TimeSlot;
-import com.example.artnara.domain.festival.entity.Festival;
-import com.example.artnara.domain.magazine.entity.Magazine;
-import com.example.artnara.domain.magazine.entity.MagazineCategory;
-import com.example.artnara.domain.notification.entity.Notification;
-import com.example.artnara.domain.notification.entity.NotificationType;
 import com.example.artnara.domain.user.entity.Sido;
 import com.example.artnara.domain.user.entity.TravelStyle;
 import com.example.artnara.domain.user.entity.User;
@@ -19,8 +12,6 @@ import com.example.artnara.domain.user.entity.UserType;
 import com.example.artnara.domain.verification.entity.Verification;
 import com.example.artnara.domain.verification.entity.VerificationStatus;
 import com.example.artnara.domain.verification.entity.VerificationType;
-import com.example.artnara.domain.wishlist.entity.WishlistFolder;
-import com.example.artnara.domain.wishlist.entity.WishlistItem;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -82,57 +73,6 @@ class EntityUnitTest {
             assertThat(user.isMatchingEnabled()).isTrue();
             user.setMatchingEnabled(false);
             assertThat(user.isMatchingEnabled()).isFalse();
-        }
-    }
-
-    // ── Booking ───────────────────────────────────────────
-
-    @Nested
-    @DisplayName("Booking 엔티티")
-    class BookingTest {
-
-        private Booking createBooking() {
-            User author = User.builder()
-                    .email("m@t.com").nickname("mate").userType(UserType.KOREAN_STUDENT).build();
-            Content content = Content.builder()
-                    .author(author).title("t").theme(Theme.PLACE).pricePerHour(1000).build();
-            User guest = User.builder()
-                    .email("g@t.com").nickname("guest").userType(UserType.FOREIGN_TOURIST).build();
-            return Booking.builder()
-                    .content(content).guest(guest).mate(author)
-                    .date(LocalDate.of(2026, 5, 1))
-                    .startTime(LocalTime.of(10, 0)).endTime(LocalTime.of(18, 0))
-                    .totalPrice(30000).build();
-        }
-
-        @Test
-        @DisplayName("생성 시 기본 상태는 PENDING_PAYMENT")
-        void defaultStatus() {
-            assertThat(createBooking().getStatus()).isEqualTo(BookingStatus.PENDING_PAYMENT);
-        }
-
-        @Test
-        @DisplayName("confirm → CONFIRMED")
-        void confirm() {
-            Booking b = createBooking();
-            b.confirm();
-            assertThat(b.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
-        }
-
-        @Test
-        @DisplayName("cancel → CANCELLED")
-        void cancel() {
-            Booking b = createBooking();
-            b.cancel();
-            assertThat(b.getStatus()).isEqualTo(BookingStatus.CANCELLED);
-        }
-
-        @Test
-        @DisplayName("complete → COMPLETED")
-        void complete() {
-            Booking b = createBooking();
-            b.complete();
-            assertThat(b.getStatus()).isEqualTo(BookingStatus.COMPLETED);
         }
     }
 
@@ -325,89 +265,6 @@ class EntityUnitTest {
         }
     }
 
-    // ── Festival ──────────────────────────────────────────
-
-    @Nested
-    @DisplayName("Festival 엔티티")
-    class FestivalTest {
-
-        @Test
-        @DisplayName("부분 업데이트")
-        void updatePartial() {
-            Festival f = Festival.builder()
-                    .name("축제").region("서울").description("설명").build();
-            f.update("새 축제", null, null, null, null, null);
-            assertThat(f.getName()).isEqualTo("새 축제");
-            assertThat(f.getRegion()).isEqualTo("서울");
-            assertThat(f.getDescription()).isEqualTo("설명");
-        }
-
-        @Test
-        @DisplayName("전체 업데이트")
-        void updateFull() {
-            Festival f = Festival.builder().name("old").region("old").build();
-            f.update("new", "부산", "desc", "img.jpg",
-                    LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
-            assertThat(f.getName()).isEqualTo("new");
-            assertThat(f.getRegion()).isEqualTo("부산");
-            assertThat(f.getDescription()).isEqualTo("desc");
-            assertThat(f.getCoverImageUrl()).isEqualTo("img.jpg");
-            assertThat(f.getStartDate()).isEqualTo(LocalDate.of(2026, 10, 1));
-            assertThat(f.getEndDate()).isEqualTo(LocalDate.of(2026, 10, 5));
-        }
-    }
-
-    // ── Magazine ──────────────────────────────────────────
-
-    @Nested
-    @DisplayName("Magazine 엔티티")
-    class MagazineTest {
-
-        @Test
-        @DisplayName("부분 업데이트")
-        void updatePartial() {
-            Magazine m = Magazine.builder()
-                    .title("old").summary("sum").category(MagazineCategory.KNOT_GUIDE).build();
-            m.update("new", null, null, null, null);
-            assertThat(m.getTitle()).isEqualTo("new");
-            assertThat(m.getSummary()).isEqualTo("sum");
-            assertThat(m.getCategory()).isEqualTo(MagazineCategory.KNOT_GUIDE);
-        }
-
-        @Test
-        @DisplayName("전체 업데이트")
-        void updateFull() {
-            Magazine m = Magazine.builder()
-                    .title("old").category(MagazineCategory.KNOT_GUIDE).build();
-            m.update("new", "summary", "content", "img.jpg", MagazineCategory.QNA_TIPS);
-            assertThat(m.getTitle()).isEqualTo("new");
-            assertThat(m.getSummary()).isEqualTo("summary");
-            assertThat(m.getContent()).isEqualTo("content");
-            assertThat(m.getCoverImageUrl()).isEqualTo("img.jpg");
-            assertThat(m.getCategory()).isEqualTo(MagazineCategory.QNA_TIPS);
-        }
-    }
-
-    // ── Notification ──────────────────────────────────────
-
-    @Nested
-    @DisplayName("Notification 엔티티")
-    class NotificationTest {
-
-        @Test
-        @DisplayName("기본 read false, markRead → true")
-        void markRead() {
-            User user = User.builder()
-                    .email("u@t.com").nickname("u").userType(UserType.KOREAN_STUDENT).build();
-            Notification n = Notification.builder()
-                    .user(user).type(NotificationType.BOOKING_CONFIRMED)
-                    .title("예약 확정").body("body").build();
-            assertThat(n.isRead()).isFalse();
-            n.markRead();
-            assertThat(n.isRead()).isTrue();
-        }
-    }
-
     // ── Verification ──────────────────────────────────────
 
     @Nested
@@ -457,52 +314,4 @@ class EntityUnitTest {
         }
     }
 
-    // ── WishlistFolder ────────────────────────────────────
-
-    @Nested
-    @DisplayName("WishlistFolder 엔티티")
-    class WishlistFolderTest {
-
-        @Test
-        @DisplayName("rename - null이면 변경 안 함")
-        void renameNull() {
-            User owner = User.builder()
-                    .email("o@t.com").nickname("o").userType(UserType.FOREIGN_TOURIST).build();
-            WishlistFolder f = WishlistFolder.builder().owner(owner).name("old").build();
-            f.rename(null);
-            assertThat(f.getName()).isEqualTo("old");
-        }
-
-        @Test
-        @DisplayName("rename - 이름 변경")
-        void rename() {
-            User owner = User.builder()
-                    .email("o@t.com").nickname("o").userType(UserType.FOREIGN_TOURIST).build();
-            WishlistFolder f = WishlistFolder.builder().owner(owner).name("old").build();
-            f.rename("new");
-            assertThat(f.getName()).isEqualTo("new");
-        }
-    }
-
-    // ── WishlistItem ──────────────────────────────────────
-
-    @Nested
-    @DisplayName("WishlistItem 엔티티")
-    class WishlistItemTest {
-
-        @Test
-        @DisplayName("메모 업데이트")
-        void updateMemo() {
-            User owner = User.builder()
-                    .email("o@t.com").nickname("o").userType(UserType.FOREIGN_TOURIST).build();
-            Content content = Content.builder()
-                    .author(owner).title("t").theme(Theme.PLACE).build();
-            WishlistFolder folder = WishlistFolder.builder().owner(owner).name("f").build();
-            WishlistItem item = WishlistItem.builder()
-                    .folder(folder).content(content).memo("old").build();
-
-            item.updateMemo("new memo");
-            assertThat(item.getMemo()).isEqualTo("new memo");
-        }
-    }
 }

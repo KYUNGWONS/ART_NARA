@@ -116,20 +116,6 @@ INSERT IGNORE INTO content_available_time_slots (content_id, time_slot) VALUES
 (9, 'LUNCH_TO_DINNER'),
 (10, 'LUNCH_TO_DINNER');
 
--- ── 예약 (bookings) ─────────────────────────────────────────
-INSERT IGNORE INTO bookings (id, content_id, guest_id, mate_id, date, start_time, end_time, total_price, status, created_at, updated_at)
-VALUES
-(1, 1, 3, 1, '2026-05-10', '10:00:00', '13:00:00', 15000, 'CONFIRMED', NOW(), NOW()),
-(2, 5, 3, 5, '2026-05-12', '09:30:00', '12:30:00', 35000, 'CONFIRMED', NOW(), NOW()),
-(3, 3, 6, 2, '2026-05-15', '09:00:00', '12:00:00', 45000, 'PENDING_PAYMENT', NOW(), NOW()),
-(4, 7, 4, 1, '2026-05-17', '18:00:00', '21:00:00', 30000, 'PENDING_PAYMENT', NOW(), NOW()),
-(5, 2, 8, 1, '2026-05-20', '13:00:00', '17:00:00', 20000, 'CONFIRMED', NOW(), NOW()),
-(6, 4, 3, 2, '2026-05-22', '14:00:00', '17:00:00', 10000, 'COMPLETED', NOW(), NOW()),
-(7, 6, 6, 5, '2026-05-25', '14:00:00', '16:00:00', 25000, 'CANCELLED', NOW(), NOW()),
-(8, 8, 4, 7, '2026-05-28', '10:00:00', '13:00:00', 12000, 'PENDING_PAYMENT', NOW(), NOW()),
-(9, 9, 8, 2, '2026-06-01', '12:00:00', '15:00:00', 18000, 'CONFIRMED', NOW(), NOW()),
-(10, 1, 6, 1, '2026-06-05', '10:00:00', '13:00:00', 15000, 'PENDING_PAYMENT', NOW(), NOW());
-
 -- ── 채팅방 (chat_rooms) ─────────────────────────────────────
 INSERT IGNORE INTO chat_rooms (id, creator_id, joiner_id, status, creator_left, joiner_left, created_at)
 VALUES
@@ -168,40 +154,6 @@ VALUES
 (3, 5, 3, 5, 'ACCEPTED', '2026-05-12 09:30:00', '경복궁 정문 앞', DATE_SUB(NOW(), INTERVAL 6 HOUR)),
 (4, 3, 4, 1, 'PENDING', '2026-05-17 18:00:00', '여의나루역 1번 출구', DATE_SUB(NOW(), INTERVAL 4 HOUR));
 
--- ── 페스티벌 (festivals) ────────────────────────────────────
-INSERT IGNORE INTO festivals (id, name, region, description, cover_image_url, start_date, end_date, created_at, updated_at)
-VALUES
-(1, '서울 불꽃축제', '서울', '여의도 한강에서 펼쳐지는 대규모 불꽃축제! 국내외 팀이 참여하는 화려한 불꽃쇼를 감상하세요.', 'https://cdn.artnara.com/festival/fireworks.jpg', '2026-10-03', '2026-10-03', NOW(), NOW()),
-(2, '부산 국제영화제 (BIFF)', '부산', '아시아 최대 영화제! 해운대 영화의전당에서 세계 영화를 만나보세요.', 'https://cdn.artnara.com/festival/biff.jpg', '2026-10-07', '2026-10-16', NOW(), NOW()),
-(3, '진해 벚꽃축제', '경남', '진해 군항제와 함께하는 벚꽃 축제. 여좌천 벚꽃터널이 압권!', 'https://cdn.artnara.com/festival/cherry.jpg', '2026-03-28', '2026-04-06', NOW(), NOW()),
-(4, '보령 머드축제', '충남', '보령 대천해수욕장에서 진흙을 온몸에 바르고 즐기는 여름 축제!', 'https://cdn.artnara.com/festival/mud.jpg', '2026-07-17', '2026-07-26', NOW(), NOW()),
-(5, '안동 탈춤 페스티벌', '경북', '유네스코 무형문화유산 안동 하회탈춤을 직접 볼 수 있는 축제.', 'https://cdn.artnara.com/festival/mask.jpg', '2026-09-25', '2026-10-04', NOW(), NOW()),
-(6, '서울 빛초롱축제', '서울', '청계천을 수놓는 아름다운 등불 축제. 가을 밤 산책하기 좋아요.', 'https://cdn.artnara.com/festival/lantern.jpg', '2026-11-06', '2026-11-22', NOW(), NOW()),
-(7, '제주 들불축제', '제주', '제주 새별오름에서 펼쳐지는 들불놓기 행사. 장관입니다!', 'https://cdn.artnara.com/festival/fire.jpg', '2026-03-12', '2026-03-14', NOW(), NOW());
-
--- ── 매거진 (magazines) ──────────────────────────────────────
-INSERT IGNORE INTO magazines (id, title, summary, content, cover_image_url, category, created_at, updated_at)
-VALUES
-(1, '찬이와 Andrew의 서촌 하루', '한국인 메이트 찬이와 외국인 Andrew가 함께한 서촌 골목 산책 이야기', '서촌은 경복궁 서쪽에 위치한 조용한 마을입니다. 찬이는 Andrew에게 숨겨진 카페와 골목 갤러리를 소개해주었고, Andrew는 한국 전통 건축의 아름다움에 감탄했습니다. 통인시장에서 도시락 카페를 체험하고, 수성동 계곡에서 잠시 쉬어가기도 했습니다. "한국의 진짜 모습을 볼 수 있었어요!" Andrew의 후기에 찬이도 뿌듯했습니다.', 'https://cdn.artnara.com/magazine/seochon-story.jpg', 'BEST_MATE_STORY', NOW(), NOW()),
-(2, 'ArtNara 이용 가이드', 'ArtNara을 처음 사용하는 분들을 위한 완벽 가이드', '1. 회원가입 후 프로필을 완성하세요. 여행 스타일과 관심사를 입력하면 더 나은 매칭이 가능합니다. 2. 마음에 드는 콘텐츠를 찾아 예약하세요. 3. 채팅방에서 메이트와 소통하며 약속을 잡으세요. 4. 만남 후 리뷰를 남겨주세요! 5. 소속 인증(대학교, 여권 등)을 하면 신뢰도가 올라갑니다.', 'https://cdn.artnara.com/magazine/guide.jpg', 'KNOT_GUIDE', NOW(), NOW()),
-(3, '한국 여행 Q&A: 자주 묻는 질문 TOP 10', '외국인 관광객들이 가장 많이 묻는 한국 여행 질문 모음', 'Q1. 교통카드는 어디서 사나요? A. 편의점이나 지하철역에서 구매 가능합니다. Q2. 한국어를 못해도 괜찮나요? A. ArtNara 메이트가 도와드려요! Q3. 팁 문화가 있나요? A. 한국에는 팁 문화가 없습니다. Q4. 현금이 필요한가요? A. 대부분의 장소에서 카드 결제가 가능합니다.', 'https://cdn.artnara.com/magazine/qna.jpg', 'QNA_TIPS', NOW(), NOW()),
-(4, '민지와 Emma의 해운대 서핑 데이', '부산 메이트 민지와 프랑스인 Emma의 서핑 도전기!', '처음에 겁이 났다는 Emma. 하지만 민지의 도움으로 보드 위에 서는 데 성공! 서핑 후에는 해운대 포장마차에서 씨앗호떡을 먹으며 부산의 밤을 즐겼습니다. "Best day in Korea so far!" - Emma', 'https://cdn.artnara.com/magazine/surfing-story.jpg', 'BEST_MATE_STORY', NOW(), NOW()),
-(5, '한국 길거리 음식 완전정복', '떡볶이부터 호떡까지, 한국 길거리 음식 A to Z', '한국의 길거리 음식은 세계적으로 유명합니다. 떡볶이, 순대, 어묵, 호떡, 붕어빵, 계란빵, 핫도그(명랑핫도그), 타코야키 등 다양한 메뉴가 있습니다. 서울에서는 명동, 홍대, 광장시장이 유명하고, 부산에서는 BIFF 광장과 국제시장을 추천합니다.', 'https://cdn.artnara.com/magazine/streetfood.jpg', 'QNA_TIPS', NOW(), NOW());
-
--- ── 알림 (notifications) ────────────────────────────────────
-INSERT IGNORE INTO notifications (id, user_id, type, title, body, is_read, created_at, updated_at)
-VALUES
-(1, 3, 'BOOKING_CONFIRMED', '예약이 확정되었습니다', '서촌 골목 산책 (5월 10일) 예약이 확정되었습니다. 메이트 찬이와의 만남을 준비하세요!', true, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(2, 3, 'APPOINTMENT_REMINDER', '약속 2시간 전입니다', '오늘 오전 10시 경복궁역 2번 출구에서 찬이를 만납니다. 시간에 맞춰 도착해주세요!', false, DATE_SUB(NOW(), INTERVAL 2 HOUR), DATE_SUB(NOW(), INTERVAL 2 HOUR)),
-(3, 1, 'NEW_MESSAGE', '새로운 메시지가 도착했습니다', 'Andrew님이 메시지를 보냈습니다: "How about May 10th?"', true, DATE_SUB(NOW(), INTERVAL 1 HOUR), DATE_SUB(NOW(), INTERVAL 1 HOUR)),
-(4, 6, 'PAYMENT_PENDING', '결제를 완료해주세요', '해운대 서핑 체험 (5월 15일) 예약의 결제가 아직 완료되지 않았습니다. 24시간 내에 결제해주세요.', false, DATE_SUB(NOW(), INTERVAL 5 HOUR), DATE_SUB(NOW(), INTERVAL 5 HOUR)),
-(5, 2, 'APPOINTMENT_REQUEST', '새로운 약속 요청', 'Emma님이 약속을 요청했습니다. 5월 15일 09:00 해운대역 5번 출구', false, DATE_SUB(NOW(), INTERVAL 3 HOUR), DATE_SUB(NOW(), INTERVAL 3 HOUR)),
-(6, 3, 'BOOKING_CONFIRMED', '예약이 확정되었습니다', '경복궁 한복 체험 (5월 12일) 예약이 확정되었습니다.', true, DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_SUB(NOW(), INTERVAL 1 DAY)),
-(7, 1, 'REVIEW_REQUEST', '리뷰를 작성해주세요', 'Andrew님과의 감천문화마을 포토 투어는 어떠셨나요? 리뷰를 남겨주세요!', false, NOW(), NOW()),
-(8, 4, 'HOT_THIS_WEEK', '이번 주 인기 콘텐츠', '서촌 골목 산책이 이번 주 가장 인기 있는 콘텐츠입니다. 확인해보세요!', false, NOW(), NOW()),
-(9, 8, 'EVENT_STARTED', '페스티벌이 시작되었습니다', '보령 머드축제가 오늘 시작합니다! 관심 있으시면 확인해보세요.', false, NOW(), NOW()),
-(10, 5, 'UNREAD_MESSAGES', '읽지 않은 메시지가 있습니다', '3개의 읽지 않은 메시지가 있습니다. 확인해주세요.', false, NOW(), NOW());
-
 -- ── 소속 인증 (verifications) ───────────────────────────────
 INSERT IGNORE INTO verifications (id, user_id, type, status, document_url, reject_reason, created_at, updated_at)
 VALUES
@@ -213,27 +165,3 @@ VALUES
 (6, 6, 'PASSPORT', 'REJECTED', 'https://cdn.artnara.com/docs/emma-passport.jpg', '서류가 불명확합니다. 여권 사진면을 다시 업로드해주세요.', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 9 DAY)),
 (7, 7, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/hyunwoo-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 14 DAY)),
 (8, 8, 'PASSPORT', 'APPROVED', 'https://cdn.artnara.com/docs/lucas-passport.jpg', NULL, DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 11 DAY));
-
--- ── 위시리스트 폴더 (wishlist_folders) ──────────────────────
-INSERT IGNORE INTO wishlist_folders (id, owner_id, name, created_at, updated_at)
-VALUES
-(1, 3, 'Seoul Must-Do', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(2, 3, 'Food Tours', DATE_SUB(NOW(), INTERVAL 8 DAY), DATE_SUB(NOW(), INTERVAL 8 DAY)),
-(3, 6, 'Mes favoris', DATE_SUB(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 7 DAY)),
-(4, 4, 'お気に入り', DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(5, 8, 'Photo Spots', DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY));
-
--- ── 위시리스트 항목 (wishlist_items) ────────────────────────
-INSERT IGNORE INTO wishlist_items (id, folder_id, content_id, memo, created_at, updated_at)
-VALUES
-(1, 1, 1, 'Looks like an amazing walking tour!', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(2, 1, 5, 'Must try Hanbok experience!', DATE_SUB(NOW(), INTERVAL 9 DAY), DATE_SUB(NOW(), INTERVAL 9 DAY)),
-(3, 1, 6, 'Tea ceremony sounds interesting', DATE_SUB(NOW(), INTERVAL 8 DAY), DATE_SUB(NOW(), INTERVAL 8 DAY)),
-(4, 2, 2, 'Retro vibes in Euljiro', DATE_SUB(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 7 DAY)),
-(5, 2, 7, 'Chicken and beer by the Han River - YES!', DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(NOW(), INTERVAL 6 DAY)),
-(6, 3, 5, 'Essayer le hanbok!', DATE_SUB(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 7 DAY)),
-(7, 3, 3, 'Surf à Busan!', DATE_SUB(NOW(), INTERVAL 6 DAY), DATE_SUB(NOW(), INTERVAL 6 DAY)),
-(8, 4, 7, '夜景がきれいそう', DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY)),
-(9, 4, 4, '写真を撮りたい', DATE_SUB(NOW(), INTERVAL 4 DAY), DATE_SUB(NOW(), INTERVAL 4 DAY)),
-(10, 5, 4, 'Great photo opportunity at Gamcheon Village', DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_SUB(NOW(), INTERVAL 3 DAY)),
-(11, 5, 9, 'Jagalchi market - lots of character', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY));
