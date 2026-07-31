@@ -8,7 +8,6 @@ import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
 import '../services/kakao_auth_service.dart';
-import '../services/tour_api_service.dart';
 import 'main_screen.dart';
 import 'profile_setup_screen.dart';
 import 'role_selection_screen.dart';
@@ -246,10 +245,7 @@ class _LoginScreenState extends State<LoginScreen>
       );
       return;
     }
-    // 기존 사용자(프로필 완료) → 역할에 따라 TourAPI 서비스 언어 결정
-    TourApiService.lang = userRoleFromApi(userType) == UserRole.foreigner
-        ? TourLang.english
-        : TourLang.korean;
+    // 기존 사용자(프로필 완료) → 메인으로
     Navigator.of(context).pushAndRemoveUntil(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
