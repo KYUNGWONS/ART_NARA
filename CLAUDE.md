@@ -48,6 +48,19 @@
 
 - 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
 
+## 로컬 실행 (에뮬레이터)
+
+```bash
+# 1) 백엔드
+cd backend && ./gradlew bootRun          # http://localhost:8080
+
+# 2) 앱 — 에뮬레이터에서 host 백엔드는 10.0.2.2 로 접근해야 한다
+cd frontend && flutter run -d emulator-5554   --dart-define=API_BASE_URL=http://10.0.2.2:8080   --dart-define=KAKAO_NATIVE_APP_KEY=... --dart-define=NAVER_MAP_CLIENT_ID=...
+```
+
+- 카카오/네이버/구글 키는 `String.fromEnvironment`라 **--dart-define 없이는 로그인·지도가 동작하지 않는다.** 패키지명이 `com.artnara.artnara`로 바뀌었으므로 **Knot용 키는 사용 불가 — 아트나라 전용으로 새로 발급**해야 하고, AndroidManifest 의 `kakao{네이티브키}` scheme 도 함께 교체해야 한다.
+- 한글 경로(`문서`) 때문에 두 가지 우회가 필요하다: `android/gradle.properties`의 `android.overridePathCheck=true`(적용됨), 그리고 `flutter run`은 aapt 가 APK 경로를 못 읽어 실패하므로 **`flutter build apk --debug` → APK를 영문 경로로 복사 → `adb install -r`** 로 띄운다.
+
 ## 환경 주의사항
 
 - OneDrive 경로라 `build/` 폴더 삭제가 자주 잠김 → 빌드 실패 시 `rm -rf build`(또는 하위 폴더) 후 재시도.
