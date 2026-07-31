@@ -4,7 +4,7 @@
 
 ## 프로젝트 개요
 
-UniTrip은 한국인 대학생과 외국인 관광객을 매칭하여 함께 로컬 여행을 즐길 수 있도록 해주는 Flutter 앱입니다. 프런트엔드는 Dart/Flutter로 작성된 다국어(KO/EN/JA/ZH) 모바일 앱이며 iOS와 Android를 타깃으로 합니다. [server/](server/) 디렉터리에는 실제 채팅 백엔드가 준비되기 전까지 임시로 사용하는 작은 Node.js WebSocket 헬퍼가 들어 있습니다.
+DUST-ART(아트나라)는 미대생 미술품 거래 플랫폼 Flutter 앱입니다(다국어 KO/EN/JA/ZH, iOS/Android). 디자인 토큰은 `lib/constants/dust_tokens.dart`(DustColors/DustText/DustSpacing/DustRadius) — **새 화면은 하드코딩 대신 이 토큰 사용**. [server/](server/) 디렉터리에는 실제 채팅 백엔드가 준비되기 전까지 임시로 사용하는 작은 Node.js WebSocket 헬퍼가 들어 있습니다.
 
 ## 자주 쓰는 명령어
 
@@ -33,19 +33,13 @@ npm install
 npm start            # ws://localhost:8080, 들어오는 메시지를 모든 클라이언트에 브로드캐스트
 ```
 
-이미지 일회성 유틸리티 (앱 빌드와는 무관):
-
-```bash
-dart run tool/remove_white_bg.dart   # knot_logo.png의 흰색 배경을 투명하게 변환
-```
-
 ## 아키텍처
 
 ### 진입점과 앱 셸
 
 - [lib/main.dart](lib/main.dart)는 `runApp` **이전에** Kakao SDK(`KakaoSdk.init`)와 Naver Map SDK(`FlutterNaverMap().init`)를 초기화합니다. Naver 초기화 결과는 전역 `isNaverMapInitialized` 플래그로 노출되므로, 지도 화면은 SDK가 준비되었다고 가정하지 말고 이 플래그를 분기 조건으로 사용해야 합니다.
-- 루트 위젯은 `MaterialApp`을 `ChangeNotifierProvider<LocaleProvider>`로 감싸고, `AppColors`의 시드 컬러와 `GoogleFonts.gowunDodumTextTheme()`을 적용합니다. 테마/컬러는 [lib/constants/app_colors.dart](lib/constants/app_colors.dart)에 정의되어 있으며, 하드코딩 대신 이 상수를 재사용해야 합니다.
-- 초기 라우트는 `LandingScreen` → `OnboardingScreen` → `LoginScreen` → `RoleSelectionScreen` / `ProfileSetupScreen` → `MainScreen`(지도, 메이트 매칭, 커뮤니티, 채팅 목록, 내 프로필 사이를 전환하는 바텀 탭 호스트)의 순서로 진행됩니다.
+- 루트 위젯은 `MaterialApp`을 `ChangeNotifierProvider<LocaleProvider>`로 감싸고, `DustColors.brandPrimary` 시드 컬러와 `GoogleFonts.notoSansKrTextTheme()`을 적용합니다. 색·간격은 `dust_tokens.dart` 토큰을 사용하세요(레거시 `app_colors.dart`는 점진 대체 중).
+- 초기 라우트는 `SplashOnboardingScreen`(DUST-ART 스플래시/온보딩) → `LoginScreen`(카카오/구글) → 신규회원이면 `RoleSelectionScreen`(작가/컬렉터) → `ProfileSetupScreen` → `MainScreen`(하단 탭: 홈/판매/지도/제작의뢰/채팅) 순서입니다. 역할 enum `UserRole.koreanStudent`=작가, `UserRole.foreigner`=컬렉터로 백엔드 userType(KOREAN_STUDENT/FOREIGN_TOURIST)과 매핑됩니다.
 
 ### `lib/` 계층 구조
 
