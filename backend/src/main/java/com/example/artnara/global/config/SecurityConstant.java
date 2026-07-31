@@ -27,7 +27,8 @@ public class SecurityConstant {
             "/api/certificates/**",
             "/api/orders/**",
             "/api/images/**",
-            "/images/**"
+            "/images/**",
+            "/api/artists/**"
     };
 
     public static final String[] SWAGGER_URLS = {

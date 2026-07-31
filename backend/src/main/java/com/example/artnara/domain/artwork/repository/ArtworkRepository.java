@@ -10,5 +10,7 @@ public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
 
     List<Artwork> findAllByOrderByIdAsc();
 
+    List<Artwork> findByArtistNameOrderByIdDesc(String artistName);
+
     List<Artwork> findByAuctionTrueAndAuctionClosedFalseAndAuctionEndAtLessThanEqual(LocalDateTime now);
 }
