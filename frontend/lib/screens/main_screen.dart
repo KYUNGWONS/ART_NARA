@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
+import '../constants/dust_tokens.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
@@ -28,7 +29,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
-  int _currentTab = 2; // 홈(가운데)이 기본 선택
+  int _currentTab = 0; // 홈이 기본 선택 (디자인 1:437 탭 순서)
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -216,7 +217,7 @@ class _MainScreenState extends State<MainScreen>
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: DustColors.bgCanvas,
           body: SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -237,20 +238,14 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  // ─── 상단 내비게이션 바 ───
+  // ─── 상단 내비게이션 바 (디자인 1:437: 메뉴 · 둘러보기 · 벨) ───
+  static const _tabTitles = ['둘러보기', '판매', '지도', '제작 의뢰', '채팅'];
+
   Widget _buildTopBar(LocaleProvider locale) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(
+          horizontal: DustSpacing.md, vertical: DustSpacing.sm),
+      color: DustColors.bgCanvas,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -265,47 +260,40 @@ class _MainScreenState extends State<MainScreen>
                   ),
                 );
               },
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
+              borderRadius: BorderRadius.circular(DustRadius.full),
+              child: const SizedBox(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.offWhite,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.lightGrey, width: 1),
-                ),
-                child: const Icon(
+                child: Icon(
                   Icons.person_outline_rounded,
-                  size: 22,
-                  color: AppColors.darkGrey,
+                  size: 24,
+                  color: DustColors.textPrimary,
                 ),
               ),
             ),
           ),
-          // 중앙: Knot 로고 (초기 화면과 동일)
-          Image.asset(
-            'assets/images/knot_logo.png',
-            height: 36,
-            fit: BoxFit.contain,
+          // 중앙: 현재 탭 타이틀
+          Text(
+            _tabTitles[_currentTab],
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: DustColors.brandPrimary,
+            ),
           ),
           // 우측: 설정 아이콘
           Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () => _showSettingsSheet(),
-              borderRadius: BorderRadius.circular(14),
-              child: Container(
+              borderRadius: BorderRadius.circular(DustRadius.full),
+              child: const SizedBox(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.offWhite,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.lightGrey, width: 1),
-                ),
-                child: const Icon(
+                child: Icon(
                   Icons.settings_outlined,
-                  size: 22,
-                  color: AppColors.darkGrey,
+                  size: 24,
+                  color: DustColors.textPrimary,
                 ),
               ),
             ),
@@ -315,19 +303,19 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  // ─── 중앙 Hero 콘텐츠 ───
+  // ─── 중앙 메인 콘텐츠 (디자인 탭 순서: 홈 · 판매 · 지도 · 제작의뢰 · 채팅) ───
   Widget _buildBody(LocaleProvider locale) {
     switch (_currentTab) {
-      case 0: // 맵
-        return const MapScreen();
+      case 0: // 홈 (둘러보기)
+        return const ArtHomeFeedScreen();
       case 1: // 판매 등록
         return const SellScreen();
-      case 2:
-        return const ArtHomeFeedScreen();
-      case 3: // 채팅 (참여 중인 채팅방 목록)
-        return const ChatListScreen();
-      case 4: // 제작 의뢰 (역경매)
+      case 2: // 지도
+        return const MapScreen();
+      case 3: // 제작 의뢰 (역경매)
         return const CommissionScreen();
+      case 4: // 채팅 (참여 중인 채팅방 목록)
+        return const ChatListScreen();
       default:
         return _buildPlaceholder(locale);
     }
@@ -335,18 +323,18 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _buildPlaceholder(LocaleProvider locale) {
     final labels = [
-      AppStrings.navMap,
-      AppStrings.navSell,
       AppStrings.navHome,
-      AppStrings.navChat,
+      AppStrings.navSell,
+      AppStrings.navMap,
       AppStrings.navCommission,
+      AppStrings.navChat,
     ];
     final icons = [
-      Icons.map_outlined,
-      Icons.storefront_outlined,
       Icons.home_rounded,
+      Icons.sell_outlined,
+      Icons.map_outlined,
+      Icons.description_outlined,
       Icons.chat_bubble_outline_rounded,
-      Icons.design_services_outlined,
     ];
 
     return Center(
@@ -377,46 +365,40 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  // ─── 하단 내비게이션 바 ───
+  // ─── 하단 내비게이션 바 (디자인 1:437: 홈 · 판매 · 지도 · 제작의뢰 · 채팅) ───
   Widget _buildBottomNav(LocaleProvider locale) {
     final items = [
-      _NavItem(
-        icon: Icons.map_outlined,
-        activeIcon: Icons.map_rounded,
-        label: AppStrings.navMap,
-      ),
-      _NavItem(
-        icon: Icons.storefront_outlined,
-        activeIcon: Icons.storefront_rounded,
-        label: AppStrings.navSell,
-      ),
       _NavItem(
         icon: Icons.home_outlined,
         activeIcon: Icons.home_rounded,
         label: AppStrings.navHome,
       ),
       _NavItem(
+        icon: Icons.sell_outlined,
+        activeIcon: Icons.sell,
+        label: AppStrings.navSell,
+      ),
+      _NavItem(
+        icon: Icons.map_outlined,
+        activeIcon: Icons.map_rounded,
+        label: AppStrings.navMap,
+      ),
+      _NavItem(
+        icon: Icons.description_outlined,
+        activeIcon: Icons.description,
+        label: AppStrings.navCommission,
+      ),
+      _NavItem(
         icon: Icons.chat_bubble_outline_rounded,
         activeIcon: Icons.chat_bubble_rounded,
         label: AppStrings.navChat,
       ),
-      _NavItem(
-        icon: Icons.design_services_outlined,
-        activeIcon: Icons.design_services_rounded,
-        label: AppStrings.navCommission,
-      ),
     ];
 
     return Container(
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          ),
-        ],
+      decoration: const BoxDecoration(
+        color: DustColors.bgCanvas,
+        border: Border(top: BorderSide(color: DustColors.borderSoft)),
       ),
       child: SafeArea(
         top: false,
@@ -431,45 +413,31 @@ class _MainScreenState extends State<MainScreen>
                 child: GestureDetector(
                   onTap: () => setState(() => _currentTab = index),
                   behavior: HitTestBehavior.opaque,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // 선택 인디케이터
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          width: isSelected ? 20 : 0,
-                          height: 3,
-                          margin: const EdgeInsets.only(bottom: 6),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
                         // 아이콘
                         Icon(
                           isSelected ? item.activeIcon : item.icon,
                           size: 24,
                           color: isSelected
-                              ? AppColors.primary
-                              : AppColors.grey,
+                              ? DustColors.brandPrimary
+                              : DustColors.textSecondary,
                         ),
                         const SizedBox(height: 4),
                         // 라벨
                         Text(
                           locale.tr(item.label),
-                          style: GoogleFonts.gowunDodum(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: isSelected
                                 ? FontWeight.w700
                                 : FontWeight.w500,
                             color: isSelected
-                                ? AppColors.primary
-                                : AppColors.grey,
+                                ? DustColors.brandPrimary
+                                : DustColors.textSecondary,
                           ),
                         ),
                       ],

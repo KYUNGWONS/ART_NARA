@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_colors.dart';
+import '../constants/dust_tokens.dart';
 import '../models/home_feed.dart';
 import '../services/home_feed_api_service.dart';
 import 'artwork_detail_screen.dart';
+
+/// 카테고리 필터 칩 (Figma 홈 피드 1:437).
+/// TODO(서버 연동): 작품에 카테고리 필드가 생기면 실제 필터링으로 교체.
+const _categories = ['추천', '회화', '조각', '디지털', '사진', '일러스트'];
 
 class ArtHomeFeedScreen extends StatefulWidget {
   const ArtHomeFeedScreen({super.key});
@@ -16,6 +20,7 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
   final _searchController = TextEditingController();
   final _api = const HomeFeedApiService();
   late Future<HomeFeed> _feedFuture;
+  int _selectedCategory = 0;
 
   @override
   void initState() {
@@ -41,7 +46,9 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
       future: _feedFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(color: DustColors.brandPrimary),
+          );
         }
         if (snapshot.hasError) {
           return _ErrorView(onRetry: _search);
@@ -49,20 +56,31 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
 
         final feed = snapshot.data!;
         return RefreshIndicator(
+          color: DustColors.brandPrimary,
           onRefresh: () async => setState(() => _feedFuture = _api.fetch()),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+            padding: const EdgeInsets.fromLTRB(
+                DustSpacing.md, DustSpacing.md, DustSpacing.md, 32),
             children: [
-              _SearchField(controller: _searchController, onSubmitted: (_) => _search()),
-              const SizedBox(height: 16),
-              const _ImagePlaceholder(height: 280),
-              const SizedBox(height: 16),
-              _CurationCard(feed: feed),
-              const SizedBox(height: 16),
-              _ArtworkSection(title: '추천 작품', items: feed.recommended),
-              const SizedBox(height: 24),
-              _ArtworkSection(title: '마감 임박 경매', items: feed.auctions),
-              const SizedBox(height: 24),
+              _SearchRow(
+                controller: _searchController,
+                onSubmitted: (_) => _search(),
+              ),
+              const SizedBox(height: DustSpacing.lg),
+              _CategoryTabs(
+                selected: _selectedCategory,
+                onSelected: (index) =>
+                    setState(() => _selectedCategory = index),
+              ),
+              const SizedBox(height: DustSpacing.lg),
+              const _SectionHeader(title: '추천 작품'),
+              const SizedBox(height: DustSpacing.sm),
+              _ArtworkGrid(items: feed.recommended),
+              const SizedBox(height: DustSpacing.lg),
+              const _SectionHeader(title: '마감 임박 경매'),
+              const SizedBox(height: DustSpacing.sm),
+              _ArtworkGrid(items: feed.auctions),
+              const SizedBox(height: DustSpacing.lg),
               _ArtistSection(artists: feed.artists),
             ],
           ),
@@ -72,90 +90,168 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
   }
 }
 
-class _SearchField extends StatelessWidget {
-  const _SearchField({required this.controller, required this.onSubmitted});
+/// 검색 바 + 필터 버튼 (디자인: pill 검색창 34.7 높이 + 우측 정사각 버튼)
+class _SearchRow extends StatelessWidget {
+  const _SearchRow({required this.controller, required this.onSubmitted});
 
   final TextEditingController controller;
   final ValueChanged<String> onSubmitted;
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      onSubmitted: onSubmitted,
-      textInputAction: TextInputAction.search,
-      decoration: const InputDecoration(
-        hintText: '작품, 작가를 검색해보세요',
-        prefixIcon: Icon(Icons.search),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4)),
-        ),
-        isDense: true,
-      ),
-    );
-  }
-}
-
-class _CurationCard extends StatelessWidget {
-  const _CurationCard({required this.feed});
-
-  final HomeFeed feed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('오늘의 큐레이션', style: TextStyle(fontSize: 11)),
-          const SizedBox(height: 12),
-          Text(feed.curationTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(feed.curationDescription, style: const TextStyle(fontSize: 12)),
-          const SizedBox(height: 12),
-          FilledButton(onPressed: () {}, child: const Text('작품 보러 가기')),
-        ],
-      ),
-    );
-  }
-}
-
-class _ArtworkSection extends StatelessWidget {
-  const _ArtworkSection({required this.title, required this.items});
-
-  final String title;
-  final List<Artwork> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: items.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            mainAxisExtent: 306,
+        Expanded(
+          child: SizedBox(
+            height: 44,
+            child: TextField(
+              controller: controller,
+              onSubmitted: onSubmitted,
+              textInputAction: TextInputAction.search,
+              style: const TextStyle(
+                  fontSize: 14, color: DustColors.textPrimary),
+              decoration: InputDecoration(
+                hintText: '작품, 작가, 태그 검색',
+                hintStyle: const TextStyle(
+                    fontSize: 14, color: DustColors.textSecondary),
+                prefixIcon: const Icon(Icons.search,
+                    size: 20, color: DustColors.textSecondary),
+                filled: true,
+                fillColor: DustColors.bgSurface,
+                contentPadding: EdgeInsets.zero,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(DustRadius.full),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
           ),
-          itemBuilder: (context, index) => _ArtworkCard(artwork: items[index]),
+        ),
+        const SizedBox(width: DustSpacing.xs),
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: DustColors.bgSurface,
+            borderRadius: BorderRadius.circular(DustRadius.sm),
+          ),
+          child: const Icon(Icons.tune,
+              size: 20, color: DustColors.textPrimary),
         ),
       ],
     );
   }
 }
 
+/// 카테고리 칩 (활성: teal pill + white, 비활성: surface + line border)
+class _CategoryTabs extends StatelessWidget {
+  const _CategoryTabs({required this.selected, required this.onSelected});
+
+  final int selected;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 9),
+        itemBuilder: (context, index) {
+          final active = index == selected;
+          return GestureDetector(
+            onTap: () => onSelected(index),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: active
+                    ? DustColors.brandPrimary
+                    : DustColors.bgSurface,
+                borderRadius: BorderRadius.circular(DustRadius.full),
+                border: active
+                    ? null
+                    : Border.all(color: DustColors.borderSoft),
+              ),
+              child: Text(
+                _categories[index],
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                  color: active
+                      ? DustColors.textOnBrand
+                      : DustColors.textPrimary,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// 섹션 헤더: 제목 + 더보기 >
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title,
+            style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: DustColors.textPrimary)),
+        const Row(
+          children: [
+            Text('더보기',
+                style: TextStyle(
+                    fontSize: 13, color: DustColors.textSecondary)),
+            SizedBox(width: 2),
+            Icon(Icons.chevron_right,
+                size: 16, color: DustColors.textSecondary),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ArtworkGrid extends StatelessWidget {
+  const _ArtworkGrid({required this.items});
+
+  final List<Artwork> items;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: DustSpacing.md),
+        child: Text('작품이 없습니다', style: DustText.caption),
+      );
+    }
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: DustSpacing.sm,
+        mainAxisSpacing: DustSpacing.sm,
+        mainAxisExtent: 258,
+      ),
+      itemBuilder: (context, index) => _ArtworkCard(artwork: items[index]),
+    );
+  }
+}
+
+/// 작품 카드 (디자인: paper 카드, 이미지 160 + 하트, 제목/작가/가격)
 class _ArtworkCard extends StatelessWidget {
   const _ArtworkCard({required this.artwork});
 
@@ -174,38 +270,72 @@ class _ArtworkCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _openDetail(context),
       child: Container(
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _ArtworkThumb(imageUrl: artwork.imageUrl, height: 160),
-          const SizedBox(height: 12),
-          Text(artwork.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
-          const SizedBox(height: 12),
-          Text(artwork.artistName, style: const TextStyle(fontSize: 11)),
-          const Spacer(),
-          Text(artwork.auction ? '현재가 ₩${artwork.currentBid ?? artwork.price}' : '정가 ₩${artwork.price}'),
-          if (artwork.remainingTime != null) ...[
-            const SizedBox(height: 4),
-            Text('남은 시간 ${artwork.remainingTime}', style: const TextStyle(fontSize: 11)),
-          ],
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              onPressed: () {},
-              icon: Icon(artwork.liked ? Icons.favorite : Icons.favorite_border, size: 18),
-              color: artwork.liked ? AppColors.accent : AppColors.darkGrey,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: DustColors.bgSurface,
+          borderRadius: BorderRadius.circular(DustRadius.md),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                _ArtworkThumb(imageUrl: artwork.imageUrl, height: 160),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Icon(
+                    artwork.liked ? Icons.favorite : Icons.favorite_border,
+                    size: 20,
+                    color: artwork.liked
+                        ? DustColors.brandPrimary
+                        : Colors.white,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  DustSpacing.md, DustSpacing.xs, DustSpacing.md, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    artwork.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: DustColors.textPrimary),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    artwork.artistName,
+                    style: const TextStyle(
+                        fontSize: 13, color: DustColors.textSecondary),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '₩${formatPrice(artwork.auction ? (artwork.currentBid ?? artwork.price) : artwork.price)}',
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: DustColors.textPrimary),
+                  ),
+                  if (artwork.remainingTime != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '남은 시간 ${artwork.remainingTime}',
+                      style: const TextStyle(
+                          fontSize: 11, color: DustColors.brandPrimary),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -221,39 +351,45 @@ class _ArtistSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('주목할 작가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 12),
+        const _SectionHeader(title: '주목할 작가'),
+        const SizedBox(height: DustSpacing.xs),
         ...artists.map(
-          (artist) => ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 13),
-            leading: const CircleAvatar(backgroundColor: Color(0xFFD1D5DB)),
-            title: Text(artist.name),
-            subtitle: Text(artist.introduction),
-            trailing: OutlinedButton(onPressed: () {}, child: const Text('팔로우')),
+          (artist) => Container(
+            margin: const EdgeInsets.only(bottom: DustSpacing.xs),
+            decoration: BoxDecoration(
+              color: DustColors.bgSurface,
+              borderRadius: BorderRadius.circular(DustRadius.md),
+            ),
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: DustSpacing.md),
+              leading: const CircleAvatar(
+                  backgroundColor: DustColors.bgSubtle,
+                  child: Icon(Icons.person_outline,
+                      color: DustColors.textSecondary)),
+              title: Text(artist.name,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: DustColors.textPrimary)),
+              subtitle: Text(artist.introduction,
+                  style: const TextStyle(
+                      fontSize: 12, color: DustColors.textSecondary)),
+              trailing: OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: DustColors.brandPrimary,
+                  side: const BorderSide(color: DustColors.brandPrimary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(DustRadius.full),
+                  ),
+                ),
+                child: const Text('팔로우'),
+              ),
+            ),
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ImagePlaceholder extends StatelessWidget {
-  const _ImagePlaceholder({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      width: double.infinity,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: const Text('Image', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
     );
   }
 }
@@ -267,16 +403,26 @@ class _ArtworkThumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageUrl.isEmpty) {
-      return _ImagePlaceholder(height: height);
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: Image.network(
-        imageUrl,
+      return Container(
         height: height,
         width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => _ImagePlaceholder(height: height),
+        alignment: Alignment.center,
+        color: DustColors.bgSubtle,
+        child: const Icon(Icons.image_outlined,
+            size: 28, color: DustColors.textSecondary),
+      );
+    }
+    return Image.network(
+      imageUrl,
+      height: height,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      errorBuilder: (_, _, _) => Container(
+        height: height,
+        color: DustColors.bgSubtle,
+        alignment: Alignment.center,
+        child: const Icon(Icons.image_outlined,
+            size: 28, color: DustColors.textSecondary),
       ),
     );
   }
@@ -293,11 +439,29 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('홈 피드를 불러오지 못했어요'),
-          const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('다시 시도')),
+          const Text('홈 피드를 불러오지 못했어요', style: DustText.caption),
+          const SizedBox(height: DustSpacing.sm),
+          OutlinedButton(
+            onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: DustColors.brandPrimary,
+              side: const BorderSide(color: DustColors.brandPrimary),
+            ),
+            child: const Text('다시 시도'),
+          ),
         ],
       ),
     );
   }
+}
+
+/// 1234567 → 1,234,567
+String formatPrice(int value) {
+  final text = value.toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < text.length; i++) {
+    if (i > 0 && (text.length - i) % 3 == 0) buffer.write(',');
+    buffer.write(text[i]);
+  }
+  return buffer.toString();
 }
