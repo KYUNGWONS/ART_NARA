@@ -15,7 +15,7 @@ import 'chat_list_screen.dart';
 // import 'community_screen.dart';
 import 'art_home_feed_screen.dart';
 import 'commission_screen.dart';
-import 'landing_screen.dart';
+import 'splash_onboarding_screen.dart';
 import 'map_screen.dart';
 import 'my_profile_screen.dart';
 import 'sell_screen.dart';
@@ -198,11 +198,11 @@ class _MainScreenState extends State<MainScreen>
 
     if (!mounted) return;
 
-    // 초기 화면(LandingScreen)으로 이동, 모든 스택 제거
+    // 초기 화면(스플래시)으로 이동, 모든 스택 제거
     Navigator.of(context).pushAndRemoveUntil(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const LandingScreen(),
+            const SplashOnboardingScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },

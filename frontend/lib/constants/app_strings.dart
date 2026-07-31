@@ -172,45 +172,45 @@ class AppStrings {
 
   // ─── 역할 선택 화면 ───
   static const Map<AppLanguage, String> roleTitle = {
-    AppLanguage.ko: '당신은 누구인가요?',
-    AppLanguage.en: 'Who are you?',
-    AppLanguage.ja: 'あなたはどちらですか？',
-    AppLanguage.zh: '你是谁？',
+    AppLanguage.ko: '어떤 회원으로 시작할까요?',
+    AppLanguage.en: 'How would you like to start?',
+    AppLanguage.ja: 'どちらで始めますか？',
+    AppLanguage.zh: '您想以什么身份开始？',
   };
 
   static const Map<AppLanguage, String> roleSubtitle = {
-    AppLanguage.ko: '맞춤형 여행 경험을 위해 알려주세요',
-    AppLanguage.en: 'Let us know for a personalized experience',
-    AppLanguage.ja: 'カスタマイズされた体験のために教えてください',
-    AppLanguage.zh: '请告诉我们以获得个性化体验',
+    AppLanguage.ko: '역할에 맞는 화면과 기능을 준비해드려요',
+    AppLanguage.en: 'We tailor the experience to your role',
+    AppLanguage.ja: '役割に合わせた機能をご用意します',
+    AppLanguage.zh: '我们会为您的角色定制体验',
   };
 
   static const Map<AppLanguage, String> roleKoreanStudent = {
-    AppLanguage.ko: '한국인 대학생',
-    AppLanguage.en: 'Korean Student',
-    AppLanguage.ja: '韓国人大学生',
-    AppLanguage.zh: '韩国大学生',
+    AppLanguage.ko: '작가',
+    AppLanguage.en: 'Artist',
+    AppLanguage.ja: '作家',
+    AppLanguage.zh: '艺术家',
   };
 
   static const Map<AppLanguage, String> roleKoreanStudentDesc = {
-    AppLanguage.ko: '외국인 친구에게 한국을 소개하고 싶어요',
-    AppLanguage.en: 'I want to show Korea to foreign friends',
-    AppLanguage.ja: '外国人の友達に韓国を紹介したい',
-    AppLanguage.zh: '我想向外国朋友介绍韩国',
+    AppLanguage.ko: '내 작품을 등록하고 판매하고 싶어요',
+    AppLanguage.en: 'I want to list and sell my artworks',
+    AppLanguage.ja: '自分の作品を登録して販売したい',
+    AppLanguage.zh: '我想上传并出售我的作品',
   };
 
   static const Map<AppLanguage, String> roleForeigner = {
-    AppLanguage.ko: '외국인 여행자',
-    AppLanguage.en: 'Foreign Traveler',
-    AppLanguage.ja: '外国人旅行者',
-    AppLanguage.zh: '外国旅行者',
+    AppLanguage.ko: '컬렉터',
+    AppLanguage.en: 'Collector',
+    AppLanguage.ja: 'コレクター',
+    AppLanguage.zh: '收藏家',
   };
 
   static const Map<AppLanguage, String> roleForeignerDesc = {
-    AppLanguage.ko: '한국 현지 친구와 함께 여행하고 싶어요',
-    AppLanguage.en: 'I want to travel with a local Korean friend',
-    AppLanguage.ja: '韓国の現地の友達と旅行したい',
-    AppLanguage.zh: '我想和韩国当地朋友一起旅行',
+    AppLanguage.ko: '마음에 드는 작품을 발견하고 소장하고 싶어요',
+    AppLanguage.en: 'I want to discover and collect artworks',
+    AppLanguage.ja: '気に入った作品を見つけて所蔵したい',
+    AppLanguage.zh: '我想发现并收藏喜欢的作品',
   };
 
   // ─── 프로필 설정 화면 ───

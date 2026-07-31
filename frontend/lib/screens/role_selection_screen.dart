@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../constants/app_colors.dart';
+
 import '../constants/app_strings.dart';
+import '../constants/dust_tokens.dart';
 import '../providers/locale_provider.dart';
 import 'profile_setup_screen.dart';
 
+/// 회원 역할.
+/// 백엔드 userType enum(KOREAN_STUDENT/FOREIGN_TOURIST)과 결합되어 있어 이름은 유지한다:
+/// koreanStudent = 작가, foreigner = 컬렉터.
 enum UserRole { koreanStudent, foreigner }
 
-class RoleSelectionScreen extends StatefulWidget {
+/// 역할 선택 — 작가 / 컬렉터 (DUST-ART 스타일)
+class RoleSelectionScreen extends StatelessWidget {
   final String? kakaoProfileImageUrl;
   final String? kakaoNickname;
 
@@ -18,33 +22,16 @@ class RoleSelectionScreen extends StatefulWidget {
     this.kakaoNickname,
   });
 
-  @override
-  State<RoleSelectionScreen> createState() => _RoleSelectionScreenState();
-}
-
-class _RoleSelectionScreenState extends State<RoleSelectionScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
+  void _select(BuildContext context, UserRole role) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProfileSetupScreen(
+          role: role,
+          kakaoProfileImageUrl: kakaoProfileImageUrl,
+          kakaoNickname: kakaoNickname,
+        ),
+      ),
     );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
-    _animController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
   }
 
   @override
@@ -52,175 +39,135 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFFFFFFF),
-                  Color(0xFFF0F5FF),
-                  Color(0xFFFFF5F2),
-                ],
-              ),
-            ),
-            child: SafeArea(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  children: [
-                    // 상단 바
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4, top: 8),
-                        child: TextButton.icon(
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(
-                            Icons.arrow_back_ios_rounded,
-                            size: 16,
-                            color: AppColors.grey,
-                          ),
-                          label: Text(
-                            locale.tr(AppStrings.back),
-                            style: GoogleFonts.gowunDodum(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Spacer(flex: 2),
-                    // 타이틀
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 20),
-                          Text(
-                            locale.tr(AppStrings.roleTitle),
-                            style: GoogleFonts.gowunDodum(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.black,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            locale.tr(AppStrings.roleSubtitle),
-                            style: GoogleFonts.gowunDodum(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.grey,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    // 역할 선택: 이미지 두 개 중간 배치, 선택 시 해당 프로필 입력으로 이동
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: _buildRoleImage(
-                              imagePath:
-                                  'assets/images/role_korean_student.png',
-                              label: locale.tr(AppStrings.roleKoreanStudent),
-                              role: UserRole.koreanStudent,
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: _buildRoleImage(
-                              imagePath:
-                                  'assets/images/role_foreign_traveler.png',
-                              label: locale.tr(AppStrings.roleForeigner),
-                              role: UserRole.foreigner,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Spacer(flex: 3),
-                  ],
+          backgroundColor: DustColors.bgCanvas,
+          body: SafeArea(
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.chevron_left,
+                        size: 28, color: DustColors.textPrimary),
+                  ),
                 ),
-              ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: DustSpacing.lg * 1.5),
+                  child: Column(
+                    children: [
+                      Text(
+                        locale.tr(AppStrings.roleTitle),
+                        textAlign: TextAlign.center,
+                        style: DustText.section
+                            .copyWith(color: DustColors.brandPrimary),
+                      ),
+                      const SizedBox(height: DustSpacing.xs),
+                      Text(
+                        locale.tr(AppStrings.roleSubtitle),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 13,
+                            color: DustColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: DustSpacing.lg * 1.5),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: DustSpacing.lg),
+                  child: Column(
+                    children: [
+                      _RoleCard(
+                        icon: Icons.palette_outlined,
+                        title: locale.tr(AppStrings.roleKoreanStudent),
+                        description:
+                            locale.tr(AppStrings.roleKoreanStudentDesc),
+                        onTap: () =>
+                            _select(context, UserRole.koreanStudent),
+                      ),
+                      const SizedBox(height: DustSpacing.md),
+                      _RoleCard(
+                        icon: Icons.collections_outlined,
+                        title: locale.tr(AppStrings.roleForeigner),
+                        description: locale.tr(AppStrings.roleForeignerDesc),
+                        onTap: () => _select(context, UserRole.foreigner),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(flex: 2),
+              ],
             ),
           ),
         );
       },
     );
   }
+}
 
-  Widget _buildRoleImage({
-    required String imagePath,
-    required String label,
-    required UserRole role,
-  }) {
+class _RoleCard extends StatelessWidget {
+  const _RoleCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                ProfileSetupScreen(
-                  role: role,
-                  kakaoProfileImageUrl: widget.kakaoProfileImageUrl,
-                  kakaoNickname: widget.kakaoNickname,
-                ),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position:
-                          Tween<Offset>(
-                            begin: const Offset(0.3, 0.0),
-                            end: Offset.zero,
-                          ).animate(
-                            CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOut,
-                            ),
-                          ),
-                      child: child,
-                    ),
-                  );
-                },
-            transitionDuration: const Duration(milliseconds: 400),
-          ),
-        );
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: SizedBox(
-              height: 200,
-              width: double.infinity,
-              child: Image.asset(imagePath, fit: BoxFit.contain),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(DustSpacing.lg),
+        decoration: BoxDecoration(
+          color: DustColors.bgSurface,
+          borderRadius: BorderRadius.circular(DustRadius.md),
+          border: Border.all(color: DustColors.borderSoft),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: DustColors.bgInfo,
+                borderRadius: BorderRadius.circular(DustRadius.md),
+              ),
+              child:
+                  Icon(icon, size: 28, color: DustColors.brandPrimary),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            label,
-            style: GoogleFonts.gowunDodum(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppColors.black,
+            const SizedBox(width: DustSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: DustColors.textPrimary)),
+                  const SizedBox(height: 4),
+                  Text(description,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          height: 1.4,
+                          color: DustColors.textSecondary)),
+                ],
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const Icon(Icons.chevron_right,
+                color: DustColors.textSecondary),
+          ],
+        ),
       ),
     );
   }
@@ -230,7 +177,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
 UserRole userRoleFromApi(String? userType) {
   if (userType == null || userType.isEmpty) return UserRole.koreanStudent;
   final t = userType.toLowerCase();
-  // 'foreign', 'foreigner', 'foreign_tourist'(백엔드 enum) 모두 외국인으로 처리
+  // 'foreign*'(백엔드 enum FOREIGN_TOURIST)은 컬렉터로 처리
   if (t.startsWith('foreign')) return UserRole.foreigner;
   return UserRole.koreanStudent;
 }
