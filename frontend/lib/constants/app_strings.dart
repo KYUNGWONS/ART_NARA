@@ -891,7 +891,7 @@ class AppStrings {
   };
 
   static const Map<AppLanguage, String> navMap = {
-    AppLanguage.ko: '맵',
+    AppLanguage.ko: '지도',
     AppLanguage.en: 'Map',
     AppLanguage.ja: 'マップ',
     AppLanguage.zh: '地图',
@@ -926,7 +926,7 @@ class AppStrings {
   };
 
   static const Map<AppLanguage, String> navCommission = {
-    AppLanguage.ko: '의뢰',
+    AppLanguage.ko: '제작의뢰',
     AppLanguage.en: 'Request',
     AppLanguage.ja: '依頼',
     AppLanguage.zh: '定制',
