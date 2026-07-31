@@ -320,8 +320,6 @@ class _LoginScreenState extends State<LoginScreen>
                             'assets/images/dust_wordmark.png',
                             width: 260,
                             fit: BoxFit.contain,
-                            color: Colors.white,
-                            colorBlendMode: BlendMode.multiply,
                           ),
                           const Text(
                             '당신의 예술, 새로운 가치를 만나다',

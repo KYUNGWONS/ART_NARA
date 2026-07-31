@@ -52,37 +52,37 @@ VALUES
 -- ── 채팅 메시지 (chat_messages) ─────────────────────────────
 INSERT IGNORE INTO chat_messages (id, chat_room_id, sender_id, content, message_type, is_read, created_at)
 VALUES
-(1, 1, 3, 'Hi! I''d love to join the Seochon walking tour!', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 3 HOUR)),
-(2, 1, 1, '안녕하세요! 반갑습니다 :) 어떤 날짜가 좋으세요?', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 2 HOUR)),
-(3, 1, 3, 'How about May 10th? Saturday works best for me.', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 1 HOUR)),
-(4, 1, 1, '좋아요! 5월 10일 토요일에 서촌에서 만나요. 오전 10시 경복궁역 2번 출구에서 만날까요?', 'TEXT', false, DATE_SUB(NOW(), INTERVAL 30 MINUTE)),
-(5, 2, 6, 'Bonjour! I''m interested in surfing at Haeundae!', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
-(6, 2, 2, '안녕하세요 Emma! 서핑 재밌을 거예요! 5월 15일 어때요?', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 4 HOUR)),
-(7, 2, 6, 'Sounds perfect! What should I bring?', 'TEXT', false, DATE_SUB(NOW(), INTERVAL 3 HOUR)),
-(8, 3, 4, 'こんにちは！夜景ツアーに参加したいです。', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 6 HOUR)),
-(9, 3, 1, '반갑습니다 Yuki! 한강 야경 치맥 투어 좋은 선택이에요! 영어로 대화 가능합니다 ㅎㅎ', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
-(10, 4, 8, 'Hey! I saw the Jagalchi market tour. Looks amazing!', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 2 HOUR)),
-(11, 4, 2, '감사합니다 Lucas! 사진작가시면 시장에서 좋은 사진 많이 찍으실 수 있을 거예요!', 'TEXT', false, DATE_SUB(NOW(), INTERVAL 1 HOUR)),
-(12, 5, 3, 'I want to try the Hanbok experience at Gyeongbokgung!', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 8 HOUR)),
-(13, 5, 5, '좋아요 Andrew! 경복궁 한복체험 정말 추천해요. 날짜를 정할까요?', 'TEXT', true, DATE_SUB(NOW(), INTERVAL 7 HOUR)),
-(14, 5, 3, '[약속 요청] 약속 잡기를 원합니다.', 'APPOINTMENT', true, DATE_SUB(NOW(), INTERVAL 6 HOUR));
+(1, 1, 3, 'Hi! I''d love to join the Seochon walking tour!', 'TEXT', true, TIMESTAMPADD(HOUR, -3, NOW())),
+(2, 1, 1, '안녕하세요! 반갑습니다 :) 어떤 날짜가 좋으세요?', 'TEXT', true, TIMESTAMPADD(HOUR, -2, NOW())),
+(3, 1, 3, 'How about May 10th? Saturday works best for me.', 'TEXT', true, TIMESTAMPADD(HOUR, -1, NOW())),
+(4, 1, 1, '좋아요! 5월 10일 토요일에 서촌에서 만나요. 오전 10시 경복궁역 2번 출구에서 만날까요?', 'TEXT', false, TIMESTAMPADD(MINUTE, -30, NOW())),
+(5, 2, 6, 'Bonjour! I''m interested in surfing at Haeundae!', 'TEXT', true, TIMESTAMPADD(HOUR, -5, NOW())),
+(6, 2, 2, '안녕하세요 Emma! 서핑 재밌을 거예요! 5월 15일 어때요?', 'TEXT', true, TIMESTAMPADD(HOUR, -4, NOW())),
+(7, 2, 6, 'Sounds perfect! What should I bring?', 'TEXT', false, TIMESTAMPADD(HOUR, -3, NOW())),
+(8, 3, 4, 'こんにちは！夜景ツアーに参加したいです。', 'TEXT', true, TIMESTAMPADD(HOUR, -6, NOW())),
+(9, 3, 1, '반갑습니다 Yuki! 한강 야경 치맥 투어 좋은 선택이에요! 영어로 대화 가능합니다 ㅎㅎ', 'TEXT', true, TIMESTAMPADD(HOUR, -5, NOW())),
+(10, 4, 8, 'Hey! I saw the Jagalchi market tour. Looks amazing!', 'TEXT', true, TIMESTAMPADD(HOUR, -2, NOW())),
+(11, 4, 2, '감사합니다 Lucas! 사진작가시면 시장에서 좋은 사진 많이 찍으실 수 있을 거예요!', 'TEXT', false, TIMESTAMPADD(HOUR, -1, NOW())),
+(12, 5, 3, 'I want to try the Hanbok experience at Gyeongbokgung!', 'TEXT', true, TIMESTAMPADD(HOUR, -8, NOW())),
+(13, 5, 5, '좋아요 Andrew! 경복궁 한복체험 정말 추천해요. 날짜를 정할까요?', 'TEXT', true, TIMESTAMPADD(HOUR, -7, NOW())),
+(14, 5, 3, '[약속 요청] 약속 잡기를 원합니다.', 'APPOINTMENT', true, TIMESTAMPADD(HOUR, -6, NOW()));
 
 -- ── 약속 (appointments) ─────────────────────────────────────
 INSERT IGNORE INTO appointments (id, chat_room_id, requester_id, responder_id, status, appointment_time, location, created_at)
 VALUES
-(1, 1, 3, 1, 'ACCEPTED', '2026-05-10 10:00:00', '경복궁역 2번 출구', DATE_SUB(NOW(), INTERVAL 1 HOUR)),
-(2, 2, 6, 2, 'PENDING', '2026-05-15 09:00:00', '해운대역 5번 출구', DATE_SUB(NOW(), INTERVAL 3 HOUR)),
-(3, 5, 3, 5, 'ACCEPTED', '2026-05-12 09:30:00', '경복궁 정문 앞', DATE_SUB(NOW(), INTERVAL 6 HOUR)),
-(4, 3, 4, 1, 'PENDING', '2026-05-17 18:00:00', '여의나루역 1번 출구', DATE_SUB(NOW(), INTERVAL 4 HOUR));
+(1, 1, 3, 1, 'ACCEPTED', '2026-05-10 10:00:00', '경복궁역 2번 출구', TIMESTAMPADD(HOUR, -1, NOW())),
+(2, 2, 6, 2, 'PENDING', '2026-05-15 09:00:00', '해운대역 5번 출구', TIMESTAMPADD(HOUR, -3, NOW())),
+(3, 5, 3, 5, 'ACCEPTED', '2026-05-12 09:30:00', '경복궁 정문 앞', TIMESTAMPADD(HOUR, -6, NOW())),
+(4, 3, 4, 1, 'PENDING', '2026-05-17 18:00:00', '여의나루역 1번 출구', TIMESTAMPADD(HOUR, -4, NOW()));
 
 -- ── 소속 인증 (verifications) ───────────────────────────────
 INSERT IGNORE INTO verifications (id, user_id, type, status, document_url, reject_reason, created_at, updated_at)
 VALUES
-(1, 1, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/chan-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 29 DAY)),
-(2, 2, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/minji-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_SUB(NOW(), INTERVAL 24 DAY)),
-(3, 3, 'PASSPORT', 'APPROVED', 'https://cdn.artnara.com/docs/andrew-passport.jpg', NULL, DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 19 DAY)),
-(4, 4, 'FLIGHT', 'PENDING', 'https://cdn.artnara.com/docs/yuki-flight.jpg', NULL, DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_SUB(NOW(), INTERVAL 2 DAY)),
-(5, 5, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/jiwon-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_SUB(NOW(), INTERVAL 27 DAY)),
-(6, 6, 'PASSPORT', 'REJECTED', 'https://cdn.artnara.com/docs/emma-passport.jpg', '서류가 불명확합니다. 여권 사진면을 다시 업로드해주세요.', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_SUB(NOW(), INTERVAL 9 DAY)),
-(7, 7, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/hyunwoo-univ.jpg', NULL, DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_SUB(NOW(), INTERVAL 14 DAY)),
-(8, 8, 'PASSPORT', 'APPROVED', 'https://cdn.artnara.com/docs/lucas-passport.jpg', NULL, DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_SUB(NOW(), INTERVAL 11 DAY));
+(1, 1, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/chan-univ.jpg', NULL, TIMESTAMPADD(DAY, -30, NOW()), TIMESTAMPADD(DAY, -29, NOW())),
+(2, 2, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/minji-univ.jpg', NULL, TIMESTAMPADD(DAY, -25, NOW()), TIMESTAMPADD(DAY, -24, NOW())),
+(3, 3, 'PASSPORT', 'APPROVED', 'https://cdn.artnara.com/docs/andrew-passport.jpg', NULL, TIMESTAMPADD(DAY, -20, NOW()), TIMESTAMPADD(DAY, -19, NOW())),
+(4, 4, 'FLIGHT', 'PENDING', 'https://cdn.artnara.com/docs/yuki-flight.jpg', NULL, TIMESTAMPADD(DAY, -2, NOW()), TIMESTAMPADD(DAY, -2, NOW())),
+(5, 5, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/jiwon-univ.jpg', NULL, TIMESTAMPADD(DAY, -28, NOW()), TIMESTAMPADD(DAY, -27, NOW())),
+(6, 6, 'PASSPORT', 'REJECTED', 'https://cdn.artnara.com/docs/emma-passport.jpg', '서류가 불명확합니다. 여권 사진면을 다시 업로드해주세요.', TIMESTAMPADD(DAY, -10, NOW()), TIMESTAMPADD(DAY, -9, NOW())),
+(7, 7, 'UNIVERSITY', 'APPROVED', 'https://cdn.artnara.com/docs/hyunwoo-univ.jpg', NULL, TIMESTAMPADD(DAY, -15, NOW()), TIMESTAMPADD(DAY, -14, NOW())),
+(8, 8, 'PASSPORT', 'APPROVED', 'https://cdn.artnara.com/docs/lucas-passport.jpg', NULL, TIMESTAMPADD(DAY, -12, NOW()), TIMESTAMPADD(DAY, -11, NOW()));

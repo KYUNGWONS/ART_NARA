@@ -8,7 +8,7 @@ spring:
       max-request-size: 12MB
 
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:artnaradb}
+    url: ${DB_URL:jdbc:h2:mem:artnaradb;MODE=MYSQL;DB_CLOSE_DELAY=-1}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}
@@ -31,6 +31,8 @@ spring:
     init:
       mode: ${SQL_INIT_MODE:always}
       data-locations: classpath:test.sql
+      # test.sql 은 UTF-8 이라 플랫폼 기본 인코딩(MS949)으로 읽으면 한글이 깨진다
+      encoding: UTF-8
 
 jwt:
   issuer: ${JWT_ISSUER:artnara}

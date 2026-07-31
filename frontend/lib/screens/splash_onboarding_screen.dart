@@ -150,7 +150,7 @@ class _WordmarkPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // 워드마크 이미지(image 11). 흰 배경이 깔리지 않도록 multiply 로 합성한다.
+        // 워드마크 이미지(image 11) — 배경이 투명한 PNG 라 그대로 겹쳐 그린다.
         Positioned(
           left: -14 * sw,
           top: 231 * sh,
@@ -159,8 +159,6 @@ class _WordmarkPage extends StatelessWidget {
           child: Image.asset(
             'assets/images/dust_wordmark.png',
             fit: BoxFit.contain,
-            color: Colors.white,
-            colorBlendMode: BlendMode.multiply,
           ),
         ),
         // 태그라인 (디자인: y=386)
