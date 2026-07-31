@@ -100,7 +100,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     _row('닉네임', _profile!.nickname),
                     if (_profile!.age != null) _row('나이', '${_profile!.age}세'),
                     if (_profile!.userType != null)
-                      _row('유저 타입', _profile!.userType!),
+                      _row('역할', _profile!.userType!.toUpperCase().startsWith('FOREIGN') ? '컬렉터' : '작가'),
                     _row('프로필 완료', _profile!.profileCompleted ? '완료' : '미완료'),
                   ]),
                   if (_profile!.address != null ||
@@ -113,44 +113,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         _row('상세주소', _profile!.addressDetail!),
                     ]),
                   ],
-                  if (_profile!.nationality != null ||
-                      _profile!.languages.isNotEmpty) ...[
+                                                      if (_profile!.interests.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildSection('국적/언어', [
-                      if (_profile!.nationality != null)
-                        _row('국적', _profile!.nationality!),
-                      if (_profile!.languages.isNotEmpty)
-                        _row('언어', _profile!.languages.join(', ')),
+                    _buildSection('관심 장르', [
+                      _row('장르', _profile!.interests.join(', ')),
                     ]),
                   ],
-                  if (_profile!.visitExperience != null) ...[
-                    const SizedBox(height: 16),
-                    _buildSection('방문 경험', [
-                      _row(
-                        '한국 방문',
-                        _profile!.visitExperience is bool
-                            ? (_profile!.visitExperience as bool ? '예' : '아니오')
-                            : _profile!.visitExperience.toString(),
-                      ),
-                    ]),
-                  ],
-                  if (_profile!.interests.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    _buildSection('관심사', [
-                      _row('관심사', _profile!.interests.join(', ')),
-                    ]),
-                  ],
-                  if (_profile!.planningScore != null ||
-                      _profile!.activityScore != null) ...[
-                    const SizedBox(height: 16),
-                    _buildSection('성향', [
-                      if (_profile!.planningScore != null)
-                        _row('계획성', '${_profile!.planningScore}'),
-                      if (_profile!.activityScore != null)
-                        _row('활발도', '${_profile!.activityScore}'),
-                    ]),
-                  ],
-                  if (_profile!.bio != null && _profile!.bio!.isNotEmpty) ...[
+                                    if (_profile!.bio != null && _profile!.bio!.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildSection('자기소개', [_row('소개', _profile!.bio!)]),
                   ],
