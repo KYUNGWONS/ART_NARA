@@ -1,17 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-
-import '../constants/dust_tokens.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../constants/dust_tokens.dart';
 import '../models/commission.dart';
 import '../services/commission_api_service.dart';
 import '../services/image_api_service.dart';
 
-const _categories = ['회화', '일러스트', '조소', '공예', '디지털 아트'];
+/// 선호 카테고리 (Figma 23:67 — 복수 선택 가능)
+const _categories = ['회화', '조각', '일러스트', '디지털 아트', '사진', '콜라주', '설치 미술', '기타'];
 
+/// 제작 의뢰 신청 — Figma 23:67 디자인.
 class CommissionScreen extends StatefulWidget {
   const CommissionScreen({super.key});
 
@@ -21,12 +22,10 @@ class CommissionScreen extends StatefulWidget {
 
 class _CommissionScreenState extends State<CommissionScreen> {
   final _api = const CommissionApiService();
-  final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _budgetController = TextEditingController();
 
-  String _category = _categories.first;
+  final Set<String> _selected = {'회화'};
   DateTime? _desiredDate;
   bool _submitting = false;
   List<Commission> _commissions = const [];
@@ -41,11 +40,11 @@ class _CommissionScreenState extends State<CommissionScreen> {
   void initState() {
     super.initState();
     _loadCommissions();
+    _descriptionController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _titleController.dispose();
     _descriptionController.dispose();
     _budgetController.dispose();
     super.dispose();
@@ -95,24 +94,42 @@ class _CommissionScreenState extends State<CommissionScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    final description = _descriptionController.text.trim();
+    if (description.isEmpty) {
+      _showMessage('의뢰 세부 내용을 작성해주세요');
+      return;
+    }
+    final budget = int.tryParse(_budgetController.text);
+    if (budget == null || budget <= 0) {
+      _showMessage('예산을 입력해주세요');
+      return;
+    }
+    if (_selected.isEmpty) {
+      _showMessage('선호 카테고리를 선택해주세요');
+      return;
+    }
     setState(() => _submitting = true);
     try {
+      // 제목은 세부 내용 첫 줄에서 만든다 (디자인에 별도 제목 필드 없음).
+      final firstLine = description.split('\n').first;
+      final title =
+          firstLine.length > 30 ? '${firstLine.substring(0, 30)}…' : firstLine;
+      // TODO(서버 연동): 백엔드가 단일 카테고리만 받으므로 첫 선택을 대표로 전송.
       final created = await _api.create(
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        category: _category,
-        budget: int.parse(_budgetController.text),
+        title: title,
+        description: description,
+        category: _selected.first,
+        budget: budget,
         desiredDate: _desiredDate?.toIso8601String().substring(0, 10),
         referenceImageUrl: _referenceImageUrl,
       );
       if (!mounted) return;
-      _formKey.currentState!.reset();
-      _titleController.clear();
       _descriptionController.clear();
       _budgetController.clear();
       setState(() {
-        _category = _categories.first;
+        _selected
+          ..clear()
+          ..add('회화');
         _desiredDate = null;
         _localImagePath = null;
         _referenceImageUrl = null;
@@ -135,142 +152,246 @@ class _CommissionScreenState extends State<CommissionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-        children: [
-          const Text('제작 의뢰',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          const Text('원하는 작품을 설명하면 카테고리 매칭 작가 전원에게 알림이 발송되고,\n최저가 역경매로 작가가 정해집니다.',
-              style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
-          const SizedBox(height: 20),
-          _ReferenceImageBox(
-            onTap: _uploadingImage ? null : _pickImage,
-            localImagePath: _localImagePath,
-            uploading: _uploadingImage,
-          ),
-          const SizedBox(height: 16),
-          _LabeledField(
-            label: '의뢰 제목 *',
-            child: TextFormField(
-              controller: _titleController,
-              decoration: _inputDecoration('예: 거실에 걸 바다 풍경화 의뢰'),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? '의뢰 제목은 필수입니다' : null,
-            ),
-          ),
-          _LabeledField(
-            label: '미술품 카테고리 *',
-            child: DropdownButtonFormField<String>(
-              initialValue: _category,
-              items: _categories
-                  .map((category) => DropdownMenuItem(
-                      value: category,
-                      child: Text(category, style: const TextStyle(fontSize: 13))))
-                  .toList(),
-              onChanged: (value) =>
-                  setState(() => _category = value ?? _categories.first),
-              decoration: _inputDecoration(''),
-            ),
-          ),
-          _LabeledField(
-            label: '요청사항',
-            child: TextFormField(
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+          DustSpacing.lg, DustSpacing.xs, DustSpacing.lg, DustSpacing.lg),
+      children: [
+        const Center(
+          child: Text('제작 의뢰 신청',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: DustColors.brandPrimary)),
+        ),
+        const SizedBox(height: DustSpacing.md),
+        const _FieldLabel('의뢰 세부 내용'),
+        Stack(
+          children: [
+            TextField(
               controller: _descriptionController,
-              maxLines: 4,
-              decoration: _inputDecoration('크기, 색감, 분위기 등 원하는 내용을 자세히 적어주세요'),
+              maxLines: 5,
+              maxLength: 1000,
+              style:
+                  const TextStyle(fontSize: 14, color: DustColors.textPrimary),
+              decoration: _decoration('원하는 작품의 내용, 느낌, 참고 이미지 등을\n자세히 작성해주세요.')
+                  .copyWith(counterText: ''),
             ),
-          ),
-          _LabeledField(
-            label: '예산 (원) *',
-            child: TextFormField(
-              controller: _budgetController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: _inputDecoration('예: 500000'),
-              validator: (value) {
-                final budget = int.tryParse(value ?? '');
-                if (budget == null || budget <= 0) return '예산을 입력해주세요';
-                return null;
-              },
-            ),
-          ),
-          _LabeledField(
-            label: '희망 완성일',
-            child: OutlinedButton.icon(
-              onPressed: _pickDesiredDate,
-              icon: const Icon(Icons.calendar_today_outlined, size: 16),
-              label: Text(
-                _desiredDate == null
-                    ? '날짜 선택 (선택 사항)'
-                    : _desiredDate!.toIso8601String().substring(0, 10),
-                style: const TextStyle(fontSize: 13),
+            Positioned(
+              right: 12,
+              bottom: 10,
+              child: Text(
+                '${_descriptionController.text.length}/1000',
+                style: const TextStyle(
+                    fontSize: 11, color: DustColors.textSecondary),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: DustSpacing.xs),
+        _ReferenceImageRow(
+          onTap: _uploadingImage ? null : _pickImage,
+          localImagePath: _localImagePath,
+          uploading: _uploadingImage,
+        ),
+        const SizedBox(height: DustSpacing.md),
+        const _FieldLabel('예산 (₩)'),
+        TextField(
+          controller: _budgetController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: const TextStyle(fontSize: 14, color: DustColors.textPrimary),
+          decoration: _decoration('예산을 입력해주세요'),
+        ),
+        const SizedBox(height: DustSpacing.md),
+        const _FieldLabel('희망 마감일'),
+        GestureDetector(
+          onTap: _pickDesiredDate,
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: DustColors.bgSurface,
+              borderRadius: BorderRadius.circular(DustRadius.sm),
+              border: Border.all(color: DustColors.borderSoft),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _desiredDate == null
+                      ? '날짜를 선택해주세요'
+                      : _desiredDate!.toIso8601String().substring(0, 10),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: _desiredDate == null
+                        ? DustColors.textSecondary
+                        : DustColors.textPrimary,
+                  ),
+                ),
+                const Icon(Icons.calendar_today_outlined,
+                    size: 18, color: DustColors.textSecondary),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          FilledButton(
+        ),
+        const SizedBox(height: DustSpacing.md),
+        const Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _FieldLabel('선호 카테고리', bottom: 0),
+            SizedBox(width: 6),
+            Padding(
+              padding: EdgeInsets.only(bottom: 1),
+              child: Text('(복수 선택 가능)',
+                  style: TextStyle(
+                      fontSize: 11, color: DustColors.textSecondary)),
+            ),
+          ],
+        ),
+        const SizedBox(height: DustSpacing.sm),
+        Wrap(
+          spacing: DustSpacing.sm,
+          runSpacing: DustSpacing.sm,
+          children: _categories.map((category) {
+            final active = _selected.contains(category);
+            return GestureDetector(
+              onTap: () => setState(() {
+                if (active) {
+                  _selected.remove(category);
+                } else {
+                  _selected.add(category);
+                }
+              }),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                decoration: BoxDecoration(
+                  color: active
+                      ? DustColors.brandPrimary
+                      : DustColors.bgSurface,
+                  borderRadius: BorderRadius.circular(DustRadius.sm),
+                  border: active
+                      ? null
+                      : Border.all(color: DustColors.borderSoft),
+                ),
+                child: Text(
+                  category,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                    color: active
+                        ? DustColors.textOnBrand
+                        : DustColors.textPrimary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: DustSpacing.lg),
+        // 안내 박스 (디자인: bg/info)
+        Container(
+          padding: const EdgeInsets.all(DustSpacing.md),
+          decoration: BoxDecoration(
+            color: DustColors.bgInfo,
+            borderRadius: BorderRadius.circular(DustRadius.sm),
+          ),
+          child: const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline,
+                  size: 18, color: DustColors.brandPrimary),
+              SizedBox(width: DustSpacing.xs),
+              Expanded(
+                child: Text(
+                  '의뢰가 등록되면 선택한 카테고리의 작가들에게 알림이 가며, 역경매 형식으로 가격을 제안합니다.',
+                  style: TextStyle(
+                      fontSize: 12,
+                      height: 1.5,
+                      color: DustColors.textPrimary),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: DustSpacing.lg),
+        SizedBox(
+          height: 52,
+          child: FilledButton(
             onPressed: _submitting ? null : _submit,
             style: FilledButton.styleFrom(
               backgroundColor: DustColors.brandPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              foregroundColor: DustColors.textOnBrand,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-              ),
+                  borderRadius: BorderRadius.circular(DustRadius.full)),
             ),
-            child: Text(_submitting ? '등록 중...' : '제작 의뢰 등록하기'),
+            child: Text(_submitting ? '등록 중...' : '의뢰 요청하기',
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w700)),
           ),
-          if (_commissions.isNotEmpty) ...[
-            const SizedBox(height: 32),
-            const Text('내 의뢰 현황',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 12),
-            ..._commissions.map((commission) =>
-                _CommissionCard(commission: commission)),
-          ],
+        ),
+        if (_commissions.isNotEmpty) ...[
+          const SizedBox(height: DustSpacing.lg * 1.5),
+          const Text('내 의뢰 현황',
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: DustColors.textPrimary)),
+          const SizedBox(height: DustSpacing.sm),
+          ..._commissions
+              .map((commission) => _CommissionCard(commission: commission)),
         ],
-      ),
+      ],
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _decoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontSize: 12, color: DustColors.textSecondary),
-      border: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(4)),
+      hintStyle:
+          const TextStyle(fontSize: 13, color: DustColors.textSecondary),
+      filled: true,
+      fillColor: DustColors.bgSurface,
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(DustRadius.sm),
+        borderSide: const BorderSide(color: DustColors.borderSoft),
       ),
-      isDense: true,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(DustRadius.sm),
+        borderSide: const BorderSide(color: DustColors.borderSoft),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(DustRadius.sm),
+        borderSide: const BorderSide(color: DustColors.brandPrimary),
+      ),
     );
   }
 }
 
-class _LabeledField extends StatelessWidget {
-  const _LabeledField({required this.label, required this.child});
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel(this.text, {this.bottom = DustSpacing.xs});
 
-  final String label;
-  final Widget child;
+  final String text;
+  final double bottom;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 12)),
-          const SizedBox(height: 6),
-          child,
-        ],
-      ),
+      padding: EdgeInsets.only(bottom: bottom),
+      child: Text(text,
+          style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: DustColors.textPrimary)),
     );
   }
 }
 
-class _ReferenceImageBox extends StatelessWidget {
-  const _ReferenceImageBox({
+/// 참고 이미지 첨부 (선택) — 첨부되면 썸네일 표시
+class _ReferenceImageRow extends StatelessWidget {
+  const _ReferenceImageRow({
     required this.onTap,
     required this.localImagePath,
     required this.uploading,
@@ -284,41 +405,44 @@ class _ReferenceImageBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 140,
-        width: double.infinity,
-        alignment: Alignment.center,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: DustColors.bgSurface,
-          border: Border.all(color: DustColors.borderSoft),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: localImagePath != null
-            ? Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.file(File(localImagePath!), fit: BoxFit.cover),
-                  if (uploading)
-                    Container(
-                      color: Colors.black38,
-                      alignment: Alignment.center,
-                      child: const CircularProgressIndicator(
-                          color: Colors.white),
-                    ),
-                ],
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.image_outlined,
-                      size: 32, color: DustColors.textSecondary),
-                  SizedBox(height: 8),
-                  Text('참고 이미지 등록',
-                      style:
-                          TextStyle(fontSize: 11, color: DustColors.textSecondary)),
-                ],
-              ),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            alignment: Alignment.center,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: DustColors.bgSubtle,
+              borderRadius: BorderRadius.circular(DustRadius.sm),
+              border: Border.all(color: DustColors.borderSoft),
+            ),
+            child: localImagePath != null
+                ? Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.file(File(localImagePath!), fit: BoxFit.cover),
+                      if (uploading)
+                        Container(
+                          color: Colors.black38,
+                          alignment: Alignment.center,
+                          child: const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          ),
+                        ),
+                    ],
+                  )
+                : const Icon(Icons.add_photo_alternate_outlined,
+                    size: 22, color: DustColors.textSecondary),
+          ),
+          const SizedBox(width: DustSpacing.sm),
+          const Text('참고 이미지 첨부 (선택)',
+              style:
+                  TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+        ],
       ),
     );
   }
@@ -332,11 +456,12 @@ class _CommissionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(13),
+      margin: const EdgeInsets.only(bottom: DustSpacing.sm),
+      padding: const EdgeInsets.all(DustSpacing.md),
       decoration: BoxDecoration(
+        color: DustColors.bgSurface,
+        borderRadius: BorderRadius.circular(DustRadius.md),
         border: Border.all(color: DustColors.borderSoft),
-        borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,31 +471,32 @@ class _CommissionCard extends StatelessWidget {
               if (commission.referenceImageUrl.isNotEmpty) ...[
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: Image.network(
-                    commission.referenceImageUrl,
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) =>
-                        const SizedBox(width: 36, height: 36),
-                  ),
+                  child: Image.network(commission.referenceImageUrl,
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) =>
+                          const SizedBox(width: 36, height: 36)),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: DustSpacing.xs),
               ],
               Expanded(
                 child: Text(commission.title,
                     style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600)),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: DustColors.textPrimary)),
               ),
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: DustColors.bgSubtle,
+                  color: DustColors.bgInfo,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(commission.status,
-                    style: const TextStyle(fontSize: 11)),
+                    style: const TextStyle(
+                        fontSize: 11, color: DustColors.brandPrimary)),
               ),
             ],
           ),
@@ -378,18 +504,20 @@ class _CommissionCard extends StatelessWidget {
           Text(
             '${commission.category} · 예산 ₩${commission.budget}'
             '${commission.desiredDate != null ? ' · 희망일 ${commission.desiredDate}' : ''}',
-            style: const TextStyle(fontSize: 11, color: DustColors.textSecondary),
+            style: const TextStyle(
+                fontSize: 11, color: DustColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             '작가 ${commission.notifiedArtistCount}명에게 알림 발송'
             '${commission.lowestOffer != null ? ' · 현재 최저 제안 ₩${commission.lowestOffer}' : ''}',
-            style: const TextStyle(fontSize: 11, color: DustColors.textSecondary),
+            style: const TextStyle(
+                fontSize: 11, color: DustColors.textSecondary),
           ),
           if (commission.offers.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: DustSpacing.xs),
             const Divider(height: 1, color: DustColors.borderSoft),
-            const SizedBox(height: 8),
+            const SizedBox(height: DustSpacing.xs),
             ...commission.offers.map(
               (offer) => Padding(
                 padding: const EdgeInsets.only(bottom: 6),
@@ -399,16 +527,19 @@ class _CommissionCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         '${offer.artistName} · ${offer.message}',
-                        style: const TextStyle(fontSize: 11),
+                        style: const TextStyle(
+                            fontSize: 11, color: DustColors.textPrimary),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: DustSpacing.xs),
                     Text('₩${offer.amount}',
                         style: const TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w600)),
-                    const SizedBox(width: 8),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: DustColors.textPrimary)),
+                    const SizedBox(width: DustSpacing.xs),
                     Text(offer.offerTime,
                         style: const TextStyle(
                             fontSize: 10, color: DustColors.textSecondary)),
