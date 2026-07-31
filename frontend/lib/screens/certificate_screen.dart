@@ -176,71 +176,140 @@ class _CertificateScreenState extends State<CertificateScreen> {
   }
 }
 
+/// 디지털 인증서 카드 — Figma 50:1034 골드 프레임 디자인
 class _CertificateCard extends StatelessWidget {
   const _CertificateCard({required this.certificate});
 
   final Certificate certificate;
 
+  static const _gold = Color(0xFFB98A2F);
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: DustColors.brandPrimary,
-        borderRadius: BorderRadius.circular(8),
+        color: DustColors.bgSurface,
+        borderRadius: BorderRadius.circular(DustRadius.sm),
+        border: Border.all(color: _gold, width: 2),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                certificate.verified ? Icons.verified : Icons.error_outline,
-                size: 18,
-                color: certificate.verified
-                    ? const Color(0xFF34D399)
-                    : const Color(0xFFF87171),
+      child: Container(
+        padding: const EdgeInsets.all(DustSpacing.lg),
+        decoration: BoxDecoration(
+          border: Border.all(color: _gold.withValues(alpha: 0.6)),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Column(
+          children: [
+            const Text('DUST ART',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 6,
+                    color: DustColors.textPrimary)),
+            const SizedBox(height: 4),
+            const Text('─  정품 인증서  ─',
+                style: TextStyle(
+                    fontSize: 13, color: DustColors.textSecondary)),
+            const SizedBox(height: DustSpacing.lg),
+            _certRow('작품 제목', certificate.artworkTitle),
+            _certRow('작가', certificate.artistName),
+            _certRow('소유자', certificate.ownerName),
+            _certRow('발급일', certificate.issuedDate),
+            _certRow('고유 인증 ID', certificate.certificateNo),
+            const SizedBox(height: DustSpacing.lg),
+            Container(
+              width: 96,
+              height: 96,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: Border.all(color: _gold, width: 2),
+                borderRadius: BorderRadius.circular(4),
               ),
-              const SizedBox(width: 6),
-              Text(
-                certificate.verified ? '정품 인증 완료' : '인증 실패',
-                style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white),
-              ),
+              child: const Icon(Icons.qr_code_2,
+                  size: 76, color: DustColors.textPrimary),
+            ),
+            const SizedBox(height: DustSpacing.md),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      certificate.verified
+                          ? Icons.verified
+                          : Icons.error_outline,
+                      size: 16,
+                      color: certificate.verified
+                          ? DustColors.brandPrimary
+                          : const Color(0xFFDC2626),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      certificate.verified ? '정품 인증 완료' : '인증 실패',
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: DustColors.textPrimary),
+                    ),
+                  ],
+                ),
+                // 왁스 씰
+                Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [Color(0xFFD9AC4C), _gold],
+                    ),
+                  ),
+                  child: const Text('DA',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white)),
+                ),
+              ],
+            ),
+            if (certificate.note.isNotEmpty) ...[
+              const SizedBox(height: DustSpacing.xs),
+              Text(certificate.note,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 11, color: DustColors.textSecondary)),
             ],
-          ),
-          const SizedBox(height: 12),
-          _certRow('인증 번호', certificate.certificateNo),
-          _certRow('작품명', certificate.artworkTitle),
-          _certRow('작가', certificate.artistName),
-          _certRow('소유자', certificate.ownerName),
-          _certRow('발급일', certificate.issuedDate),
-          if (certificate.note.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(certificate.note,
-                style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
           ],
-        ],
+        ),
       ),
     );
   }
 
   Widget _certRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
         children: [
-          SizedBox(
-            width: 72,
-            child: Text(label,
-                style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
+          Row(
+            children: [
+              SizedBox(
+                width: 96,
+                child: Text(label,
+                    style: const TextStyle(
+                        fontSize: 11, color: DustColors.textSecondary)),
+              ),
+              Expanded(
+                child: Text(value,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: DustColors.textPrimary)),
+              ),
+            ],
           ),
-          Expanded(
-            child: Text(value,
-                style: const TextStyle(fontSize: 12, color: Colors.white)),
-          ),
+          const SizedBox(height: 6),
+          Container(height: 1, color: DustColors.borderSoft),
         ],
       ),
     );
