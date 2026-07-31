@@ -35,6 +35,19 @@ class CertificateServiceTest {
     }
 
     @Test
+    @DisplayName("소유권 등록 시 QR 인증서도 발급되어 스캔된다")
+    void registerIssuesScannableCertificate() {
+        certificateService.register(new CertificateDto.Ownership(
+                "ARTNARA-2026-7777", "새 작품", "나", "2026-07-31", false));
+
+        CertificateDto.Certificate certificate = certificateService.scan(
+                new CertificateDto.ScanRequest("ARTNARA-QR-7777"));
+
+        assertThat(certificate.artworkTitle()).isEqualTo("새 작품");
+        assertThat(certificate.verified()).isTrue();
+    }
+
+    @Test
     @DisplayName("QR 스캔 성공 시 인증서를 반환한다 (대소문자 무시)")
     void scan() {
         CertificateDto.Certificate certificate = certificateService.scan(

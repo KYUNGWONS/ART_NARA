@@ -1,7 +1,9 @@
 package com.example.artnara.domain.certificate.service;
 
 import com.example.artnara.domain.certificate.dto.CertificateDto;
+import com.example.artnara.domain.certificate.entity.Certificate;
 import com.example.artnara.domain.certificate.entity.Ownership;
+import com.example.artnara.domain.certificate.repository.CertificateRepository;
 import com.example.artnara.domain.certificate.repository.OwnershipRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
@@ -9,26 +11,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CertificateService {
 
-    // QR 코드 → 디지털 인증서 mock (실서비스에서는 인증 원장 조회로 대체)
-    private static final Map<String, CertificateDto.Certificate> CERTIFICATES = Map.of(
-            "ARTNARA-QR-0001", new CertificateDto.Certificate(
-                    "ARTNARA-2026-0001", "봄의 정원", "김예진", "나",
-                    "2026-05-12", true,
-                    "ART NARA 전문가 검수를 통과한 정품 인증 작품입니다."),
-            "ARTNARA-QR-0002", new CertificateDto.Certificate(
-                    "ARTNARA-2026-0002", "무채색의 위로", "박소현", "나",
-                    "2026-06-30", true,
-                    "ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.")
-    );
+    private static final String CERT_NOTE = "ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.";
 
     private final OwnershipRepository ownershipRepository;
+    private final CertificateRepository certificateRepository;
 
     @Transactional(readOnly = true)
     public CertificateDto.ListResponse listOwnerships() {
@@ -41,14 +32,28 @@ public class CertificateService {
                         .toList());
     }
 
-    /** 거래 완료 시 디지털 소유권을 구매자 계정으로 자동 이전(등록)한다. */
+    /**
+     * 거래 완료 시 디지털 소유권을 구매자 계정으로 자동 이전하고,
+     * 같은 인증 번호로 QR 정품 인증서도 발급한다.
+     * QR 코드는 "ARTNARA-QR-{인증번호 끝자리}" 형식.
+     */
     public void register(CertificateDto.Ownership ownership) {
         ownershipRepository.save(Ownership.builder()
                 .certificateNo(ownership.certificateNo())
                 .artworkTitle(ownership.artworkTitle())
                 .artistName(ownership.artistName())
                 .acquiredDate(ownership.acquiredDate())
-                .qrIssued(ownership.qrIssued())
+                .qrIssued(true)
+                .build());
+        certificateRepository.save(Certificate.builder()
+                .qrCode(qrCodeOf(ownership.certificateNo()))
+                .certificateNo(ownership.certificateNo())
+                .artworkTitle(ownership.artworkTitle())
+                .artistName(ownership.artistName())
+                .ownerName("나")
+                .issuedDate(ownership.acquiredDate())
+                .verified(true)
+                .note(CERT_NOTE)
                 .build());
     }
 
@@ -57,11 +62,20 @@ public class CertificateService {
         if (request.qrCode() == null || request.qrCode().isBlank()) {
             throw new GlobalException(DomainResultCode.CERTIFICATE_QR_REQUIRED);
         }
-        CertificateDto.Certificate certificate =
-                CERTIFICATES.get(request.qrCode().trim().toUpperCase());
-        if (certificate == null) {
-            throw new GlobalException(DomainResultCode.CERTIFICATE_NOT_FOUND);
-        }
-        return certificate;
+        Certificate certificate = certificateRepository
+                .findByQrCodeIgnoreCase(request.qrCode().trim())
+                .orElseThrow(() ->
+                        new GlobalException(DomainResultCode.CERTIFICATE_NOT_FOUND));
+        return new CertificateDto.Certificate(
+                certificate.getCertificateNo(), certificate.getArtworkTitle(),
+                certificate.getArtistName(), certificate.getOwnerName(),
+                certificate.getIssuedDate(), certificate.isVerified(),
+                certificate.getNote());
+    }
+
+    /** ARTNARA-2026-0001 → ARTNARA-QR-0001 */
+    public static String qrCodeOf(String certificateNo) {
+        int idx = certificateNo.lastIndexOf('-');
+        return "ARTNARA-QR-" + certificateNo.substring(idx + 1);
     }
 }

@@ -4,7 +4,9 @@ import com.example.artnara.domain.artwork.entity.Artwork;
 import com.example.artnara.domain.artwork.entity.ArtworkBid;
 import com.example.artnara.domain.artwork.repository.ArtworkBidRepository;
 import com.example.artnara.domain.artwork.repository.ArtworkRepository;
+import com.example.artnara.domain.certificate.entity.Certificate;
 import com.example.artnara.domain.certificate.entity.Ownership;
+import com.example.artnara.domain.certificate.repository.CertificateRepository;
 import com.example.artnara.domain.certificate.repository.OwnershipRepository;
 import com.example.artnara.domain.commission.entity.Commission;
 import com.example.artnara.domain.commission.entity.CommissionOffer;
@@ -36,6 +38,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
     private final CommissionRepository commissionRepository;
     private final CommissionOfferRepository commissionOfferRepository;
     private final OwnershipRepository ownershipRepository;
+    private final CertificateRepository certificateRepository;
 
     @Override
     @Transactional
@@ -119,12 +122,23 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
     }
 
     private void seedOwnerships() {
+        seedOwnership("ARTNARA-2026-0001", "봄의 정원", "김예진", "2026-05-12", true);
+        seedOwnership("ARTNARA-2026-0002", "무채색의 위로", "박소현", "2026-06-30", false);
+    }
+
+    private void seedOwnership(String certificateNo, String artworkTitle,
+                               String artistName, String acquiredDate, boolean qrIssued) {
         ownershipRepository.save(Ownership.builder()
-                .certificateNo("ARTNARA-2026-0001").artworkTitle("봄의 정원")
-                .artistName("김예진").acquiredDate("2026-05-12").qrIssued(true).build());
-        ownershipRepository.save(Ownership.builder()
-                .certificateNo("ARTNARA-2026-0002").artworkTitle("무채색의 위로")
-                .artistName("박소현").acquiredDate("2026-06-30").qrIssued(false).build());
+                .certificateNo(certificateNo).artworkTitle(artworkTitle)
+                .artistName(artistName).acquiredDate(acquiredDate).qrIssued(qrIssued).build());
+        certificateRepository.save(Certificate.builder()
+                .qrCode(com.example.artnara.domain.certificate.service.CertificateService
+                        .qrCodeOf(certificateNo))
+                .certificateNo(certificateNo).artworkTitle(artworkTitle)
+                .artistName(artistName).ownerName("나").issuedDate(acquiredDate)
+                .verified(true)
+                .note("ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.")
+                .build());
     }
 
     private void seedBid(Long artworkId, String bidderName, int amount, String bidTime) {
