@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../constants/dust_tokens.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -142,7 +144,7 @@ class _CommissionScreenState extends State<CommissionScreen> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           const Text('원하는 작품을 설명하면 카테고리 매칭 작가 전원에게 알림이 발송되고,\n최저가 역경매로 작가가 정해집니다.',
-              style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+              style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
           const SizedBox(height: 20),
           _ReferenceImageBox(
             onTap: _uploadingImage ? null : _pickImage,
@@ -212,7 +214,7 @@ class _CommissionScreenState extends State<CommissionScreen> {
           FilledButton(
             onPressed: _submitting ? null : _submit,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
+              backgroundColor: DustColors.brandPrimary,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -236,7 +238,7 @@ class _CommissionScreenState extends State<CommissionScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+      hintStyle: const TextStyle(fontSize: 12, color: DustColors.textSecondary),
       border: const OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(4)),
       ),
@@ -288,8 +290,8 @@ class _ReferenceImageBox extends StatelessWidget {
         alignment: Alignment.center,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
-          border: Border.all(color: const Color(0xFFD1D5DB)),
+          color: DustColors.bgSurface,
+          border: Border.all(color: DustColors.borderSoft),
           borderRadius: BorderRadius.circular(6),
         ),
         child: localImagePath != null
@@ -310,11 +312,11 @@ class _ReferenceImageBox extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Icon(Icons.image_outlined,
-                      size: 32, color: Color(0xFF9CA3AF)),
+                      size: 32, color: DustColors.textSecondary),
                   SizedBox(height: 8),
                   Text('참고 이미지 등록',
                       style:
-                          TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                          TextStyle(fontSize: 11, color: DustColors.textSecondary)),
                 ],
               ),
       ),
@@ -333,7 +335,7 @@ class _CommissionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -364,7 +366,7 @@ class _CommissionCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
+                  color: DustColors.bgSubtle,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(commission.status,
@@ -376,17 +378,17 @@ class _CommissionCard extends StatelessWidget {
           Text(
             '${commission.category} · 예산 ₩${commission.budget}'
             '${commission.desiredDate != null ? ' · 희망일 ${commission.desiredDate}' : ''}',
-            style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontSize: 11, color: DustColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             '작가 ${commission.notifiedArtistCount}명에게 알림 발송'
             '${commission.lowestOffer != null ? ' · 현재 최저 제안 ₩${commission.lowestOffer}' : ''}',
-            style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+            style: const TextStyle(fontSize: 11, color: DustColors.textSecondary),
           ),
           if (commission.offers.isNotEmpty) ...[
             const SizedBox(height: 8),
-            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+            const Divider(height: 1, color: DustColors.borderSoft),
             const SizedBox(height: 8),
             ...commission.offers.map(
               (offer) => Padding(
@@ -409,7 +411,7 @@ class _CommissionCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(offer.offerTime,
                         style: const TextStyle(
-                            fontSize: 10, color: Color(0xFF9CA3AF))),
+                            fontSize: 10, color: DustColors.textSecondary)),
                   ],
                 ),
               ),

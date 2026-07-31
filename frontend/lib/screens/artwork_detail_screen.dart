@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../constants/dust_tokens.dart';
 import 'package:flutter/services.dart';
 
 import '../models/artwork_detail.dart';
@@ -83,7 +85,7 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: DustColors.bgCanvas,
       body: SafeArea(
         child: FutureBuilder<ArtworkDetail>(
           future: _detailFuture,
@@ -185,11 +187,11 @@ class _DetailBody extends StatelessWidget {
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text('${detail.artistName} · ${detail.year}',
-            style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+            style: const TextStyle(fontSize: 12, color: DustColors.textSecondary)),
         const SizedBox(height: 12),
         _PriceSection(detail: detail),
         const SizedBox(height: 16),
-        const Divider(height: 1, color: Color(0xFFE5E7EB)),
+        const Divider(height: 1, color: DustColors.borderSoft),
         const SizedBox(height: 16),
         const Text('작품 설명',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -220,13 +222,13 @@ class _ArtworkImage extends StatelessWidget {
       width: double.infinity,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        color: DustColors.bgSurface,
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: imageUrl.isEmpty
           ? const Text('Image',
-              style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)))
+              style: TextStyle(fontSize: 11, color: DustColors.textSecondary))
           : Image.network(imageUrl, fit: BoxFit.cover),
     );
   }
@@ -246,8 +248,8 @@ class _PriceSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        color: DustColors.bgSurface,
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -309,8 +311,8 @@ class _InfoTable extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        color: DustColors.bgSurface,
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -325,7 +327,7 @@ class _InfoTable extends StatelessWidget {
                       width: 72,
                       child: Text(row.key,
                           style: const TextStyle(
-                              fontSize: 11, color: Color(0xFF6B7280))),
+                              fontSize: 11, color: DustColors.textSecondary)),
                     ),
                     Expanded(
                       child: Text(row.value, style: const TextStyle(fontSize: 12)),
@@ -351,10 +353,10 @@ class _ArtistCard extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 13),
       shape: RoundedRectangleBorder(
-        side: const BorderSide(color: Color(0xFFE5E7EB)),
+        side: const BorderSide(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
-      leading: const CircleAvatar(backgroundColor: Color(0xFFD1D5DB)),
+      leading: const CircleAvatar(backgroundColor: DustColors.borderSoft),
       title: Text(name, style: const TextStyle(fontSize: 13)),
       subtitle: Text(introduction, style: const TextStyle(fontSize: 11)),
       trailing: OutlinedButton(onPressed: () {}, child: const Text('팔로우')),
@@ -383,7 +385,7 @@ class _BidHistorySection extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: DustColors.borderSoft),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -398,7 +400,7 @@ class _BidHistorySection extends StatelessWidget {
                   const SizedBox(width: 12),
                   Text(bid.bidTime,
                       style: const TextStyle(
-                          fontSize: 11, color: Color(0xFF9CA3AF))),
+                          fontSize: 11, color: DustColors.textSecondary)),
                 ],
               ),
             ),
@@ -428,7 +430,7 @@ class _BidBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        border: Border(top: BorderSide(color: DustColors.borderSoft)),
       ),
       child: Row(
         children: [
@@ -437,7 +439,7 @@ class _BidBar extends StatelessWidget {
             onPressed: onClose,
             tooltip: '경매 마감 (데모)',
             icon: const Icon(Icons.timer_off_outlined,
-                size: 20, color: Color(0xFF6B7280)),
+                size: 20, color: DustColors.textSecondary),
           ),
           Expanded(
             child: TextField(
@@ -457,7 +459,7 @@ class _BidBar extends StatelessWidget {
           FilledButton(
             onPressed: bidding ? null : onBid,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
+              backgroundColor: DustColors.brandPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
               ),
@@ -479,12 +481,12 @@ class _ClosedBar extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        border: Border(top: BorderSide(color: DustColors.borderSoft)),
       ),
       child: const Text(
         '경매가 종료되었습니다',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+        style: TextStyle(fontSize: 13, color: DustColors.textSecondary),
       ),
     );
   }
@@ -502,7 +504,7 @@ class _BuyBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        border: Border(top: BorderSide(color: DustColors.borderSoft)),
       ),
       child: Row(
         children: [
@@ -514,7 +516,7 @@ class _BuyBar extends StatelessWidget {
           FilledButton(
             onPressed: onBuy,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
+              backgroundColor: DustColors.brandPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
               ),

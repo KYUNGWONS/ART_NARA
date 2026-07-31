@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/dust_tokens.dart';
+
 import '../models/artwork_detail.dart';
 import '../models/order.dart';
 import '../services/order_api_service.dart';
@@ -69,7 +71,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 8),
             Text('디지털 소유권이 발급되었습니다.\n인증 번호: ${order.certificateNo}',
-                style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                style: const TextStyle(fontSize: 12, color: DustColors.textSecondary)),
           ],
         ),
         actions: [
@@ -90,7 +92,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Navigator.pop(context); // 결제 화면 닫기
             },
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
+              backgroundColor: DustColors.brandPrimary,
             ),
             child: const Text('확인'),
           ),
@@ -109,9 +111,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     final artwork = widget.artwork;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: DustColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: DustColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black),
@@ -154,7 +156,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           FilledButton(
             onPressed: _paying ? null : _pay,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
+              backgroundColor: DustColors.brandPrimary,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -168,7 +170,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const Text(
             '구매자 수수료 0% · 결제 완료 시 디지털 소유권이 자동 발급됩니다',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+            style: TextStyle(fontSize: 11, color: DustColors.textSecondary),
           ),
         ],
       ),
@@ -187,8 +189,8 @@ class _ArtworkSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        color: DustColors.bgSurface,
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -200,12 +202,12 @@ class _ArtworkSummary extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: const Color(0xFFD1D5DB)),
+              border: Border.all(color: DustColors.borderSoft),
               borderRadius: BorderRadius.circular(6),
             ),
             child: artwork.imageUrl.isEmpty
                 ? const Icon(Icons.image_outlined,
-                    size: 22, color: Color(0xFF9CA3AF))
+                    size: 22, color: DustColors.textSecondary)
                 : Image.network(artwork.imageUrl, fit: BoxFit.cover),
           ),
           const SizedBox(width: 12),
@@ -219,7 +221,7 @@ class _ArtworkSummary extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text('${artwork.artistName} · ${artwork.size}',
                     style: const TextStyle(
-                        fontSize: 11, color: Color(0xFF6B7280))),
+                        fontSize: 11, color: DustColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text('₩${_formatPrice(price)}',
                     style: const TextStyle(
@@ -243,13 +245,13 @@ class _PriceSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
         children: [
           _row('작품 금액', '₩${_formatPrice(price)}'),
-          const Divider(height: 16, color: Color(0xFFE5E7EB)),
+          const Divider(height: 16, color: DustColors.borderSoft),
           _row('총 결제 금액', '₩${_formatPrice(price)}', bold: true),
         ],
       ),

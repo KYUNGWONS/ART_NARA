@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/dust_tokens.dart';
+
 import '../models/brand_value.dart';
 import '../services/brand_value_api_service.dart';
 import 'landing_screen.dart';
@@ -37,7 +39,7 @@ class _BrandValueScreenState extends State<BrandValueScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: DustColors.bgCanvas,
       body: SafeArea(
         child: FutureBuilder<BrandValue>(
           future: _valueFuture,
@@ -98,7 +100,7 @@ class _BrandValueContent extends StatelessWidget {
             ],
           ),
         ),
-        const Divider(height: 1, color: Color(0xFFD0D0D0)),
+        const Divider(height: 1, color: DustColors.borderSoft),
         const SizedBox(height: 24),
         Text(value.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
@@ -125,7 +127,7 @@ class _BrandValueContent extends StatelessWidget {
           child: FilledButton(
             onPressed: onPrimary,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
+              backgroundColor: DustColors.brandPrimary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             ),
             child: Text(value.primaryActionLabel),
@@ -135,7 +137,7 @@ class _BrandValueContent extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: TextButton(
             onPressed: onSecondary,
-            style: TextButton.styleFrom(foregroundColor: const Color(0xFF6B7280)),
+            style: TextButton.styleFrom(foregroundColor: DustColors.textSecondary),
             child: Text(value.secondaryActionLabel),
           ),
         ),
@@ -156,8 +158,8 @@ class _ReasonCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        color: DustColors.bgSurface,
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -184,12 +186,12 @@ class _BrandImage extends StatelessWidget {
       width: double.infinity,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        border: Border.all(color: const Color(0xFFD1D5DB)),
+        color: DustColors.bgSurface,
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: imageUrl.isEmpty
-          ? const Text('Image', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)))
+          ? const Text('Image', style: TextStyle(fontSize: 11, color: DustColors.textSecondary))
           : Image.network(imageUrl, fit: BoxFit.cover),
     );
   }

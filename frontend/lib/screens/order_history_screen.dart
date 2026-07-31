@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/dust_tokens.dart';
+
 import '../models/order.dart';
 import '../services/order_api_service.dart';
 
@@ -23,9 +25,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: DustColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: DustColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black),
@@ -79,7 +81,7 @@ class _OrderCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -107,10 +109,10 @@ class _OrderCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text('${order.artistName} · ${order.orderedDate}',
-              style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
+              style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
           const SizedBox(height: 4),
           Text('결제 금액 ₩${order.amount}',
-              style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
+              style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
           const SizedBox(height: 4),
           Text('디지털 소유권 ${order.certificateNo}',
               style: const TextStyle(fontSize: 11)),

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../constants/dust_tokens.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -163,7 +165,7 @@ class _SellScreenState extends State<SellScreen> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           const Text('등록한 작품은 전문가 검수 후 피드에 노출됩니다. 판매 수수료 8%',
-              style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+              style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
           const SizedBox(height: 20),
           _ImageUploadBox(
             onTap: _uploadingImage ? null : _pickImage,
@@ -280,7 +282,7 @@ class _SellScreenState extends State<SellScreen> {
           FilledButton(
             onPressed: _submitting ? null : _submit,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF1F2937),
+              backgroundColor: DustColors.brandPrimary,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -303,7 +305,7 @@ class _SellScreenState extends State<SellScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+      hintStyle: const TextStyle(fontSize: 12, color: DustColors.textSecondary),
       border: const OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(4)),
       ),
@@ -355,8 +357,8 @@ class _ImageUploadBox extends StatelessWidget {
         alignment: Alignment.center,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: const Color(0xFFF9FAFB),
-          border: Border.all(color: const Color(0xFFD1D5DB)),
+          color: DustColors.bgSurface,
+          border: Border.all(color: DustColors.borderSoft),
           borderRadius: BorderRadius.circular(6),
         ),
         child: localImagePath != null
@@ -377,11 +379,11 @@ class _ImageUploadBox extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
                   Icon(Icons.add_photo_alternate_outlined,
-                      size: 32, color: Color(0xFF9CA3AF)),
+                      size: 32, color: DustColors.textSecondary),
                   SizedBox(height: 8),
                   Text('작품 사진 등록',
                       style:
-                          TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                          TextStyle(fontSize: 11, color: DustColors.textSecondary)),
                 ],
               ),
       ),
@@ -400,7 +402,7 @@ class _SaleCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: DustColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -432,7 +434,7 @@ class _SaleCard extends StatelessWidget {
                       ? '즉시 ₩${sale.buyNowPrice} · 경매 시작가 ₩${sale.auctionStartPrice} · ~${sale.auctionEndDate}'
                       : '즉시 ₩${sale.buyNowPrice}',
                   style:
-                      const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+                      const TextStyle(fontSize: 11, color: DustColors.textSecondary),
                 ),
               ],
             ),
@@ -440,7 +442,7 @@ class _SaleCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: DustColors.bgSubtle,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(sale.status, style: const TextStyle(fontSize: 11)),
