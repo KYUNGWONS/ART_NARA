@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants/dust_tokens.dart';
+import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/commission.dart';
 import '../services/commission_api_service.dart';
 import '../services/image_api_service.dart';
@@ -495,7 +496,7 @@ class _CommissionCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '${commission.category} · 예산 ₩${commission.budget}'
+            '${commission.category} · 예산 ₩${formatPrice(commission.budget)}'
             '${commission.desiredDate != null ? ' · 희망일 ${commission.desiredDate}' : ''}',
             style: const TextStyle(
                 fontSize: 11, color: DustColors.textSecondary),
@@ -503,7 +504,7 @@ class _CommissionCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '작가 ${commission.notifiedArtistCount}명에게 알림 발송'
-            '${commission.lowestOffer != null ? ' · 현재 최저 제안 ₩${commission.lowestOffer}' : ''}',
+            '${commission.lowestOffer != null ? ' · 현재 최저 제안 ₩${formatPrice(commission.lowestOffer!)}' : ''}',
             style: const TextStyle(
                 fontSize: 11, color: DustColors.textSecondary),
           ),
@@ -527,7 +528,7 @@ class _CommissionCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: DustSpacing.xs),
-                    Text('₩${offer.amount}',
+                    Text('₩${formatPrice(offer.amount)}',
                         style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,

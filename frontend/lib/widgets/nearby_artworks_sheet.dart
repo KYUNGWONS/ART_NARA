@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../screens/art_home_feed_screen.dart' show formatPrice;
 
 import '../models/nearby_artwork.dart';
 import '../screens/artwork_detail_screen.dart';
@@ -156,7 +157,7 @@ class _NearbyArtworkTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${artwork.auction ? '현재가' : '정가'} ₩${artwork.price}',
+                    '${artwork.auction ? '현재가' : '정가'} ₩${formatPrice(artwork.price)}',
                     style: const TextStyle(fontSize: 12),
                   ),
                 ],

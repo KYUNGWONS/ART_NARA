@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants/dust_tokens.dart';
+import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/sale.dart';
 import '../services/image_api_service.dart';
 import '../services/sale_api_service.dart';
@@ -350,9 +351,9 @@ class _SellScreenState extends State<SellScreen> {
             ('카테고리', _category),
             if (_mediumController.text.isNotEmpty) ('재료', _mediumController.text),
             if (_sizeController.text.isNotEmpty) ('크기', _sizeController.text),
-            ('즉시 판매가', '₩$price'),
+            ('즉시 판매가', '₩${formatPrice(price)}'),
             ('경매', _auctionEnabled
-                ? '최저가 ₩${_auctionStartController.text} · ~${_auctionEndDate?.toIso8601String().substring(0, 10) ?? ''}'
+                ? '최저가 ₩${formatPrice(int.tryParse(_auctionStartController.text) ?? 0)} · ~${_auctionEndDate?.toIso8601String().substring(0, 10) ?? ''}'
                 : '사용 안 함'),
             ('판매 수수료', '8%'),
           ]),
@@ -651,8 +652,8 @@ class _CompletedView extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             sale.auctionEnabled
-                                ? '즉시 ₩${sale.buyNowPrice} · 경매 시작가 ₩${sale.auctionStartPrice}'
-                                : '즉시 ₩${sale.buyNowPrice}',
+                                ? '즉시 ₩${formatPrice(sale.buyNowPrice)} · 경매 시작가 ₩${formatPrice(sale.auctionStartPrice ?? 0)}'
+                                : '즉시 ₩${formatPrice(sale.buyNowPrice)}',
                             style: const TextStyle(
                                 fontSize: 11,
                                 color: DustColors.textSecondary),

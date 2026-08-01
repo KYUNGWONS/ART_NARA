@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import 'art_home_feed_screen.dart' show formatPrice;
 
 import '../models/order.dart';
 import '../services/order_api_service.dart';
@@ -111,7 +112,7 @@ class _OrderCard extends StatelessWidget {
           Text('${order.artistName} · ${order.orderedDate}',
               style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
           const SizedBox(height: 4),
-          Text('결제 금액 ₩${order.amount}',
+          Text('결제 금액 ₩${formatPrice(order.amount)}',
               style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
           const SizedBox(height: 4),
           Text('디지털 소유권 ${order.certificateNo}',
