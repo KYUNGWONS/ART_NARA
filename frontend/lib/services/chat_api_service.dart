@@ -80,6 +80,36 @@ class ChatApiService {
     }
   }
 
+  /// POST /api/chat/rooms/direct — 작가 닉네임으로 1:1 문의 방 열기(있으면 기존 방).
+  static Future<ChatRoomItem?> openDirectRoom(String opponentNickname) async {
+    final token = AuthApiService.accessToken;
+    if (token == null || token.isEmpty) {
+      debugPrint('[ChatAPI] 문의 방 열기 실패: 로그인 필요');
+      return null;
+    }
+    try {
+      final response = await http.post(
+        Uri.parse('$apiBaseUrl/api/chat/rooms/direct'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'opponentNickname': opponentNickname}),
+      );
+      if (response.statusCode != 200) {
+        debugPrint('[ChatAPI] 문의 방 열기 실패: ${response.statusCode}');
+        return null;
+      }
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final data = body['data'] as Map<String, dynamic>?;
+      if (data == null) return null;
+      return ChatRoomItem.fromJson(data);
+    } catch (e) {
+      debugPrint('[ChatAPI] 문의 방 열기 요청 실패: $e');
+      return null;
+    }
+  }
+
   /// 서버 미연결 시 채팅방 목록 화면 테스트용 mock 응답
   /// TODO(서버 연동): 실제 서버 연동 후 이 메서드 삭제
   static List<ChatRoomItem> _mockChatRoomsForOffline() {
