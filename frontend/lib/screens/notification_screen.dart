@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import '../constants/dust_tokens.dart';
 import '../models/app_notification.dart';
 import '../services/notification_api_service.dart';
+import '../models/chat_room_item.dart';
+import '../services/chat_api_service.dart';
 import 'artwork_detail_screen.dart';
+import 'chat_screen.dart';
 import 'order_history_screen.dart';
 
 /// 알림 탭 (디자인 하단 내비 nav-item-notifications)
@@ -74,6 +77,27 @@ class _NotificationScreenState extends State<NotificationScreen> {
           builder: (_) => const OrderHistoryScreen(),
         ));
         break;
+      case 'CHAT_MESSAGE':
+        if (item.targetId != null) {
+          final rooms = await ChatApiService.getChatRooms();
+          if (!mounted) return;
+          final room = rooms.firstWhere(
+            (r) => r.chatRoomId == '${item.targetId}',
+            orElse: () => rooms.isNotEmpty
+                ? rooms.first
+                : const ChatRoomItem(chatRoomId: '', opponentNickname: ''),
+          );
+          if (room.chatRoomId.isEmpty) return;
+          if (!mounted) return;
+          Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (_) => ChatScreen(
+              roomId: room.chatRoomId,
+              partnerNickname: room.opponentNickname,
+              partnerProfileImageUrl: room.opponentProfileImageUrl,
+            ),
+          ));
+        }
+        break;
     }
   }
 
@@ -87,6 +111,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return Icons.gavel_rounded;
       case 'ORDER_COMPLETED':
         return Icons.verified_outlined;
+      case 'CHAT_MESSAGE':
+        return Icons.chat_bubble_outline_rounded;
       default:
         return Icons.notifications_none_rounded;
     }

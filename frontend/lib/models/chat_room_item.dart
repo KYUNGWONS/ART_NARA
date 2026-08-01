@@ -15,6 +15,9 @@ class ChatRoomItem {
   /// WAITING / ACTIVE / CLOSED
   final String? status;
 
+  /// 내가 읽지 않은 메시지 수
+  final int unreadCount;
+
   const ChatRoomItem({
     required this.chatRoomId,
     this.opponentProfileImageUrl,
@@ -23,6 +26,7 @@ class ChatRoomItem {
     this.lastMessage,
     this.lastMessageAt,
     this.status,
+    this.unreadCount = 0,
   });
 
   /// 역할 배지 문구. 상대가 아직 없으면 null.
@@ -41,6 +45,7 @@ class ChatRoomItem {
       lastMessage: json['lastMessage'] as String?,
       lastMessageAt: lastAt is String ? DateTime.tryParse(lastAt) : null,
       status: json['status'] as String?,
+      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
     );
   }
 }

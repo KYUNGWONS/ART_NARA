@@ -208,6 +208,26 @@ class _ChatRoomTile extends StatelessWidget {
                         _formatLastMessageTime(room.lastMessageAt),
                         style: DustText.caption,
                       ),
+                      if (room.unreadCount > 0) ...[
+                        const SizedBox(width: DustSpacing.xs),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: DustColors.brandPrimary,
+                            borderRadius:
+                                BorderRadius.circular(DustRadius.full),
+                          ),
+                          child: Text(
+                            '${room.unreadCount}',
+                            style: DustText.caption.copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: DustColors.textOnBrand,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   if (roleLabel != null || waiting) ...[

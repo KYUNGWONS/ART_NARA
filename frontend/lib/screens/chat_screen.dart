@@ -85,6 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _onConnect(StompFrame frame) {
     debugPrint('[Chat] STOMP 연결됨 → /topic/chat/${widget.roomId} 구독');
     if (mounted) setState(() => _connected = true);
+    _markAsRead();
     _client?.subscribe(
       destination: '/topic/chat/${widget.roomId}',
       callback: (StompFrame f) {
@@ -94,7 +95,18 @@ class _ChatScreenState extends State<ChatScreen> {
         if (!mounted) return;
         setState(() => _messages.add(message));
         _scrollToBottom();
+        if (!message.isMe) _markAsRead();
       },
+    );
+  }
+
+  /// 방에 들어와 있는 동안은 상대 메시지를 읽은 것으로 처리한다.
+  void _markAsRead() {
+    final userId = AuthApiService.userId;
+    if (userId == null) return;
+    _client?.send(
+      destination: '/app/chat/read/${widget.roomId}',
+      body: jsonEncode({'userId': userId}),
     );
   }
 
