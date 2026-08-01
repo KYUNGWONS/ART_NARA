@@ -12,7 +12,10 @@ class NotificationScreen extends StatefulWidget {
   /// 알림을 눌렀을 때 다른 탭으로 이동해야 하는 경우 MainScreen 이 넘겨준다.
   final void Function(int tabIndex)? onOpenTab;
 
-  const NotificationScreen({super.key, this.onOpenTab});
+  /// 안읽음 수가 바뀌면 상위(헤더 배지)에 알린다.
+  final void Function(int unread)? onUnreadChanged;
+
+  const NotificationScreen({super.key, this.onOpenTab, this.onUnreadChanged});
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -37,6 +40,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       _unread = result.unread;
       _loading = false;
     });
+    widget.onUnreadChanged?.call(result.unread);
   }
 
   Future<void> _readAll() async {

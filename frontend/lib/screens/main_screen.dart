@@ -8,6 +8,7 @@ import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
 import '../services/kakao_auth_service.dart';
+import '../services/notification_api_service.dart';
 import 'chat_list_screen.dart';
 import 'art_home_feed_screen.dart';
 import 'commission_screen.dart';
@@ -28,6 +29,7 @@ class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   int _currentTab = 0; // 홈이 기본 선택 (디자인 bottom-navigation 순서)
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _unreadNotifications = 0;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -43,6 +45,19 @@ class _MainScreenState extends State<MainScreen>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
     _fadeController.forward();
+    _loadUnread();
+  }
+
+  /// 헤더 벨·하단 알림 탭의 배지에 쓰는 안읽음 수.
+  Future<void> _loadUnread() async {
+    final result = await NotificationApiService.list();
+    if (!mounted) return;
+    setState(() => _unreadNotifications = result.unread);
+  }
+
+  void _selectTab(int index) {
+    setState(() => _currentTab = index);
+    _loadUnread();
   }
 
   @override
@@ -343,15 +358,34 @@ class _MainScreenState extends State<MainScreen>
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => setState(() => _currentTab = 4),
+              onTap: () => _selectTab(4),
               borderRadius: BorderRadius.circular(DustRadius.full),
-              child: const SizedBox(
+              child: SizedBox(
                 width: 40,
                 height: 40,
-                child: Icon(
-                  Icons.notifications_none_rounded,
-                  size: 24,
-                  color: DustColors.textPrimary,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Icon(
+                      Icons.notifications_none_rounded,
+                      size: 24,
+                      color: DustColors.textPrimary,
+                    ),
+                    // 안읽은 알림이 있으면 점 배지
+                    if (_unreadNotifications > 0)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: DustColors.brandPrimary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -374,7 +408,10 @@ class _MainScreenState extends State<MainScreen>
         return const CommissionScreen();
       case 4: // 알림
         return NotificationScreen(
-          onOpenTab: (index) => setState(() => _currentTab = index),
+          onOpenTab: _selectTab,
+          onUnreadChanged: (count) {
+            if (mounted) setState(() => _unreadNotifications = count);
+          },
         );
       case 5: // 마이페이지
         return const MyProfileScreen(embedded: true);
@@ -480,7 +517,7 @@ class _MainScreenState extends State<MainScreen>
 
               return Expanded(
                 child: GestureDetector(
-                  onTap: () => setState(() => _currentTab = index),
+                  onTap: () => _selectTab(index),
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
