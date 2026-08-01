@@ -192,20 +192,14 @@ class _SellScreenState extends State<SellScreen> {
               DustSpacing.lg, DustSpacing.xs, DustSpacing.lg, 0),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('작품 판매 등록',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: DustColors.brandPrimary)),
-                  Text('${_step + 1}/${_stepLabels.length}',
-                      style: const TextStyle(
-                          fontSize: 13, color: DustColors.textSecondary)),
-                ],
+              // 화면 제목은 MainScreen 헤더가 그린다(디자인 header-row). 여기선 진행 표기만.
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text('${_step + 1}/${_stepLabels.length}',
+                    style: const TextStyle(
+                        fontSize: 13, color: DustColors.textSecondary)),
               ),
-              const SizedBox(height: DustSpacing.md),
+              const SizedBox(height: DustSpacing.xs),
               _StepIndicator(current: _step),
             ],
           ),

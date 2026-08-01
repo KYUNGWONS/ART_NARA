@@ -156,14 +156,7 @@ class _CommissionScreenState extends State<CommissionScreen> {
       padding: const EdgeInsets.fromLTRB(
           DustSpacing.lg, DustSpacing.xs, DustSpacing.lg, DustSpacing.lg),
       children: [
-        const Center(
-          child: Text('제작 의뢰 신청',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: DustColors.brandPrimary)),
-        ),
-        const SizedBox(height: DustSpacing.md),
+        // 화면 제목은 MainScreen 헤더가 그린다(디자인 header-row).
         const _FieldLabel('의뢰 세부 내용'),
         Stack(
           children: [

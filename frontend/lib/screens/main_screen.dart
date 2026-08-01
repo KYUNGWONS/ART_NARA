@@ -307,7 +307,7 @@ class _MainScreenState extends State<MainScreen>
   }
 
   // ─── 상단 내비게이션 바 (디자인 header-row: 메뉴 · 타이틀 · 벨) ───
-  static const _tabTitles = ['둘러보기', '판매', '지도', '제작 의뢰', '알림', '마이페이지'];
+  static const _tabTitles = ['둘러보기', '작품 판매 등록', '지도', '제작 의뢰 신청', '알림', '마이페이지'];
 
   Widget _buildTopBar(LocaleProvider locale) {
     return Container(
