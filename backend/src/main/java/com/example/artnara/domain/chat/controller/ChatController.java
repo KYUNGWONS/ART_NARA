@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -74,15 +75,20 @@ public class ChatController {
     @GetMapping("/rooms/my")
     @Operation(
             summary = "내 채팅방 목록",
-            description = "내가 생성했거나 참여한 모든 채팅방 목록을 조회합니다. (WAITING, ACTIVE, CLOSED 모두 포함)",
+            description = "내가 생성했거나 참여한 모든 채팅방 목록을 조회합니다(WAITING·ACTIVE·CLOSED 모두 포함). "
+                    + "대상은 JWT 신원에서 결정되며, 각 항목에 상대방 프로필과 마지막 메시지가 함께 담깁니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "내 채팅방 목록 조회 성공")
             }
     )
-    public ResponseEntity<BaseResponse<List<ChatRoomResponse>>> getMyChatRooms(
-            @Parameter(description = "조회하는 사용자 ID", example = "1", required = true)
-            @RequestParam Long userId) {
-        return ResponseEntity.ok(BaseResponse.success("채팅방 목록 조회 성공", chatService.getMyChatRooms(userId)));
+    public ResponseEntity<BaseResponse<List<ChatRoomResponse>>> getMyChatRooms(Principal principal) {
+        // 대상은 쿼리 파라미터가 아니라 JWT 신원에서 결정한다(남의 채팅 목록 조회 방지).
+        return ResponseEntity.ok(
+                BaseResponse.success("채팅방 목록 조회 성공", chatService.getMyChatRooms(userId(principal))));
+    }
+
+    private Long userId(Principal principal) {
+        return Long.parseLong(principal.getName());
     }
 
     @GetMapping("/appointments/pending")

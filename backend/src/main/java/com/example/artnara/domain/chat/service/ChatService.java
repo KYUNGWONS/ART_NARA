@@ -4,6 +4,8 @@ import com.example.artnara.domain.chat.dto.*;
 import com.example.artnara.domain.chat.entity.*;
 import com.example.artnara.domain.chat.exception.ChatErrorCode;
 import com.example.artnara.domain.chat.repository.*;
+import com.example.artnara.domain.user.entity.User;
+import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final AppointmentRepository appointmentRepository;
+    private final UserRepository userRepository;
 
     // 방 생성 (자기 ID만으로 생성, 상대 대기)
     @Transactional
@@ -57,11 +60,20 @@ public class ChatService {
         return ChatRoomResponse.of(room, joinerId);
     }
 
-    // 내 채팅방 목록
+    // 내 채팅방 목록. 목록 화면에서 바로 그릴 수 있도록 상대 프로필과 마지막 메시지를 함께 채운다.
     public List<ChatRoomResponse> getMyChatRooms(Long userId) {
         return chatRoomRepository.findAllByUserId(userId)
                 .stream()
-                .map(room -> ChatRoomResponse.of(room, userId))
+                .map(room -> {
+                    Long opponentId = room.getOpponentId(userId);
+                    User opponent = opponentId != null
+                            ? userRepository.findById(opponentId).orElse(null)
+                            : null;
+                    ChatMessage lastMessage = chatMessageRepository
+                            .findFirstByChatRoomIdOrderByCreatedAtDesc(room.getId())
+                            .orElse(null);
+                    return ChatRoomResponse.of(room, userId, opponent, lastMessage);
+                })
                 .toList();
     }
 
