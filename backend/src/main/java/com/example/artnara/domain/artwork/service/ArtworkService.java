@@ -7,6 +7,8 @@ import com.example.artnara.domain.artwork.entity.Artwork;
 import com.example.artnara.domain.artwork.entity.ArtworkBid;
 import com.example.artnara.domain.artwork.repository.ArtworkBidRepository;
 import com.example.artnara.domain.artwork.repository.ArtworkRepository;
+import com.example.artnara.domain.notification.entity.NotificationType;
+import com.example.artnara.domain.notification.service.NotificationService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,7 @@ public class ArtworkService {
 
     private final ArtworkRepository artworkRepository;
     private final ArtworkBidRepository artworkBidRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public ArtworkDetailDto getDetail(Long artworkId) {
@@ -128,7 +131,16 @@ public class ArtworkService {
     public int closeExpiredAuctions() {
         List<Artwork> expired = artworkRepository
                 .findByAuctionTrueAndAuctionClosedFalseAndAuctionEndAtLessThanEqual(LocalDateTime.now());
-        expired.forEach(artwork -> artwork.closeAuction(topBidderName(artwork.getId())));
+        expired.forEach(artwork -> {
+            String winner = topBidderName(artwork.getId());
+            artwork.closeAuction(winner);
+            notificationService.publish(NotificationType.AUCTION_CLOSED,
+                    winner == null ? "경매가 유찰되었어요" : "경매가 마감되었어요",
+                    winner == null
+                            ? "'" + artwork.getTitle() + "' 경매가 입찰 없이 마감되었습니다."
+                            : "'" + artwork.getTitle() + "' 경매가 " + winner + "님께 낙찰되었습니다.",
+                    artwork.getId());
+        });
         return expired.size();
     }
 

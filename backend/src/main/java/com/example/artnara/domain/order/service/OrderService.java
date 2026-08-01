@@ -7,6 +7,8 @@ import com.example.artnara.domain.certificate.service.CertificateService;
 import com.example.artnara.domain.order.dto.OrderDto;
 import com.example.artnara.domain.order.entity.ArtOrder;
 import com.example.artnara.domain.order.repository.ArtOrderRepository;
+import com.example.artnara.domain.notification.entity.NotificationType;
+import com.example.artnara.domain.notification.service.NotificationService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class OrderService {
     private final ArtOrderRepository artOrderRepository;
     private final ArtworkService artworkService;
     private final CertificateService certificateService;
+    private final NotificationService notificationService;
 
     public OrderDto.Response create(OrderDto.CreateRequest request) {
         validate(request);
@@ -70,6 +73,12 @@ public class OrderService {
         // 거래 완료 → 디지털 소유권 자동 이전
         certificateService.register(new CertificateDto.Ownership(
                 certificateNo, artwork.title(), artwork.artistName(), today, false));
+
+        notificationService.publish(NotificationType.ORDER_COMPLETED,
+                "결제가 완료되었어요",
+                "'" + artwork.title() + "' 결제가 완료되어 디지털 소유권과 정품 인증서("
+                        + certificateNo + ")가 발급되었습니다.",
+                order.getId());
 
         return toDto(order);
     }

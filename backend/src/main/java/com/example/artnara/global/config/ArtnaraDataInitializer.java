@@ -9,6 +9,8 @@ import com.example.artnara.domain.certificate.entity.Ownership;
 import com.example.artnara.domain.certificate.repository.CertificateRepository;
 import com.example.artnara.domain.certificate.repository.OwnershipRepository;
 import com.example.artnara.domain.commission.entity.Commission;
+import com.example.artnara.domain.notification.entity.NotificationType;
+import com.example.artnara.domain.notification.service.NotificationService;
 import com.example.artnara.domain.commission.entity.CommissionOffer;
 import com.example.artnara.domain.commission.repository.CommissionOfferRepository;
 import com.example.artnara.domain.commission.repository.CommissionRepository;
@@ -39,6 +41,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
     private final CommissionOfferRepository commissionOfferRepository;
     private final OwnershipRepository ownershipRepository;
     private final CertificateRepository certificateRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -48,6 +51,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
         }
         seedCommissions();
         seedOwnerships();
+        seedNotifications();
         seedArtwork("봄의 정원", "김예진", "자연의 빛을 기록하는 작가",
                 "따스한 봄 햇살 아래 피어난 정원의 색을 캔버스에 옮겼습니다. 유화 특유의 두터운 질감으로 꽃잎의 생동감을 살렸습니다.",
                 "캔버스에 유화", "53.0 x 45.5cm (10호)", 2026, 320000, false, null, "회화");
@@ -119,6 +123,16 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
         commissionOfferRepository.save(CommissionOffer.builder()
                 .commissionId(sample.getId()).artistName("박*현").amount(400000)
                 .message("아크릴로 2주 내 완성 가능해요.").offerTime("1시간 전").build());
+    }
+
+    /** 알림 탭이 첫 부팅부터 비어 보이지 않도록 최근 활동 알림을 넣어둔다. */
+    private void seedNotifications() {
+        notificationService.publish(NotificationType.COMMISSION_OFFER,
+                "새 제안이 도착했어요",
+                "박*현 작가가 '거실에 걸 바다 풍경화 의뢰' 의뢰에 400,000원을 제안했습니다.", 1L);
+        notificationService.publish(NotificationType.ORDER_COMPLETED,
+                "결제가 완료되었어요",
+                "'봄의 정원' 결제가 완료되어 디지털 소유권과 정품 인증서(ARTNARA-2026-0001)가 발급되었습니다.", 1L);
     }
 
     private void seedOwnerships() {

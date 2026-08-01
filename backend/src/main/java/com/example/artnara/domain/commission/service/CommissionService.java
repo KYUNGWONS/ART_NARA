@@ -5,6 +5,8 @@ import com.example.artnara.domain.commission.entity.Commission;
 import com.example.artnara.domain.commission.entity.CommissionOffer;
 import com.example.artnara.domain.commission.repository.CommissionOfferRepository;
 import com.example.artnara.domain.commission.repository.CommissionRepository;
+import com.example.artnara.domain.notification.entity.NotificationType;
+import com.example.artnara.domain.notification.service.NotificationService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class CommissionService {
 
     private final CommissionRepository commissionRepository;
     private final CommissionOfferRepository commissionOfferRepository;
+    private final NotificationService notificationService;
 
     public CommissionDto.Response create(CommissionDto.CreateRequest request) {
         validate(request);
@@ -43,6 +46,11 @@ public class CommissionService {
                         ? "" : request.referenceImageUrl().trim())
                 .notifiedArtistCount(ARTIST_POOL.getOrDefault(request.category().trim(), 10))
                 .build());
+        notificationService.publish(NotificationType.COMMISSION_CREATED,
+                "의뢰가 작가들에게 전달되었어요",
+                commission.getNotifiedArtistCount() + "명의 " + commission.getCategory()
+                        + " 작가에게 '" + commission.getTitle() + "' 의뢰가 전달되었습니다.",
+                commission.getId());
         return toDto(commission);
     }
 
@@ -77,6 +85,11 @@ public class CommissionService {
                 .message(request.message() == null ? "" : request.message().trim())
                 .offerTime("방금 전")
                 .build());
+        notificationService.publish(NotificationType.COMMISSION_OFFER,
+                "새 제안이 도착했어요",
+                artistName + " 작가가 '" + commission.getTitle() + "' 의뢰에 "
+                        + String.format("%,d", request.amount()) + "원을 제안했습니다.",
+                commission.getId());
         return toDto(commission);
     }
 
