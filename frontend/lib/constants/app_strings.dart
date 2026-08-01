@@ -946,6 +946,20 @@ class AppStrings {
     AppLanguage.zh: '聊天',
   };
 
+  static const Map<AppLanguage, String> navNotifications = {
+    AppLanguage.ko: '알림',
+    AppLanguage.en: 'Alerts',
+    AppLanguage.ja: '通知',
+    AppLanguage.zh: '通知',
+  };
+
+  static const Map<AppLanguage, String> navMyPage = {
+    AppLanguage.ko: '마이페이지',
+    AppLanguage.en: 'My',
+    AppLanguage.ja: 'マイページ',
+    AppLanguage.zh: '我的',
+  };
+
   static const Map<AppLanguage, String> navWish = {
     AppLanguage.ko: '위시',
     AppLanguage.en: 'Wish',

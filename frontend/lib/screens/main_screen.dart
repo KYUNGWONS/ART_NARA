@@ -18,6 +18,7 @@ import 'commission_screen.dart';
 import 'splash_onboarding_screen.dart';
 import 'map_screen.dart';
 import 'my_profile_screen.dart';
+import 'notification_screen.dart';
 import 'sell_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -29,7 +30,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
-  int _currentTab = 0; // 홈이 기본 선택 (디자인 1:437 탭 순서)
+  int _currentTab = 0; // 홈이 기본 선택 (디자인 bottom-navigation 순서)
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -217,7 +219,9 @@ class _MainScreenState extends State<MainScreen>
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
+          key: _scaffoldKey,
           backgroundColor: DustColors.bgCanvas,
+          drawer: _buildDrawer(),
           body: SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -238,8 +242,72 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  // ─── 상단 내비게이션 바 (디자인 1:437: 메뉴 · 둘러보기 · 벨) ───
-  static const _tabTitles = ['둘러보기', '판매', '지도', '제작 의뢰', '채팅'];
+  // ─── 좌측 서랍 (디자인 header-row 의 메뉴 버튼) ───
+  // 디자인 하단 내비에는 채팅 탭이 없어, 작품 문의(채팅)와 설정을 여기로 옮겼다.
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: DustColors.bgSurface,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(DustSpacing.lg, DustSpacing.lg,
+                  DustSpacing.lg, DustSpacing.sm),
+              child: Text('DUST-ART',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: DustColors.brandPrimary,
+                  )),
+            ),
+            const Divider(height: 1, color: DustColors.borderSoft),
+            ListTile(
+              leading: const Icon(Icons.chat_bubble_outline_rounded,
+                  color: DustColors.brandPrimary),
+              title: const Text('작품 문의', style: DustText.body),
+              subtitle: const Text('작가와 나눈 대화', style: DustText.caption),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => Scaffold(
+                      backgroundColor: DustColors.bgCanvas,
+                      appBar: AppBar(
+                        backgroundColor: DustColors.bgCanvas,
+                        elevation: 0,
+                        foregroundColor: DustColors.textPrimary,
+                        title: const Text('작품 문의',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: DustColors.brandPrimary,
+                            )),
+                        centerTitle: true,
+                      ),
+                      body: const SafeArea(child: ChatListScreen()),
+                    ),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined,
+                  color: DustColors.brandPrimary),
+              title: const Text('설정', style: DustText.body),
+              onTap: () {
+                Navigator.of(context).pop();
+                _showSettingsSheet();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── 상단 내비게이션 바 (디자인 header-row: 메뉴 · 타이틀 · 벨) ───
+  static const _tabTitles = ['둘러보기', '판매', '지도', '제작 의뢰', '알림', '마이페이지'];
 
   Widget _buildTopBar(LocaleProvider locale) {
     return Container(
@@ -249,23 +317,17 @@ class _MainScreenState extends State<MainScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 좌측: 프로필 아이콘 (내 프로필 조회)
+          // 좌측: 메뉴 버튼 (디자인 header-row > menu-button) — 채팅·설정 서랍
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => const MyProfileScreen(),
-                  ),
-                );
-              },
+              onTap: () => _scaffoldKey.currentState?.openDrawer(),
               borderRadius: BorderRadius.circular(DustRadius.full),
               child: const SizedBox(
                 width: 40,
                 height: 40,
                 child: Icon(
-                  Icons.person_outline_rounded,
+                  Icons.menu_rounded,
                   size: 24,
                   color: DustColors.textPrimary,
                 ),
@@ -281,17 +343,17 @@ class _MainScreenState extends State<MainScreen>
               color: DustColors.brandPrimary,
             ),
           ),
-          // 우측: 설정 아이콘
+          // 우측: 알림 벨 (디자인 header-right-icons > notification-button)
           Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => _showSettingsSheet(),
+              onTap: () => setState(() => _currentTab = 4),
               borderRadius: BorderRadius.circular(DustRadius.full),
               child: const SizedBox(
                 width: 40,
                 height: 40,
                 child: Icon(
-                  Icons.settings_outlined,
+                  Icons.notifications_none_rounded,
                   size: 24,
                   color: DustColors.textPrimary,
                 ),
@@ -303,7 +365,7 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  // ─── 중앙 메인 콘텐츠 (디자인 탭 순서: 홈 · 판매 · 지도 · 제작의뢰 · 채팅) ───
+  // ─── 중앙 메인 콘텐츠 (디자인 탭 순서: 홈 · 판매 · 지도 · 제작의뢰 · 알림 · 마이페이지) ───
   Widget _buildBody(LocaleProvider locale) {
     switch (_currentTab) {
       case 0: // 홈 (둘러보기)
@@ -314,8 +376,10 @@ class _MainScreenState extends State<MainScreen>
         return const MapScreen();
       case 3: // 제작 의뢰 (역경매)
         return const CommissionScreen();
-      case 4: // 채팅 (참여 중인 채팅방 목록)
-        return const ChatListScreen();
+      case 4: // 알림
+        return const NotificationScreen();
+      case 5: // 마이페이지
+        return const MyProfileScreen(embedded: true);
       default:
         return _buildPlaceholder(locale);
     }
@@ -327,14 +391,16 @@ class _MainScreenState extends State<MainScreen>
       AppStrings.navSell,
       AppStrings.navMap,
       AppStrings.navCommission,
-      AppStrings.navChat,
+      AppStrings.navNotifications,
+      AppStrings.navMyPage,
     ];
     final icons = [
       Icons.home_rounded,
       Icons.sell_outlined,
       Icons.map_outlined,
       Icons.description_outlined,
-      Icons.chat_bubble_outline_rounded,
+      Icons.notifications_none_rounded,
+      Icons.person_outline_rounded,
     ];
 
     return Center(
@@ -365,7 +431,7 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  // ─── 하단 내비게이션 바 (디자인 1:437: 홈 · 판매 · 지도 · 제작의뢰 · 채팅) ───
+  // ─── 하단 내비게이션 바 (디자인 bottom-navigation: 홈 · 판매 · 지도 · 제작의뢰 · 알림 · 마이페이지) ───
   Widget _buildBottomNav(LocaleProvider locale) {
     final items = [
       _NavItem(
@@ -389,9 +455,14 @@ class _MainScreenState extends State<MainScreen>
         label: AppStrings.navCommission,
       ),
       _NavItem(
-        icon: Icons.chat_bubble_outline_rounded,
-        activeIcon: Icons.chat_bubble_rounded,
-        label: AppStrings.navChat,
+        icon: Icons.notifications_none_rounded,
+        activeIcon: Icons.notifications_rounded,
+        label: AppStrings.navNotifications,
+      ),
+      _NavItem(
+        icon: Icons.person_outline_rounded,
+        activeIcon: Icons.person_rounded,
+        label: AppStrings.navMyPage,
       ),
     ];
 

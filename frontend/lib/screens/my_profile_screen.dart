@@ -8,7 +8,10 @@ import 'order_history_screen.dart';
 
 /// 내 프로필 조회 화면 (GET /users/me)
 class MyProfileScreen extends StatefulWidget {
-  const MyProfileScreen({super.key});
+  /// 마이페이지 탭 안에서 쓸 때는 MainScreen 이 헤더를 그리므로 AppBar 를 숨긴다.
+  final bool embedded;
+
+  const MyProfileScreen({super.key, this.embedded = false});
 
   @override
   State<MyProfileScreen> createState() => _MyProfileScreenState();
@@ -41,7 +44,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: DustColors.bgCanvas,
-      appBar: AppBar(
+      appBar: widget.embedded
+          ? null
+          : AppBar(
         backgroundColor: DustColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
