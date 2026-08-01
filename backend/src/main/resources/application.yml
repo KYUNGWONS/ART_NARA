@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ArtNara
+    name: DUST-ART
 
   servlet:
     multipart:

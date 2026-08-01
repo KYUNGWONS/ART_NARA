@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Certificate", description = "ART NARA 정품 인증·디지털 소유권 API")
+@Tag(name = "Certificate", description = "DUST-ART 정품 인증·디지털 소유권 API")
 @RestController
 @RequestMapping("/api/certificates")
 @RequiredArgsConstructor

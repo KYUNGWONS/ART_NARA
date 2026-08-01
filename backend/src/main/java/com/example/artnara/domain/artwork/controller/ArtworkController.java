@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
-@Tag(name = "Artwork", description = "ART NARA 작품 상세/입찰 API")
+@Tag(name = "Artwork", description = "DUST-ART 작품 상세/입찰 API")
 @RestController
 @RequestMapping("/api/artworks")
 @RequiredArgsConstructor

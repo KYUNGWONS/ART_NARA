@@ -24,7 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * ART NARA 데모 시드 데이터.
+ * DUST-ART 데모 시드 데이터.
  * SQL 시드(test.sql)와 달리 test 프로필에서도 동작해야 하는 아트나라 도메인 데이터는 여기서 넣는다.
  * 작품 id 1~8 순서는 ArtworkService 의 위치 mock(LOCATIONS)과 맞춰져 있으므로 유지할 것.
  */
@@ -159,7 +159,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 .artistName(artistName).ownerName("나").issuedDate(acquiredDate)
                 .yearCreated(yearCreated).sizeInfo(sizeInfo).medium(medium)
                 .verified(true)
-                .note("ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.")
+                .note("DUST-ART 전문가 검수를 통과한 정품 인증 작품입니다.")
                 .build());
     }
 

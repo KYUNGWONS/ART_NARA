@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Artist", description = "ART NARA 작가 포트폴리오 API")
+@Tag(name = "Artist", description = "DUST-ART 작가 포트폴리오 API")
 @RestController
 @RequestMapping("/api/artists")
 @RequiredArgsConstructor
