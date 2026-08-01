@@ -53,9 +53,19 @@
 - **에러가 401 로 둔갑하는 함정**: 컨트롤러 예외 → 서블릿이 `/error` 로 ERROR 디스패치 → `JwtAuthenticationFilter`(OncePerRequestFilter 는 ERROR 디스패치를 건너뜀)가 안 돌아 SecurityContext 가 비어 401 빈 응답이 나갔다. `/error` 를 `SecurityConstant.ERROR_URLS` 로 열어 해결(2026-08-01). **401 빈 본문이 보이면 인증이 아니라 서버 예외를 의심할 것.**
 - `Sido`(시·도) enum 은 `@JsonCreator`/`@JsonValue` 로 한글 라벨("서울특별시")을 주고받는다. DB 에는 enum 이름(SEOUL)이 저장된다.
 
+## 2026-08-02 추가된 기능 (디자인 리비전 반영 중 발견한 공백들)
+
+- **알림 도메인**(백엔드 `domain/notification`): 의뢰 등록·작가 제안·경매 마감·결제 완료가 알림으로 쌓인다. 앱은 알림 탭 + 헤더 벨 배지, 탭하면 해당 화면으로 이동. 프로토타입 도메인이 사용자 스코프가 없어 그쪽 알림은 `userId=null`(시스템 알림)로 저장한다.
+- **관심 작품(하트)**: `ArtworkLike` + `POST /api/artworks/{id}/like`(토글) + `GET /api/artworks/liked`. 홈 피드는 로그인 사용자의 하트 상태를 채워 내려주고, 마이페이지 > 관심 작품에서 모아 본다.
+- **작품 문의 채팅**: `POST /api/chat/rooms/direct {opponentNickname}` 로 작가와 1:1 방을 열고(있으면 재사용) 채팅으로 진입. 작품 상세·홈 피드 작가 리스트·작가 포트폴리오의 '문의하기'가 모두 이 경로(`utils/artist_inquiry.dart`).
+- **역경매 제안 UI**: 의뢰 카드의 '제안하기' → 금액·메시지 시트 → `POST /api/commissions/{id}/offers`.
+- **지도 폴백**: `NAVER_MAP_CLIENT_ID` 가 없으면 같은 `/api/artworks/nearby` 결과를 거리순 목록으로 보여준다(지도 탭이 죽지 않는다).
+- 인증서에 제작 연도·크기·재료가 새겨진다(결제 시 작품 사양을 그대로 복사).
+
 ## 남은 작업 후보
 
 - 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
+- 작품 이미지 시드가 비어 있어 카드가 회색 플레이스홀더로 보인다(업로드는 동작).
 
 ## 로컬 실행 (에뮬레이터)
 
