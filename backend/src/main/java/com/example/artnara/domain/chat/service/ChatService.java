@@ -77,6 +77,17 @@ public class ChatService {
                 .toList();
     }
 
+    /** 대화 내역 조회(본인이 참여한 방만). REST 진입 시 사용한다. */
+    public List<ChatMessageResponse> getMessagesForParticipant(Long roomId, Long userId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GlobalException(ChatErrorCode.ROOM_NOT_FOUND));
+        boolean participant = userId.equals(room.getCreatorId()) || userId.equals(room.getJoinerId());
+        if (!participant) {
+            throw new GlobalException(ChatErrorCode.NOT_ROOM_PARTICIPANT);
+        }
+        return getMessages(roomId);
+    }
+
     // 메시지 목록 조회
     public List<ChatMessageResponse> getMessages(Long roomId) {
         return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(roomId)

@@ -1,6 +1,7 @@
 package com.example.artnara.domain.chat.controller;
 
 import com.example.artnara.domain.chat.dto.AppointmentResponse;
+import com.example.artnara.domain.chat.dto.ChatMessageResponse;
 import com.example.artnara.domain.chat.dto.ChatRoomResponse;
 import com.example.artnara.domain.chat.service.ChatService;
 import com.example.artnara.global.common.BaseResponse;
@@ -89,6 +90,25 @@ public class ChatController {
 
     private Long userId(Principal principal) {
         return Long.parseLong(principal.getName());
+    }
+
+    @GetMapping("/rooms/{roomId}/messages")
+    @Operation(
+            summary = "채팅방 대화 내역",
+            description = "채팅방의 메시지를 시간순으로 조회합니다. 본인이 참여한 방만 조회할 수 있습니다. "
+                    + "실시간 수신은 STOMP(/topic/chat/{roomId})를 사용하고, 진입 시 이 API로 이전 대화를 채웁니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "대화 내역 조회 성공"),
+                    @ApiResponse(responseCode = "403", description = "참여 중인 채팅방이 아님"),
+                    @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
+            }
+    )
+    public ResponseEntity<BaseResponse<List<ChatMessageResponse>>> getMessages(
+            @Parameter(description = "채팅방 ID", example = "1", required = true)
+            @PathVariable Long roomId,
+            Principal principal) {
+        return ResponseEntity.ok(BaseResponse.success("대화 내역 조회 성공",
+                chatService.getMessagesForParticipant(roomId, userId(principal))));
     }
 
     @GetMapping("/appointments/pending")
