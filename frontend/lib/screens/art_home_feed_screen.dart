@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
 import '../utils/artist_inquiry.dart';
+import 'artwork_list_screen.dart';
 import '../models/home_feed.dart';
 import '../services/artwork_like_api_service.dart';
 import '../services/home_feed_api_service.dart';
@@ -35,6 +36,14 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _openMore(String title, List<Artwork> items) {
+    Navigator.of(context)
+        .push(MaterialPageRoute<void>(
+          builder: (_) => ArtworkListScreen(title: title, items: items),
+        ))
+        .then((_) => _search());
   }
 
   Future<void> _toggleLike(Artwork artwork) async {
@@ -93,11 +102,17 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
                 },
               ),
               const SizedBox(height: DustSpacing.lg),
-              const _SectionHeader(title: '추천 작품'),
+              _SectionHeader(
+                title: '추천 작품',
+                onMore: () => _openMore('추천 작품', feed.recommended),
+              ),
               const SizedBox(height: DustSpacing.sm),
               _ArtworkGrid(items: feed.recommended, onToggleLike: _toggleLike),
               const SizedBox(height: DustSpacing.lg),
-              const _SectionHeader(title: '마감 임박 경매'),
+              _SectionHeader(
+                title: '마감 임박 경매',
+                onMore: () => _openMore('마감 임박 경매', feed.auctions),
+              ),
               const SizedBox(height: DustSpacing.sm),
               _ArtworkGrid(items: feed.auctions, onToggleLike: _toggleLike),
               const SizedBox(height: DustSpacing.lg),
@@ -214,9 +229,10 @@ class _CategoryTabs extends StatelessWidget {
 
 /// 섹션 헤더: 제목 + 더보기 >
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
+  const _SectionHeader({required this.title, this.onMore});
 
   final String title;
+  final VoidCallback? onMore;
 
   @override
   Widget build(BuildContext context) {
@@ -228,15 +244,22 @@ class _SectionHeader extends StatelessWidget {
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: DustColors.textPrimary)),
-        const Row(
-          children: [
-            Text('더보기',
-                style: TextStyle(
-                    fontSize: 13, color: DustColors.textSecondary)),
-            SizedBox(width: 2),
-            Icon(Icons.chevron_right,
-                size: 16, color: DustColors.textSecondary),
-          ],
+        InkWell(
+          onTap: onMore,
+          borderRadius: BorderRadius.circular(DustRadius.sm),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Row(
+              children: [
+                Text('더보기',
+                    style: TextStyle(
+                        fontSize: 13, color: DustColors.textSecondary)),
+                SizedBox(width: 2),
+                Icon(Icons.chevron_right,
+                    size: 16, color: DustColors.textSecondary),
+              ],
+            ),
+          ),
         ),
       ],
     );
