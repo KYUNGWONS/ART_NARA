@@ -43,6 +43,8 @@
 - 경매: `Artwork.auctionEndAt` 기준 `AuctionScheduler`가 1분 주기 자동 마감, remainingTime은 동적 계산("D-n"/"HH:mm:ss"). 낙찰자("나")만 낙찰가로 `/api/orders` 결제 가능.
 - 주문: 결제수단만 받음(CARD/KAKAO_PAY/NAVER_PAY/TOSS, mock PG). 결제 완료 시 디지털 소유권 + QR 인증서(Certificate 엔티티, `ARTNARA-QR-xxxx`) 자동 발급 — 마이페이지 QR 스캔으로 즉시 조회 가능.
 - 이미지: `POST /api/images` multipart → `/images/{파일명}` 정적 서빙, 저장 위치 `app.upload-dir`(기본 uploads/, gitignore됨).
+- **에러가 401 로 둔갑하는 함정**: 컨트롤러 예외 → 서블릿이 `/error` 로 ERROR 디스패치 → `JwtAuthenticationFilter`(OncePerRequestFilter 는 ERROR 디스패치를 건너뜀)가 안 돌아 SecurityContext 가 비어 401 빈 응답이 나갔다. `/error` 를 `SecurityConstant.ERROR_URLS` 로 열어 해결(2026-08-01). **401 빈 본문이 보이면 인증이 아니라 서버 예외를 의심할 것.**
+- `Sido`(시·도) enum 은 `@JsonCreator`/`@JsonValue` 로 한글 라벨("서울특별시")을 주고받는다. DB 에는 enum 이름(SEOUL)이 저장된다.
 
 ## 남은 작업 후보
 
@@ -71,7 +73,11 @@ cd frontend && flutter run -d emulator-5554   --dart-define=API_BASE_URL=http://
 - 재발급: `keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore -storepass android | openssl sha1 -binary | openssl base64`
 - **릴리스 빌드는 릴리스 키스토어 지문을 따로 등록해야 한다.**
 
-**카카오**: 앱 생성 → 플랫폼 > Android 에 패키지명·키해시 등록 → 카카오 로그인 ON → 동의항목(닉네임·프로필사진·이메일). *사이트 도메인/Redirect URI 는 웹(JS·REST)용이라 불필요* — 네이티브는 `kakao{네이티브키}://oauth` 커스텀 스킴을 쓰며, `android/app/src/main/AndroidManifest.xml` 의 `android:scheme="kakao..."` 를 새 네이티브 앱 키로 **반드시 교체**해야 한다.
+**카카오**: 앱 생성 → 플랫폼 > Android 에 패키지명·키해시 등록 → 카카오 로그인 ON → 동의항목(닉네임·프로필사진·이메일). *사이트 도메인/Redirect URI 는 웹(JS·REST)용이라 불필요* — 네이티브는 `kakao{네이티브키}://oauth` 커스텀 스킴을 쓴다.
+
+- 현재 dev 앱: **ART_NARA-dev**(앱 ID 1530596), 네이티브 앱 키는 git 미추적 `frontend/android/local.properties` 의 `kakaoNativeAppKey=` 에 보관 — **커밋 금지**. `app/build.gradle.kts` 가 이 값을 읽어 `manifestPlaceholders["kakaoNativeAppKey"]` 로 주입하고, 매니페스트는 `kakao${kakaoNativeAppKey}` 스킴을 쓴다. 앱 실행 시 `--dart-define=KAKAO_NATIVE_APP_KEY=`(KakaoSdk.init 용)도 **같은 값**으로 넘겨야 한다.
+- **리다이렉트 인텐트 필터는 `com.kakao.sdk.flutter.AuthCodeCustomTabsActivity` 에 붙여야 한다.** MainActivity 에 붙이면 인텐트는 전달되지만 SDK 의 로그인 Future 가 끝나지 않아 버튼이 무한 로딩된다(실제로 겪음).
+- 2026-08-01 에뮬레이터에서 동의 → `/auth/login` 200(JWT) → 역할 선택 → 프로필 설정까지 **정상 동작 확인**.
 
 **구글**: 클라이언트 **2개**가 필요하다.
 1. *Android* 클라이언트 — 패키지명 + SHA-1. (앱에서 로그인 창이 뜨게 하는 용도, 코드에 넣지 않음)

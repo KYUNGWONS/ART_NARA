@@ -68,7 +68,17 @@ npm start            # ws://localhost:8080, 들어오는 메시지를 모든 클
 
 ### 네이티브 SDK 키
 
-- Kakao 네이티브 앱 키와 Naver Map 클라이언트 ID는 현재 [lib/main.dart](lib/main.dart)에 하드코딩되어 있습니다. 상수가 아니라 설정 값으로 취급하세요. SDK 설정을 변경해야 한다면 키를 여기저기 흩어두지 말고 `main.dart`에서 직접 수정합니다.
+- Kakao 네이티브 앱 키·Naver Map 클라이언트 ID·Google 웹 클라이언트 ID는 모두 `String.fromEnvironment`로 읽습니다. **`--dart-define` 없이 실행하면 로그인·지도가 동작하지 않습니다.**
+
+  ```bash
+  flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080 \
+    --dart-define=KAKAO_NATIVE_APP_KEY=... \
+    --dart-define=NAVER_MAP_CLIENT_ID=... \
+    --dart-define=GOOGLE_SERVER_CLIENT_ID=...apps.googleusercontent.com
+  ```
+
+- 카카오 키는 **네이티브 쪽에도** 필요합니다(커스텀 스킴 `kakao{키}://oauth`). git 미추적 `android/local.properties`의 `kakaoNativeAppKey=`에 넣으면 `app/build.gradle.kts`가 읽어 `manifestPlaceholders`로 주입합니다 — `--dart-define` 값과 반드시 같아야 합니다.
+- 리다이렉트 인텐트 필터는 `MainActivity`가 아니라 **`com.kakao.sdk.flutter.AuthCodeCustomTabsActivity`** 에 있어야 로그인 Future가 완료됩니다.
 
 ## Trigger Keywords (자동화)
 
