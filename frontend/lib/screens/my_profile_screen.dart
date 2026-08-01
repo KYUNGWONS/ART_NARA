@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../constants/app_colors.dart';
+
+import '../constants/dust_tokens.dart';
 import '../models/user_profile_response.dart';
 import '../services/user_api_service.dart';
 import 'certificate_screen.dart';
@@ -33,49 +33,50 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     });
   }
 
+  /// 백엔드 userType(KOREAN_STUDENT/FOREIGN_TOURIST) → 서비스 용어(작가/컬렉터)
+  String _roleLabel(String userType) =>
+      userType.toUpperCase().startsWith('FOREIGN') ? '컬렉터' : '작가';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: DustColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: DustColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => Navigator.of(context).pop(),
-          color: AppColors.black,
+          color: DustColors.textPrimary,
         ),
         title: Text(
           '내 프로필',
-          style: GoogleFonts.gowunDodum(
+          style: DustText.body.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: AppColors.black,
+            color: DustColors.brandPrimary,
           ),
         ),
         centerTitle: true,
       ),
       body: _loading
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+              child: CircularProgressIndicator(color: DustColors.brandPrimary),
             )
           : _profile == null
           ? Center(
               child: Text(
                 '프로필을 불러올 수 없어요',
-                style: GoogleFonts.gowunDodum(
-                  fontSize: 16,
-                  color: AppColors.grey,
-                ),
+                style: DustText.body.copyWith(color: DustColors.textSecondary),
               ),
             )
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(DustSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildProfileHeader(_profile!),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: DustSpacing.md),
                   _buildMenuTile(
                     icon: Icons.qr_code_scanner,
                     title: '정품 인증 · 디지털 소유권',
@@ -85,7 +86,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           builder: (_) => const CertificateScreen()),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: DustSpacing.sm),
                   _buildMenuTile(
                     icon: Icons.receipt_long_outlined,
                     title: '주문 내역',
@@ -95,35 +96,35 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           builder: (_) => const OrderHistoryScreen()),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: DustSpacing.lg),
                   _buildSection('기본 정보', [
                     _row('닉네임', _profile!.nickname),
                     if (_profile!.age != null) _row('나이', '${_profile!.age}세'),
                     if (_profile!.userType != null)
-                      _row('역할', _profile!.userType!.toUpperCase().startsWith('FOREIGN') ? '컬렉터' : '작가'),
+                      _row('역할', _roleLabel(_profile!.userType!)),
                     _row('프로필 완료', _profile!.profileCompleted ? '완료' : '미완료'),
                   ]),
                   if (_profile!.address != null ||
                       _profile!.addressDetail != null) ...[
-                    const SizedBox(height: 16),
-                    _buildSection('주소', [
+                    const SizedBox(height: DustSpacing.md),
+                    _buildSection('활동 지역', [
                       if (_profile!.address != null)
-                        _row('주소', _profile!.address!),
+                        _row('지역', _profile!.address!),
                       if (_profile!.addressDetail != null)
-                        _row('상세주소', _profile!.addressDetail!),
+                        _row('상세', _profile!.addressDetail!),
                     ]),
                   ],
-                                                      if (_profile!.interests.isNotEmpty) ...[
-                    const SizedBox(height: 16),
+                  if (_profile!.interests.isNotEmpty) ...[
+                    const SizedBox(height: DustSpacing.md),
                     _buildSection('관심 장르', [
                       _row('장르', _profile!.interests.join(', ')),
                     ]),
                   ],
-                                    if (_profile!.bio != null && _profile!.bio!.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    _buildSection('자기소개', [_row('소개', _profile!.bio!)]),
+                  if (_profile!.bio != null && _profile!.bio!.isNotEmpty) ...[
+                    const SizedBox(height: DustSpacing.md),
+                    _buildSection('소개', [_row('소개', _profile!.bio!)]),
                   ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: DustSpacing.lg),
                 ],
               ),
             ),
@@ -137,16 +138,16 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     required VoidCallback onTap,
   }) {
     return Material(
-      color: AppColors.white,
-      borderRadius: BorderRadius.circular(16),
+      color: DustColors.bgSurface,
+      borderRadius: BorderRadius.circular(DustRadius.md),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(DustRadius.md),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(DustSpacing.md),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.lightGrey),
+            borderRadius: BorderRadius.circular(DustRadius.md),
+            border: Border.all(color: DustColors.borderSoft),
           ),
           child: Row(
             children: [
@@ -154,38 +155,31 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: DustColors.bgInfo,
+                  borderRadius: BorderRadius.circular(DustRadius.sm),
                 ),
-                child: Icon(icon, size: 20, color: AppColors.primary),
+                child: Icon(icon, size: 20, color: DustColors.brandPrimary),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: DustSpacing.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.gowunDodum(
+                      style: DustText.body.copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.black,
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 12,
-                        color: AppColors.grey,
-                      ),
-                    ),
+                    Text(subtitle, style: DustText.caption),
                   ],
                 ),
               ),
               const Icon(
                 Icons.chevron_right_rounded,
-                color: AppColors.grey,
+                color: DustColors.textSecondary,
               ),
             ],
           ),
@@ -196,69 +190,66 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Widget _buildProfileHeader(UserProfileData p) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(DustSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: DustColors.bgSurface,
+        borderRadius: BorderRadius.circular(DustRadius.md),
+        border: Border.all(color: DustColors.borderSoft),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+            backgroundColor: DustColors.bgSubtle,
             backgroundImage: p.profileImageUrl != null
                 ? NetworkImage(p.profileImageUrl!)
                 : null,
             child: p.profileImageUrl == null
                 ? Text(
                     p.nickname.isNotEmpty ? p.nickname[0] : '?',
-                    style: GoogleFonts.gowunDodum(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
+                    style: DustText.section.copyWith(
+                      color: DustColors.brandPrimary,
                     ),
                   )
                 : null,
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: DustSpacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   p.nickname,
-                  style: GoogleFonts.gowunDodum(
+                  style: DustText.body.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.black,
                   ),
                 ),
                 if (p.age != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     '${p.age}세',
-                    style: GoogleFonts.gowunDodum(
+                    style: DustText.body.copyWith(
                       fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.darkGrey,
+                      color: DustColors.textSecondary,
                     ),
                   ),
                 ],
                 if (p.userType != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    p.userType!,
-                    style: GoogleFonts.gowunDodum(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.grey,
+                  const SizedBox(height: DustSpacing.xs),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: DustSpacing.sm, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: DustColors.brandPrimary,
+                      borderRadius: BorderRadius.circular(DustRadius.full),
+                    ),
+                    child: Text(
+                      _roleLabel(p.userType!),
+                      style: DustText.caption.copyWith(
+                        color: DustColors.textOnBrand,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -272,30 +263,23 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Widget _buildSection(String title, List<Widget> rows) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(DustSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: DustColors.bgSurface,
+        borderRadius: BorderRadius.circular(DustRadius.md),
+        border: Border.all(color: DustColors.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: GoogleFonts.gowunDodum(
-              fontSize: 16,
+            style: DustText.body.copyWith(
               fontWeight: FontWeight.w700,
-              color: AppColors.primary,
+              color: DustColors.brandPrimary,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: DustSpacing.sm),
           ...rows,
         ],
       ),
@@ -304,7 +288,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Widget _row(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: DustSpacing.xs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -312,20 +296,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             width: 90,
             child: Text(
               label,
-              style: GoogleFonts.gowunDodum(
+              style: DustText.body.copyWith(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.grey,
+                color: DustColors.textSecondary,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.gowunDodum(
+              style: DustText.body.copyWith(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: AppColors.black,
               ),
             ),
           ),
