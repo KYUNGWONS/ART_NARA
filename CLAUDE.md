@@ -61,6 +61,22 @@ cd frontend && flutter run -d emulator-5554   --dart-define=API_BASE_URL=http://
 - 카카오/네이버/구글 키는 `String.fromEnvironment`라 **--dart-define 없이는 로그인·지도가 동작하지 않는다.** 패키지명이 `com.artnara.artnara`로 바뀌었으므로 **Knot용 키는 사용 불가 — 아트나라 전용으로 새로 발급**해야 하고, AndroidManifest 의 `kakao{네이티브키}` scheme 도 함께 교체해야 한다.
 - 한글 경로(`문서`) 때문에 두 가지 우회가 필요하다: `android/gradle.properties`의 `android.overridePathCheck=true`(적용됨), 그리고 `flutter run`은 aapt 가 APK 경로를 못 읽어 실패하므로 **`flutter build apk --debug` → APK를 영문 경로로 복사 → `adb install -r`** 로 띄운다.
 
+## OAuth 앱 등록 (카카오 / 구글)
+
+**네이티브 앱이라 도메인·리다이렉트 URI가 아니라 `패키지명 + 인증서 지문`으로 등록한다.** 패키지명은 `com.artnara.artnara`.
+
+디버그 키 지문 (이 PC의 `~/.android/debug.keystore` 기준):
+- SHA-1: `95:FC:FF:7C:84:F8:89:BC:BC:9B:09:CA:74:7E:08:1A:F0:E2:0C:E3`
+- 카카오 키 해시: `lfz/fIT4iby8mwnKdH4IGvDiDOM=`
+- 재발급: `keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore -storepass android | openssl sha1 -binary | openssl base64`
+- **릴리스 빌드는 릴리스 키스토어 지문을 따로 등록해야 한다.**
+
+**카카오**: 앱 생성 → 플랫폼 > Android 에 패키지명·키해시 등록 → 카카오 로그인 ON → 동의항목(닉네임·프로필사진·이메일). *사이트 도메인/Redirect URI 는 웹(JS·REST)용이라 불필요* — 네이티브는 `kakao{네이티브키}://oauth` 커스텀 스킴을 쓰며, `android/app/src/main/AndroidManifest.xml` 의 `android:scheme="kakao..."` 를 새 네이티브 앱 키로 **반드시 교체**해야 한다.
+
+**구글**: 클라이언트 **2개**가 필요하다.
+1. *Android* 클라이언트 — 패키지명 + SHA-1. (앱에서 로그인 창이 뜨게 하는 용도, 코드에 넣지 않음)
+2. *웹 애플리케이션* 클라이언트 — 이 ID를 `GOOGLE_SERVER_CLIENT_ID` 로 주입해야 **idToken 이 발급**된다. 백엔드 `oauth.google.client-id` 에도 같은 값을 넣어 aud 를 검증한다. 승인된 리디렉션 URI/자바스크립트 원본은 모바일 전용이면 **비워둬도 된다**.
+
 ## 환경 주의사항
 
 - OneDrive 경로라 `build/` 폴더 삭제가 자주 잠김 → 빌드 실패 시 `rm -rf build`(또는 하위 폴더) 후 재시도.
