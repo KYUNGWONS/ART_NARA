@@ -8,6 +8,7 @@ import '../constants/dust_tokens.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/commission.dart';
 import '../services/commission_api_service.dart';
+import '../services/user_api_service.dart';
 import '../services/image_api_service.dart';
 
 /// 선호 카테고리 (Figma 23:67 — 복수 선택 가능)
@@ -26,6 +27,11 @@ class _CommissionScreenState extends State<CommissionScreen> {
   final _descriptionController = TextEditingController();
   final _budgetController = TextEditingController();
 
+  // 제안 시트용 컨트롤러. 시트가 닫히자마자 dispose 하면 리빌드 중 참조돼 크래시가 나므로
+  // 화면 State 가 소유하고 dispose 도 여기서 한다.
+  final _offerAmountController = TextEditingController();
+  final _offerMessageController = TextEditingController();
+
   final Set<String> _selected = {'회화'};
   DateTime? _desiredDate;
   bool _submitting = false;
@@ -37,10 +43,14 @@ class _CommissionScreenState extends State<CommissionScreen> {
   String? _referenceImageUrl;
   bool _uploadingImage = false;
 
+  /// 제안 등록 시 표시할 내 활동명(프로필에서 조회)
+  String? _profileNickname;
+
   @override
   void initState() {
     super.initState();
     _loadCommissions();
+    _loadMyNickname();
     _descriptionController.addListener(() => setState(() {}));
   }
 
@@ -49,6 +59,14 @@ class _CommissionScreenState extends State<CommissionScreen> {
     _descriptionController.dispose();
     _budgetController.dispose();
     super.dispose();
+    _offerAmountController.dispose();
+    _offerMessageController.dispose();
+  }
+
+  Future<void> _loadMyNickname() async {
+    final profile = await UserApiService.getMe();
+    if (!mounted) return;
+    setState(() => _profileNickname = profile?.data?.nickname);
   }
 
   Future<void> _loadCommissions() async {
@@ -142,6 +160,103 @@ class _CommissionScreenState extends State<CommissionScreen> {
       _showMessage(error is StateError ? error.message : '의뢰 등록에 실패했습니다');
     } finally {
       if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  /// 작가 제안 시트 — 역경매라 현재 최저가보다 낮은 금액만 등록된다.
+  void _showOfferSheet(Commission commission) {
+    _offerAmountController.clear();
+    _offerMessageController.clear();
+    final ceiling = commission.lowestOffer ?? commission.budget;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(
+              DustSpacing.lg, DustSpacing.lg, DustSpacing.lg, DustSpacing.lg),
+          decoration: const BoxDecoration(
+            color: DustColors.bgSurface,
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(DustRadius.lg)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(commission.title,
+                  style: DustText.body.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 4),
+              Text('현재 최저가 ₩${formatPrice(ceiling)} 보다 낮은 금액만 제안할 수 있어요',
+                  style: DustText.caption),
+              const SizedBox(height: DustSpacing.md),
+              TextField(
+                controller: _offerAmountController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                style: const TextStyle(fontSize: 14),
+                decoration: _decoration('제안 금액 (₩)'),
+              ),
+              const SizedBox(height: DustSpacing.sm),
+              TextField(
+                controller: _offerMessageController,
+                maxLines: 2,
+                style: const TextStyle(fontSize: 14),
+                decoration: _decoration('작업 방식·일정을 간단히 적어주세요'),
+              ),
+              const SizedBox(height: DustSpacing.md),
+              SizedBox(
+                height: 48,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: DustColors.brandPrimary,
+                    foregroundColor: DustColors.textOnBrand,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(DustRadius.md),
+                    ),
+                  ),
+                  onPressed: () async {
+                    final amount =
+                        int.tryParse(_offerAmountController.text.trim());
+                    if (amount == null || amount <= 0) {
+                      _showMessage('제안 금액을 입력해주세요');
+                      return;
+                    }
+                    Navigator.pop(sheetContext);
+                    await _submitOffer(commission, amount,
+                        _offerMessageController.text.trim());
+                  },
+                  child: const Text('제안 보내기',
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w600)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitOffer(
+      Commission commission, int amount, String message) async {
+    try {
+      await _api.placeOffer(
+        commissionId: commission.id,
+        artistName: _profileNickname ?? '익명 작가',
+        amount: amount,
+        message: message,
+      );
+      if (!mounted) return;
+      _showMessage('제안을 보냈어요');
+      _loadCommissions();
+    } catch (error) {
+      if (!mounted) return;
+      _showMessage(error is StateError ? error.message : '제안 등록에 실패했습니다');
     }
   }
 
@@ -333,7 +448,10 @@ class _CommissionScreenState extends State<CommissionScreen> {
                   color: DustColors.textPrimary)),
           const SizedBox(height: DustSpacing.sm),
           ..._commissions
-              .map((commission) => _CommissionCard(commission: commission)),
+              .map((commission) => _CommissionCard(
+                    commission: commission,
+                    onOffer: () => _showOfferSheet(commission),
+                  )),
         ],
       ],
     );
@@ -443,7 +561,10 @@ class _ReferenceImageRow extends StatelessWidget {
 }
 
 class _CommissionCard extends StatelessWidget {
-  const _CommissionCard({required this.commission});
+  const _CommissionCard({required this.commission, required this.onOffer});
+
+  /// 작가 제안 등록(역경매)
+  final VoidCallback onOffer;
 
   final Commission commission;
 
@@ -542,6 +663,23 @@ class _CommissionCard extends StatelessWidget {
               ),
             ),
           ],
+          const SizedBox(height: DustSpacing.xs),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton(
+              onPressed: onOffer,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: DustColors.brandPrimary,
+                side: const BorderSide(color: DustColors.brandPrimary),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: DustSpacing.md, vertical: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(DustRadius.full),
+                ),
+              ),
+              child: const Text('제안하기', style: TextStyle(fontSize: 12)),
+            ),
+          ),
         ],
       ),
     );
