@@ -16,4 +16,9 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     // 대기 중인 방 목록 (누구든 참여 가능)
     List<ChatRoom> findByStatus(ChatRoomStatus status);
+
+    // 두 사람 사이의 방 (작품 문의는 작가-컬렉터 1:1 이라 중복 생성하지 않는다)
+    @Query("SELECT r FROM ChatRoom r WHERE (r.creatorId = :a AND r.joinerId = :b) "
+            + "OR (r.creatorId = :b AND r.joinerId = :a)")
+    List<ChatRoom> findBetween(@Param("a") Long a, @Param("b") Long b);
 }

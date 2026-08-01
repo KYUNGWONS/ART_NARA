@@ -6,6 +6,7 @@ import com.example.artnara.domain.chat.exception.ChatErrorCode;
 import com.example.artnara.domain.chat.repository.*;
 import com.example.artnara.domain.user.entity.User;
 import com.example.artnara.domain.user.repository.UserRepository;
+import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,31 @@ public class ChatService {
                 .filter(room -> !room.getCreatorId().equals(myUserId)) // 내가 만든 방 제외
                 .map(room -> ChatRoomResponse.of(room, myUserId))
                 .toList();
+    }
+
+    /**
+     * 작품 문의용 1:1 방 열기. 이미 두 사람 사이의 방이 있으면 그 방을 돌려준다.
+     * 상대는 닉네임(작품의 작가명)으로 찾는다.
+     */
+    @Transactional
+    public ChatRoomResponse openDirectRoom(Long myUserId, String opponentNickname) {
+        User opponent = userRepository.findFirstByNickname(opponentNickname)
+                .orElseThrow(() -> new GlobalException(DomainResultCode.USER_NOT_FOUND));
+        if (opponent.getId().equals(myUserId)) {
+            throw new GlobalException(ChatErrorCode.CANNOT_JOIN_OWN_ROOM);
+        }
+        ChatRoom room = chatRoomRepository.findBetween(myUserId, opponent.getId()).stream()
+                .findFirst()
+                .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
+                        .creatorId(myUserId)
+                        .build()));
+        if (room.getJoinerId() == null) {
+            room.join(opponent.getId());
+        }
+        ChatMessage lastMessage = chatMessageRepository
+                .findFirstByChatRoomIdOrderByCreatedAtDesc(room.getId())
+                .orElse(null);
+        return ChatRoomResponse.of(room, myUserId, opponent, lastMessage);
     }
 
     // 방 참여

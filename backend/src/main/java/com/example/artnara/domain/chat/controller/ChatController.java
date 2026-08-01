@@ -40,6 +40,26 @@ public class ChatController {
         return ResponseEntity.ok(BaseResponse.success("채팅방 생성 완료", chatService.createRoom(userId)));
     }
 
+    @PostMapping("/rooms/direct")
+    @Operation(
+            summary = "작품 문의 채팅방 열기",
+            description = "작가 닉네임으로 1:1 채팅방을 엽니다. 이미 두 사람 사이의 방이 있으면 그 방을 돌려줍니다. "
+                    + "내 신원은 JWT 에서 결정됩니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "채팅방 열기 성공"),
+                    @ApiResponse(responseCode = "404", description = "상대 사용자를 찾을 수 없음")
+            }
+    )
+    public ResponseEntity<BaseResponse<ChatRoomResponse>> openDirectRoom(
+            @RequestBody DirectRoomRequest request,
+            Principal principal) {
+        return ResponseEntity.ok(BaseResponse.success("채팅방 열기 성공",
+                chatService.openDirectRoom(userId(principal), request.opponentNickname())));
+    }
+
+    /** 작품 문의 채팅방 열기 요청 */
+    public record DirectRoomRequest(String opponentNickname) {}
+
     @GetMapping("/rooms/waiting")
     @Operation(
             summary = "대기 중인 채팅방 목록",
