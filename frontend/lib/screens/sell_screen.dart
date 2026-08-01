@@ -9,7 +9,9 @@ import '../models/sale.dart';
 import '../services/image_api_service.dart';
 import '../services/sale_api_service.dart';
 
-const _stepLabels = ['작품 정보', '상세 정보', '경매 설정', '등록 완료'];
+// 디자인(작품 판매 등록)의 스텝은 작품 정보·상세 정보·가격 설정·배송 정보·등록 완료지만,
+// 아트나라는 배송이 없어(사용자 확정) 배송 정보를 뺀 4스텝으로 운영한다.
+const _stepLabels = ['작품 정보', '상세 정보', '가격 설정', '등록 완료'];
 const _categories = ['회화', '조각', '디지털', '사진', '일러스트', '공예'];
 
 /// 작품 판매 등록 — Figma 1:274 스텝 위저드 디자인.

@@ -212,7 +212,7 @@ class _SectionHeader extends StatelessWidget {
         Text(title,
             style: const TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: DustColors.textPrimary)),
         const Row(
           children: [
@@ -310,9 +310,10 @@ class _ArtworkCard extends StatelessWidget {
                     artwork.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    // 디자인 art-title: 15px w800
                     style: const TextStyle(
                         fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         color: DustColors.textPrimary),
                   ),
                   const SizedBox(height: 3),
