@@ -4,6 +4,7 @@ import '../constants/dust_tokens.dart';
 import '../models/user_profile_response.dart';
 import '../services/user_api_service.dart';
 import 'certificate_screen.dart';
+import 'liked_artworks_screen.dart';
 import 'order_history_screen.dart';
 
 /// 내 프로필 조회 화면 (GET /users/me)
@@ -89,6 +90,16 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                           builder: (_) => const CertificateScreen()),
+                    ),
+                  ),
+                  const SizedBox(height: DustSpacing.sm),
+                  _buildMenuTile(
+                    icon: Icons.favorite_border,
+                    title: '관심 작품',
+                    subtitle: '하트를 누른 작품을 모아봤어요',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                          builder: (_) => const LikedArtworksScreen()),
                     ),
                   ),
                   const SizedBox(height: DustSpacing.sm),

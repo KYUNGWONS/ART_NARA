@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
+import '../models/artwork_detail.dart';
 import 'auth_api_service.dart';
 
 /// 관심 작품(하트) 토글. POST /api/artworks/{id}/like
@@ -32,6 +33,30 @@ class ArtworkLikeApiService {
     } catch (e) {
       debugPrint('[ArtworkLike] 토글 요청 실패: $e');
       return null;
+    }
+  }
+
+  /// GET /api/artworks/liked — 내 관심 작품 목록
+  static Future<List<ArtworkDetail>> listLiked() async {
+    final token = AuthApiService.accessToken;
+    if (token == null || token.isEmpty) return const [];
+    try {
+      final response = await http.get(
+        Uri.parse('$apiBaseUrl/api/artworks/liked'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode != 200) {
+        debugPrint('[ArtworkLike] 목록 조회 실패: ${response.statusCode}');
+        return const [];
+      }
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final data = body['data'] as List<dynamic>? ?? const [];
+      return data
+          .map((e) => ArtworkDetail.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('[ArtworkLike] 목록 조회 요청 실패: $e');
+      return const [];
     }
   }
 }
