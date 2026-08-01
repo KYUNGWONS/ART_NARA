@@ -140,9 +140,10 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                       height: 1.6,
                       color: DustColors.textPrimary)),
               const SizedBox(height: DustSpacing.xs),
-              Text('활동 지역 · ${profile.location}',
-                  style: const TextStyle(
-                      fontSize: 12, color: DustColors.textSecondary)),
+              if (profile.location != null && profile.location!.isNotEmpty)
+                Text('활동 지역 · ${profile.location}',
+                    style: const TextStyle(
+                        fontSize: 12, color: DustColors.textSecondary)),
             ],
           ),
         );
@@ -212,22 +213,23 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
           ),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.star_rounded,
-                      size: 20, color: Color(0xFFB98A2F)),
-                  const SizedBox(width: 4),
-                  Text('${profile.rating}',
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: DustColors.textPrimary)),
-                  Text('  ·  리뷰 ${profile.reviewCount}개',
-                      style: const TextStyle(
-                          fontSize: 13, color: DustColors.textSecondary)),
-                ],
-              ),
+              if (profile.rating != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.star_rounded,
+                        size: 20, color: DustColors.brandPrimary),
+                    const SizedBox(width: 4),
+                    Text('${profile.rating}',
+                        style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: DustColors.textPrimary)),
+                    Text('  ·  리뷰 ${profile.reviewCount ?? 0}개',
+                        style: const TextStyle(
+                            fontSize: 13, color: DustColors.textSecondary)),
+                  ],
+                ),
               const SizedBox(height: DustSpacing.xs),
               const Text('구매자 리뷰는 준비 중입니다',
                   style: TextStyle(
@@ -322,7 +324,7 @@ class _CoverHeader extends StatelessWidget {
                       const Icon(Icons.location_on_outlined,
                           size: 13, color: Colors.white70),
                       const SizedBox(width: 2),
-                      Text(profile.location,
+                      Text(profile.location ?? '',
                           style: const TextStyle(
                               fontSize: 12, color: Colors.white70)),
                     ],
@@ -376,7 +378,8 @@ class _StatsRow extends StatelessWidget {
           Container(width: 1, height: 30, color: DustColors.borderSoft),
           stat('${profile.salesCount}', '판매'),
           Container(width: 1, height: 30, color: DustColors.borderSoft),
-          stat('${profile.rating}', '평점'),
+          // 리뷰 도메인이 없어 평점이 없으면 '-' 로 둔다.
+          stat(profile.rating?.toString() ?? '-', '평점'),
         ],
       ),
     );
@@ -392,12 +395,17 @@ class _Tabs extends StatelessWidget {
   });
 
   final int current;
-  final int reviewCount;
+  /// 리뷰 도메인이 없으면 null — 탭 라벨에서 개수를 숨긴다.
+  final int? reviewCount;
   final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final labels = ['소개', '포트폴리오', '리뷰 ($reviewCount)'];
+    final labels = [
+      '소개',
+      '포트폴리오',
+      reviewCount == null ? '리뷰' : '리뷰 ($reviewCount)',
+    ];
     return Row(
       children: List.generate(labels.length, (index) {
         final active = index == current;

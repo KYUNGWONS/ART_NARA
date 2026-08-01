@@ -2,21 +2,23 @@ class ArtistProfile {
   const ArtistProfile({
     required this.name,
     required this.introduction,
-    required this.location,
+    this.location,
     required this.artworkCount,
     required this.salesCount,
-    required this.rating,
-    required this.reviewCount,
+    this.rating,
+    this.reviewCount,
     required this.artworks,
   });
 
   final String name;
   final String introduction;
-  final String location;
+  /// 작가 프로필의 활동 지역(없으면 null)
+  final String? location;
   final int artworkCount;
   final int salesCount;
-  final double rating;
-  final int reviewCount;
+  /// 리뷰 도메인이 없어 서버가 내려주지 않으면 null
+  final double? rating;
+  final int? reviewCount;
   final List<ArtistArtwork> artworks;
 
   factory ArtistProfile.fromJson(Map<String, dynamic> json) {
@@ -29,11 +31,11 @@ class ArtistProfile {
     return ArtistProfile(
       name: json['name'] as String? ?? '',
       introduction: json['introduction'] as String? ?? '',
-      location: json['location'] as String? ?? '',
+      location: json['location'] as String?,
       artworkCount: json['artworkCount'] as int? ?? 0,
       salesCount: json['salesCount'] as int? ?? 0,
-      rating: (json['rating'] as num?)?.toDouble() ?? 0,
-      reviewCount: json['reviewCount'] as int? ?? 0,
+      rating: (json['rating'] as num?)?.toDouble(),
+      reviewCount: json['reviewCount'] as int?,
       artworks: artworks,
     );
   }
