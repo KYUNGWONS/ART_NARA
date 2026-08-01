@@ -1,26 +1,31 @@
-import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../constants/app_colors.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
+
+import '../constants/api_config.dart';
+import '../constants/dust_tokens.dart';
 import '../models/chat_message.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import '../services/auth_api_service.dart';
+import '../services/chat_api_service.dart';
 
-/// WebSocket URL 설정
-/// - Echo 서버: 테스트용 (내가 보낸 메시지가 그대로 돌아옴)
-/// - 로컬 서버: server/ 폴더의 Node.js 서버 실행 후 사용
-///   - iOS 시뮬레이터: ws://localhost:8080
-///   - Android 에뮬레이터: ws://10.0.2.2:8080
-/// TODO: 백엔드 준비 후 실제 채팅 서버 URL로 교체
-//const String kWebSocketUrl = 'wss://echo.websocket.org';
-const String kWebSocketUrl = 'ws://localhost:8080'; // 로컬 테스트 서버
+/// 백엔드 STOMP 엔드포인트. REST 베이스 URL(http/https)을 ws/wss 로 바꿔 쓴다.
+String get chatWebSocketUrl =>
+    '${apiBaseUrl.replaceFirst(RegExp(r'^http'), 'ws')}/ws';
 
+/// 작품 문의 채팅 상세 화면.
+///
+/// - 이전 대화: GET /api/chat/rooms/{roomId}/messages
+/// - 실시간 수신: STOMP 구독 /topic/chat/{roomId}
+/// - 전송: STOMP /app/chat/send  {roomId, senderId, content, messageType}
 class ChatScreen extends StatefulWidget {
-  /// 대화 상대(작가 또는 컬렉터) 표시용 최소 정보
+  final String roomId;
   final String partnerNickname;
   final String? partnerProfileImageUrl;
 
   const ChatScreen({
     super.key,
+    required this.roomId,
     required this.partnerNickname,
     this.partnerProfileImageUrl,
   });
@@ -34,86 +39,91 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  WebSocketChannel? _channel;
-  StreamSubscription? _subscription;
-  bool _isConnected = false;
-  String? _errorMessage;
-
-  /// 브로드캐스트 서버에서 내가 보낸 메시지가 다시 돌아오는 경우 중복 표시 방지
-  String? _lastSentText;
-  DateTime? _lastSentTime;
-  static const Duration _sentEchoThreshold = Duration(seconds: 2);
+  StompClient? _client;
+  bool _connected = false;
+  bool _loadingHistory = true;
 
   @override
   void initState() {
     super.initState();
+    _loadHistory();
     _connect();
   }
 
-  void _connect() {
+  Future<void> _loadHistory() async {
+    final history = await ChatApiService.getMessages(widget.roomId);
+    if (!mounted) return;
     setState(() {
-      _errorMessage = null;
-      _isConnected = false;
+      _messages
+        ..clear()
+        ..addAll(history);
+      _loadingHistory = false;
     });
-    try {
-      final uri = Uri.parse(kWebSocketUrl);
-      _channel = WebSocketChannel.connect(uri);
-      _subscription = _channel!.stream.listen(
-        _onMessage,
-        onError: (e) {
-          if (mounted) {
-            setState(() {
-              _errorMessage = e.toString();
-              _isConnected = false;
-            });
-          }
-        },
-        onDone: () {
-          if (mounted) {
-            setState(() => _isConnected = false);
-          }
-        },
-        cancelOnError: false,
-      );
-      setState(() => _isConnected = true);
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isConnected = false;
-      });
-    }
+    _scrollToBottom();
   }
 
-  void _onMessage(dynamic data) {
-    if (!mounted) return;
-    final text = data is String ? data : data.toString();
-    // 브로드캐스트 서버가 발신자에게도 보내므로, 방금 내가 보낸 메시지가 돌아오면 중복 추가하지 않음
-    if (_lastSentText != null &&
-        _lastSentTime != null &&
-        text == _lastSentText &&
-        DateTime.now().difference(_lastSentTime!) < _sentEchoThreshold) {
-      _lastSentText = null;
-      _lastSentTime = null;
+  void _connect() {
+    _client = StompClient(
+      config: StompConfig(
+        url: chatWebSocketUrl,
+        onConnect: _onConnect,
+        onWebSocketError: (dynamic e) {
+          debugPrint('[Chat] WebSocket 오류: $e');
+          if (mounted) setState(() => _connected = false);
+        },
+        onDisconnect: (_) {
+          if (mounted) setState(() => _connected = false);
+        },
+        reconnectDelay: const Duration(seconds: 3),
+      ),
+    )..activate();
+  }
+
+  void _onConnect(StompFrame frame) {
+    debugPrint('[Chat] STOMP 연결됨 → /topic/chat/${widget.roomId} 구독');
+    if (mounted) setState(() => _connected = true);
+    _client?.subscribe(
+      destination: '/topic/chat/${widget.roomId}',
+      callback: (StompFrame f) {
+        if (f.body == null) return;
+        final json = jsonDecode(f.body!) as Map<String, dynamic>;
+        final message = ChatMessage.fromJson(json, AuthApiService.userId);
+        if (!mounted) return;
+        setState(() => _messages.add(message));
+        _scrollToBottom();
+      },
+    );
+  }
+
+  void _send(String text, {String messageType = 'TEXT'}) {
+    final content = text.trim();
+    if (content.isEmpty) return;
+    final senderId = AuthApiService.userId;
+    if (senderId == null) {
+      _showSnack('로그인 정보가 없어 메시지를 보낼 수 없어요');
       return;
     }
-    setState(() {
-      _messages.add(ChatMessage(text: text, isMe: false));
-    });
-    _scrollToBottom();
+    if (!_connected) {
+      _showSnack('채팅 서버에 연결 중이에요. 잠시 후 다시 시도해주세요');
+      return;
+    }
+
+    // 서버가 /topic 으로 되돌려주는 메시지로 목록이 채워지므로 여기서 직접 추가하지 않는다.
+    _client?.send(
+      destination: '/app/chat/send',
+      body: jsonEncode({
+        'roomId': int.tryParse(widget.roomId),
+        'senderId': senderId,
+        'content': content,
+        'messageType': messageType,
+      }),
+    );
+    _textController.clear();
   }
 
-  void _sendMessage() {
-    final text = _textController.text.trim();
-    if (text.isEmpty || _channel == null) return;
-
-    _textController.clear();
-    _lastSentText = text;
-    _lastSentTime = DateTime.now();
-    setState(() {
-      _messages.add(ChatMessage(text: text, isMe: true));
-    });
-    _channel!.sink.add(text);
-    _scrollToBottom();
+  void _showSnack(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _scrollToBottom() {
@@ -128,251 +138,175 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  /// 플러스 버튼: 첨부 메뉴 (약속 신청 등)
+  /// 첨부 메뉴 — 작품 실물을 보기 위한 약속 잡기
   void _showAttachmentMenu() {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(
-                        Icons.event_rounded,
-                        color: AppColors.primary,
-                        size: 24,
-                      ),
-                    ),
-                    title: Text(
-                      '약속 신청',
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.black,
-                      ),
-                    ),
-                    subtitle: Text(
-                      '날짜·시간·비용을 정해 채팅에 보내기',
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.grey,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _showPromiseRequestSheet();
-                    },
-                  ),
-                ],
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: DustColors.bgSurface,
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(DustRadius.lg)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: DustSpacing.lg, vertical: DustSpacing.xs),
+            leading: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: DustColors.bgInfo,
+                borderRadius: BorderRadius.circular(DustRadius.md),
               ),
+              child: const Icon(Icons.event_rounded,
+                  color: DustColors.brandPrimary, size: 24),
             ),
+            title: Text(
+              '작품 보기 약속',
+              style: DustText.body.copyWith(fontWeight: FontWeight.w600),
+            ),
+            subtitle: const Text(
+              '작업실·전시 등 실물을 볼 장소와 시간을 정해 보내기',
+              style: DustText.caption,
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              _showAppointmentSheet();
+            },
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  /// 약속 신청 시트: 날짜, 시간, 비용 입력 후 채팅에 자동 입력
-  void _showPromiseRequestSheet() {
+  /// 약속 시트: 날짜·시간·장소를 정해 채팅으로 보낸다.
+  void _showAppointmentSheet() {
     DateTime selectedDate = DateTime.now();
     TimeOfDay selectedTime = TimeOfDay.now();
-    final costController = TextEditingController();
+    final placeController = TextEditingController();
 
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return Container(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: 20 + MediaQuery.of(context).padding.bottom,
-              ),
-              decoration: const BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      '약속 신청',
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(
-                        Icons.calendar_today_rounded,
-                        color: AppColors.primary,
-                        size: 22,
-                      ),
-                      title: Text(
-                        '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
-                        style: GoogleFonts.gowunDodum(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.black,
-                        ),
-                      ),
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(
-                            const Duration(days: 365),
-                          ),
-                        );
-                        if (picked != null) {
-                          setSheetState(() => selectedDate = picked);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(
-                        Icons.access_time_rounded,
-                        color: AppColors.primary,
-                        size: 22,
-                      ),
-                      title: Text(
-                        '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
-                        style: GoogleFonts.gowunDodum(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.black,
-                        ),
-                      ),
-                      onTap: () async {
-                        final picked = await showTimePicker(
-                          context: context,
-                          initialTime: selectedTime,
-                        );
-                        if (picked != null) {
-                          setSheetState(() => selectedTime = picked);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: costController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(
-                          Icons.payments_outlined,
-                          color: AppColors.primary,
-                          size: 22,
-                        ),
-                        hintText: '비용 (원)',
-                        hintStyle: GoogleFonts.gowunDodum(
-                          fontSize: 15,
-                          color: AppColors.grey,
-                        ),
-                        filled: true,
-                        fillColor: AppColors.offWhite,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.black,
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final cost = costController.text.trim();
-                          final costStr = cost.isEmpty
-                              ? '미정'
-                              : '${int.tryParse(cost) ?? 0}원';
-                          final text =
-                              '[약속 신청]\n'
-                              '날짜: ${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일\n'
-                              '시간: ${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}\n'
-                              '비용: $costStr';
-                          Navigator.pop(context);
-                          _sendPromiseMessage(text);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        child: Text(
-                          '채팅에 입력하기',
-                          style: GoogleFonts.gowunDodum(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => Container(
+          padding: EdgeInsets.fromLTRB(
+              DustSpacing.lg,
+              DustSpacing.lg,
+              DustSpacing.lg,
+              DustSpacing.lg + MediaQuery.of(context).padding.bottom),
+          decoration: const BoxDecoration(
+            color: DustColors.bgSurface,
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(DustRadius.lg)),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  '작품 보기 약속',
+                  style: DustText.body
+                      .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) => costController.dispose());
-  }
-
-  void _sendPromiseMessage(String text) {
-    if (text.isEmpty || _channel == null) return;
-    _lastSentText = text;
-    _lastSentTime = DateTime.now();
-    setState(() {
-      _messages.add(ChatMessage(text: text, isMe: true));
-    });
-    _channel!.sink.add(text);
-    _scrollToBottom();
+                const SizedBox(height: DustSpacing.lg),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.calendar_today_rounded,
+                      color: DustColors.brandPrimary, size: 22),
+                  title: Text(
+                    '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
+                    style: DustText.body.copyWith(fontSize: 15),
+                  ),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setSheetState(() => selectedDate = picked);
+                    }
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.access_time_rounded,
+                      color: DustColors.brandPrimary, size: 22),
+                  title: Text(
+                    '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
+                    style: DustText.body.copyWith(fontSize: 15),
+                  ),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                        context: context, initialTime: selectedTime);
+                    if (picked != null) {
+                      setSheetState(() => selectedTime = picked);
+                    }
+                  },
+                ),
+                const SizedBox(height: DustSpacing.xs),
+                TextField(
+                  controller: placeController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.place_outlined,
+                        color: DustColors.brandPrimary, size: 22),
+                    hintText: '장소 (예: 서촌 작업실)',
+                    hintStyle: DustText.body.copyWith(
+                        fontSize: 15, color: DustColors.textSecondary),
+                    filled: true,
+                    fillColor: DustColors.bgSubtle,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(DustRadius.md),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: DustSpacing.md, vertical: 14),
+                  ),
+                  style: DustText.body.copyWith(fontSize: 15),
+                ),
+                const SizedBox(height: DustSpacing.lg),
+                SizedBox(
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: () {
+                      final place = placeController.text.trim();
+                      final text = '[작품 보기 약속]\n'
+                          '날짜: ${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일\n'
+                          '시간: ${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}\n'
+                          '장소: ${place.isEmpty ? '미정' : place}';
+                      Navigator.pop(context);
+                      _send(text, messageType: 'APPOINTMENT');
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: DustColors.brandPrimary,
+                      foregroundColor: DustColors.textOnBrand,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(DustRadius.md),
+                      ),
+                    ),
+                    child: const Text('채팅으로 보내기',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).then((_) => placeController.dispose());
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
-    _channel?.sink.close();
+    _client?.deactivate();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -381,20 +315,20 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.offWhite,
+      backgroundColor: DustColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: DustColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => Navigator.of(context).pop(),
-          color: AppColors.black,
+          color: DustColors.textPrimary,
         ),
         title: Row(
           children: [
             CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+              radius: 18,
+              backgroundColor: DustColors.bgSubtle,
               backgroundImage: widget.partnerProfileImageUrl != null
                   ? NetworkImage(widget.partnerProfileImageUrl!)
                   : null,
@@ -403,14 +337,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       widget.partnerNickname.isNotEmpty
                           ? widget.partnerNickname[0]
                           : '?',
-                      style: GoogleFonts.gowunDodum(
+                      style: DustText.body.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
+                        color: DustColors.brandPrimary,
                       ),
                     )
                   : null,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: DustSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,30 +352,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Text(
                     widget.partnerNickname,
-                    style: GoogleFonts.gowunDodum(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.black,
+                    style: DustText.body.copyWith(fontWeight: FontWeight.w700),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    _connected ? '실시간 연결됨' : '연결 중…',
+                    style: DustText.caption.copyWith(
+                      color: _connected
+                          ? DustColors.brandPrimary
+                          : DustColors.textSecondary,
                     ),
                   ),
-                  if (_isConnected)
-                    Text(
-                      '연결됨',
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.mint,
-                      ),
-                    )
-                  else if (_errorMessage != null)
-                    Text(
-                      '연결 실패',
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.accent,
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -450,168 +371,151 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          if (_errorMessage != null)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: AppColors.accent.withValues(alpha: 0.1),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.info_outline_rounded,
-                    size: 18,
-                    color: AppColors.accent,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
+          Expanded(
+            child: _loadingHistory
+                ? const Center(
+                    child: CircularProgressIndicator(
+                        color: DustColors.brandPrimary),
+                  )
+                : _messages.isEmpty
+                ? const Center(
                     child: Text(
-                      _errorMessage!,
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 12,
-                        color: AppColors.accent,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      '작품에 대해 궁금한 점을 물어보세요',
+                      style: DustText.caption,
                     ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.fromLTRB(DustSpacing.md,
+                        DustSpacing.md, DustSpacing.md, DustSpacing.xs),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) =>
+                        _MessageBubble(message: _messages[index]),
                   ),
-                  TextButton(
-                    onPressed: _connect,
-                    child: Text(
-                      '재연결',
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.accent,
-                      ),
-                    ),
+          ),
+          _buildComposer(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildComposer() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: DustColors.bgSurface,
+        border: Border(top: BorderSide(color: DustColors.borderSoft)),
+      ),
+      padding: const EdgeInsets.fromLTRB(
+          DustSpacing.md, DustSpacing.sm, DustSpacing.md, DustSpacing.sm),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: _showAttachmentMenu,
+              icon: const Icon(Icons.add_circle_outline_rounded,
+                  color: DustColors.brandPrimary, size: 28),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: TextField(
+                controller: _textController,
+                decoration: InputDecoration(
+                  hintText: '메시지를 입력하세요',
+                  hintStyle: DustText.body.copyWith(
+                      fontSize: 15, color: DustColors.textSecondary),
+                  filled: true,
+                  fillColor: DustColors.bgSubtle,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(DustRadius.full),
+                    borderSide: BorderSide.none,
                   ),
-                ],
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: DustSpacing.sm),
+                ),
+                style: DustText.body.copyWith(fontSize: 15),
+                maxLines: null,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (value) => _send(value),
               ),
             ),
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return Align(
-                  alignment: msg.isMe
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.75,
-                    ),
-                    decoration: BoxDecoration(
-                      color: msg.isMe ? AppColors.primary : AppColors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(16),
-                        topRight: const Radius.circular(16),
-                        bottomLeft: Radius.circular(msg.isMe ? 16 : 4),
-                        bottomRight: Radius.circular(msg.isMe ? 4 : 16),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.black.withValues(alpha: 0.06),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      msg.text,
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: msg.isMe ? AppColors.white : AppColors.black,
-                      ),
-                    ),
-                  ),
-                );
-              },
+            const SizedBox(width: DustSpacing.xs),
+            Material(
+              color:
+                  _connected ? DustColors.brandPrimary : DustColors.borderSoft,
+              borderRadius: BorderRadius.circular(DustRadius.full),
+              child: IconButton(
+                onPressed: () => _send(_textController.text),
+                icon: const Icon(Icons.send_rounded,
+                    color: DustColors.textOnBrand, size: 22),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.message});
+
+  final ChatMessage message;
+
+  String get _time {
+    final h = message.sentAt.hour;
+    final ampm = h >= 12 ? '오후' : '오전';
+    final hh = h > 12 ? h - 12 : (h == 0 ? 12 : h);
+    return '$ampm $hh:${message.sentAt.minute.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isMe = message.isMe;
+    final isAppointment = message.messageType == 'APPOINTMENT';
+
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 2),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 14, vertical: DustSpacing.sm),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+            ),
+            decoration: BoxDecoration(
+              color: isAppointment
+                  ? DustColors.bgInfo
+                  : (isMe ? DustColors.brandPrimary : DustColors.bgSurface),
+              border: isMe && !isAppointment
+                  ? null
+                  : Border.all(color: DustColors.borderSoft),
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(DustRadius.md),
+                topRight: const Radius.circular(DustRadius.md),
+                bottomLeft: Radius.circular(isMe ? DustRadius.md : 4),
+                bottomRight: Radius.circular(isMe ? 4 : DustRadius.md),
+              ),
+            ),
+            child: Text(
+              message.text,
+              style: DustText.body.copyWith(
+                fontSize: 15,
+                color: isMe && !isAppointment
+                    ? DustColors.textOnBrand
+                    : DustColors.textPrimary,
+              ),
             ),
           ),
-          Container(
-            color: AppColors.white,
-            padding: EdgeInsets.fromLTRB(
-              16,
-              12,
-              16,
-              12 + MediaQuery.of(context).padding.bottom,
-            ),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  Material(
-                    color: Colors.transparent,
-                    child: IconButton(
-                      onPressed: _showAttachmentMenu,
-                      icon: const Icon(
-                        Icons.add_circle_outline_rounded,
-                        color: AppColors.primary,
-                        size: 28,
-                      ),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 40,
-                        minHeight: 40,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      decoration: InputDecoration(
-                        hintText: '메시지를 입력하세요',
-                        hintStyle: GoogleFonts.gowunDodum(
-                          fontSize: 15,
-                          color: AppColors.grey,
-                        ),
-                        filled: true,
-                        fillColor: AppColors.offWhite,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 12,
-                        ),
-                      ),
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.black,
-                      ),
-                      maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Material(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(24),
-                    child: IconButton(
-                      onPressed: _isConnected ? _sendMessage : null,
-                      icon: const Icon(
-                        Icons.send_rounded,
-                        color: AppColors.white,
-                        size: 22,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: DustSpacing.xs),
+            child: Text(_time, style: DustText.caption.copyWith(fontSize: 11)),
           ),
         ],
       ),

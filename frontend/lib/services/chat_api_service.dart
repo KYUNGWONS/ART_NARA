@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
+import '../models/chat_message.dart';
 import '../models/chat_room_item.dart';
 import 'auth_api_service.dart';
 
@@ -45,6 +46,37 @@ class ChatApiService {
     } catch (e) {
       debugPrint('[ChatAPI] GET /api/chat/rooms/my 요청 실패 (서버 미연결 시 mock 사용): $e');
       return _mockChatRoomsForOffline();
+    }
+  }
+
+  /// GET /api/chat/rooms/{roomId}/messages
+  /// 채팅 상세 진입 시 이전 대화를 채운다. 실시간 수신은 STOMP(/topic/chat/{roomId}).
+  static Future<List<ChatMessage>> getMessages(String roomId) async {
+    try {
+      final uri = Uri.parse('$apiBaseUrl/api/chat/rooms/$roomId/messages');
+      final headers = <String, String>{
+        'Content-Type': 'application/json',
+        if (AuthApiService.accessToken != null &&
+            AuthApiService.accessToken!.isNotEmpty)
+          'Authorization': 'Bearer ${AuthApiService.accessToken}',
+      };
+      final response = await http.get(uri, headers: headers);
+      if (response.statusCode != 200) {
+        debugPrint('[ChatAPI] GET messages 실패: ${response.statusCode}');
+        return const [];
+      }
+      final decoded = jsonDecode(response.body);
+      final list = decoded is Map ? decoded['data'] as List<dynamic>? : null;
+      if (list == null) return const [];
+      final myId = AuthApiService.userId;
+      final messages = list
+          .map((e) => ChatMessage.fromJson(e as Map<String, dynamic>, myId))
+          .toList();
+      debugPrint('[ChatAPI] GET messages 성공: ${messages.length}개');
+      return messages;
+    } catch (e) {
+      debugPrint('[ChatAPI] GET messages 요청 실패: $e');
+      return const [];
     }
   }
 

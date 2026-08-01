@@ -125,6 +125,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (context) => ChatScreen(
+          roomId: room.chatRoomId,
           partnerNickname: room.opponentNickname,
           partnerProfileImageUrl: room.opponentProfileImageUrl,
         ),

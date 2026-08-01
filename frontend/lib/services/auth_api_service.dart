@@ -15,9 +15,24 @@ class AuthApiService {
   /// OAuth 로그인 시 캡처한 사용자 이메일 (회원가입 POST /api/users body에 사용)
   static String? userEmail;
 
-  /// 내 프로필 조회(GET /api/users/me) 시 채워지는 내 userId.
-  /// 백엔드 채팅 등 userId 쿼리 파라미터가 필요한 API에서 사용한다.
+  /// 내 userId. 로그인 시 JWT 의 sub 에서 채우고, 프로필 조회 시 응답 값으로 갱신한다.
+  /// 채팅 메시지 전송(senderId) 등 본인 식별이 필요한 곳에서 사용한다.
   static int? userId;
+
+  /// JWT 페이로드의 sub(사용자 id)를 꺼낸다. 서명 검증은 서버 몫이라 여기선 디코딩만 한다.
+  static int? _userIdFromJwt(String jwt) {
+    try {
+      final parts = jwt.split('.');
+      if (parts.length < 2) return null;
+      final payload = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      ) as Map<String, dynamic>;
+      return int.tryParse('${payload['sub']}');
+    } catch (e) {
+      debugPrint('[AuthAPI] JWT sub 파싱 실패: $e');
+      return null;
+    }
+  }
 
   /// POST /auth/login
   /// OAuth accessToken(kakao 또는 google idToken)과 provider를 body로 전달하여 JWT 발급.
@@ -66,7 +81,8 @@ class AuthApiService {
           data.accessToken.isNotEmpty) {
         accessToken = data.accessToken;
         refreshToken = data.refreshToken;
-        debugPrint('[AuthAPI] 로그인 성공 (isNewUser: ${data.isNewUser})');
+        userId = _userIdFromJwt(data.accessToken);
+        debugPrint('[AuthAPI] 로그인 성공 (isNewUser: ${data.isNewUser}, userId: $userId)');
         return loginResponse;
       }
 
