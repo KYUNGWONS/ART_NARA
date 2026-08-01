@@ -22,6 +22,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // 네이티브 WebSocket (Flutter 앱의 stomp_dart_client 는 SockJS 핸드셰이크를 쓰지 않는다)
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*");
+        // 브라우저용 SockJS fallback
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
