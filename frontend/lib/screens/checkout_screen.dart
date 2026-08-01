@@ -58,7 +58,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: const Row(
           children: [
-            Icon(Icons.verified, color: Color(0xFF059669)),
+            Icon(Icons.verified, color: DustColors.success),
             SizedBox(width: 8),
             Text('결제 완료', style: TextStyle(fontSize: 16)),
           ],
@@ -132,7 +132,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 8),
             const Text(
               '🎉 낙찰을 축하합니다! 낙찰가로 결제가 진행됩니다.',
-              style: TextStyle(fontSize: 12, color: Color(0xFF059669)),
+              style: TextStyle(fontSize: 12, color: DustColors.success),
             ),
           ],
           const SizedBox(height: 24),

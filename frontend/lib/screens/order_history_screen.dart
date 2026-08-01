@@ -98,12 +98,12 @@ class _OrderCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
+                  color: DustColors.successBg,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(order.status,
                     style: const TextStyle(
-                        fontSize: 11, color: Color(0xFF059669))),
+                        fontSize: 11, color: DustColors.success)),
               ),
             ],
           ),

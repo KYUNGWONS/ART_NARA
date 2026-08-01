@@ -50,6 +50,19 @@ class DustColors {
 
   /// 브랜드 배경 위 텍스트
   static const Color textOnBrand = white;
+
+  // ─── 상태 색 ───
+  // 디자인 파일에 별도 성공/경고 색이 없어, 성공은 브랜드 톤으로 통일하고
+  // 경고만 최소한의 대비를 위해 따로 둔다.
+
+  /// 인증 완료·결제 완료 등 성공 표시
+  static const Color success = teal;
+
+  /// 성공 배지 배경
+  static const Color successBg = info;
+
+  /// 마감 임박·오류 등 주의 표시
+  static const Color danger = Color(0xFFB3261E);
 }
 
 /// 타이포그래피 스케일. 폰트는 Noto Sans KR.

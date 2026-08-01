@@ -270,7 +270,7 @@ class _PriceSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Text('경매 종료',
-                    style: TextStyle(fontSize: 11, color: Color(0xFFDC2626))),
+                    style: TextStyle(fontSize: 11, color: DustColors.danger)),
                 const SizedBox(height: 4),
                 Text(
                   detail.winnerName == null

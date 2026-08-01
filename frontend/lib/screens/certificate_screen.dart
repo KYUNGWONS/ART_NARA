@@ -249,7 +249,7 @@ class _CertificateCard extends StatelessWidget {
                       size: 16,
                       color: certificate.verified
                           ? DustColors.brandPrimary
-                          : const Color(0xFFDC2626),
+                          : DustColors.danger,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -358,7 +358,7 @@ class _OwnershipCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: ownership.qrIssued
-                  ? const Color(0xFFECFDF5)
+                  ? DustColors.successBg
                   : DustColors.bgSubtle,
               borderRadius: BorderRadius.circular(4),
             ),
@@ -367,7 +367,7 @@ class _OwnershipCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 color: ownership.qrIssued
-                    ? const Color(0xFF059669)
+                    ? DustColors.success
                     : DustColors.textSecondary,
               ),
             ),
