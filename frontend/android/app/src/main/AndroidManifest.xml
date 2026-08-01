@@ -1,11 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 위치 기반 추천 관광지 조회용 -->
+    <!-- 지도 탭의 '집 주변 작품' 조회용 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- 프로토타입 백엔드(http://52.79.247.172:8080)가 평문 HTTP라 cleartext 허용.
+    <!-- 개발용 백엔드가 평문 HTTP(http://10.0.2.2:8080)라 cleartext 허용.
          TODO(보안): 운영 전 백엔드를 HTTPS로 전환하고 usesCleartextTraffic 제거할 것. -->
     <application
-        android:label="artnara"
+        android:label="DUST-ART"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
@@ -47,10 +47,11 @@
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-        <!-- 네이버 지도 Client ID -->
+        <!-- 네이버 지도 Client ID — 카카오 키와 같이 android/local.properties 에서 주입한다.
+             (Knot 프로젝트 키가 하드코딩돼 있던 것을 2026-08-02 제거) -->
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="ksrv1pjr10" />
+            android:value="${naverMapClientId}" />
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

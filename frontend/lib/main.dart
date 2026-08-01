@@ -55,7 +55,7 @@ class ArtNaraApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LocaleProvider(),
       child: MaterialApp(
-        title: 'ArtNara',
+        title: 'DUST-ART',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           // DUST-ART 디자인 토큰 기준 (Figma Foundations 25:210)
