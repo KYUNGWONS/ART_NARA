@@ -1,7 +1,6 @@
 package com.example.artnara.domain.user.dto;
 
 import com.example.artnara.domain.user.entity.Sido;
-import com.example.artnara.domain.user.entity.TravelStyle;
 import com.example.artnara.domain.user.entity.User;
 import com.example.artnara.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,9 +19,7 @@ public class UserDto {
             String profileImageUrl,
             Sido region,
             String aboutMe,
-            List<String> interests,
-            List<String> languages,
-            TravelStyle travelStyle
+            List<String> interests
     ) {}
 
     @Schema(name = "UserUpdateRequest")
@@ -31,9 +28,7 @@ public class UserDto {
             String displayName,
             Sido region,
             String aboutMe,
-            List<String> interests,
-            List<String> languages,
-            TravelStyle travelStyle
+            List<String> interests
     ) {}
 
     @Schema(name = "UserResponse")
@@ -49,18 +44,14 @@ public class UserDto {
             String profileImageUrl,
             Sido region,
             String aboutMe,
-            List<String> interests,
-            List<String> languages,
-            TravelStyle travelStyle,
-            boolean matchingEnabled
+            List<String> interests
     ) {
         // universityVerified: 프로필의 '대학교 인증'(미인증/인증) 표시값. User 엔티티에 없어 서비스에서 계산해 주입한다.
         public static Response from(User u, boolean universityVerified) {
             return new Response(
                     u.getId(), u.getEmail(), u.getNickname(), u.getDisplayName(), u.getAge(),
                     u.getUserType(), universityVerified, u.isProfileCompleted(), u.getProfileImageUrl(),
-                    u.getRegion(), u.getAboutMe(), u.getInterests(), u.getLanguages(), u.getTravelStyle(),
-                    u.isMatchingEnabled()
+                    u.getRegion(), u.getAboutMe(), u.getInterests()
             );
         }
     }

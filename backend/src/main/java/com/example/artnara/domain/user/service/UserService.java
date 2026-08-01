@@ -27,8 +27,7 @@ public class UserService {
     public UserDto.Response completeProfile(Long userId, UserDto.CreateRequest req) {
         User user = find(userId);
         user.completeProfile(req.nickname(), req.displayName(), req.age(), req.userType(),
-                req.profileImageUrl(), req.region(), req.aboutMe(),
-                req.travelStyle(), req.interests(), req.languages());
+                req.profileImageUrl(), req.region(), req.aboutMe(), req.interests());
         return UserDto.Response.from(user, isUniversityVerified(user.getId()));
     }
 
@@ -41,7 +40,7 @@ public class UserService {
     public UserDto.Response update(Long id, UserDto.UpdateRequest req) {
         User user = find(id);
         user.updateProfile(req.nickname(), req.displayName(), req.region(), req.aboutMe(),
-                req.travelStyle(), req.interests(), req.languages());
+                req.interests());
         return UserDto.Response.from(user, isUniversityVerified(user.getId()));
     }
 
@@ -49,11 +48,6 @@ public class UserService {
     private boolean isUniversityVerified(Long userId) {
         return verificationRepository.existsByUserIdAndTypeAndStatus(
                 userId, VerificationType.UNIVERSITY, VerificationStatus.APPROVED);
-    }
-
-    @Transactional
-    public void setMatchingEnabled(Long id, boolean enabled) {
-        find(id).setMatchingEnabled(enabled);
     }
 
     @Transactional

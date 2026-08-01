@@ -2,7 +2,6 @@ package com.example.artnara.domain.user;
 
 import com.example.artnara.domain.user.dto.UserDto;
 import com.example.artnara.domain.user.entity.Sido;
-import com.example.artnara.domain.user.entity.TravelStyle;
 import com.example.artnara.domain.user.entity.User;
 import com.example.artnara.domain.user.entity.UserType;
 import com.example.artnara.domain.user.repository.UserRepository;
@@ -39,8 +38,7 @@ class UserIntegrationTest {
 
         var req = new UserDto.CreateRequest(
                 "andrew", "Andrew K", 24, UserType.FOREIGN_TOURIST,
-                "https://img/andrew.png", Sido.SEOUL, "hi", List.of("food", "culture"),
-                List.of("English", "한국어"), new TravelStyle(40, -40, 20, 30));
+                "https://img/andrew.png", Sido.SEOUL, "hi", List.of("회화", "사진"));
 
         // 인증된 본인(userId=id)으로 프로필 설정
         mockMvc.perform(post("/api/users")

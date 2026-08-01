@@ -2,7 +2,6 @@ package com.example.artnara.domain.user;
 
 import com.example.artnara.domain.user.dto.UserDto;
 import com.example.artnara.domain.user.entity.Sido;
-import com.example.artnara.domain.user.entity.TravelStyle;
 import com.example.artnara.domain.user.entity.User;
 import com.example.artnara.domain.user.entity.UserType;
 import com.example.artnara.domain.user.repository.UserRepository;
@@ -41,8 +40,7 @@ class UserServiceTest {
         User user = User.builder()
                 .email("test@test.com").nickname("nick").displayName("재하정").age(25)
                 .userType(UserType.KOREAN_STUDENT).region(Sido.SEOUL)
-                .aboutMe("hi").interests(List.of("food")).languages(List.of("한국어", "English"))
-                .travelStyle(new TravelStyle(10, 20, 30, 40)).build();
+                .aboutMe("hi").interests(List.of("회화")).build();
         ReflectionTestUtils.setField(user, "id", 1L);
         return user;
     }
@@ -56,8 +54,7 @@ class UserServiceTest {
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
 
         var req = new UserDto.CreateRequest("nick", "재하정", 25,
-                UserType.KOREAN_STUDENT, "https://img/p.png", Sido.SEOUL, "hi", List.of("food"),
-                List.of("한국어", "English"), new TravelStyle(10, 20, 30, 40));
+                UserType.KOREAN_STUDENT, "https://img/p.png", Sido.SEOUL, "hi", List.of("회화"));
         UserDto.Response res = userService.completeProfile(1L, req);
 
         assertThat(res.email()).isEqualTo("test@test.com");
@@ -73,8 +70,7 @@ class UserServiceTest {
         given(userRepository.findById(99L)).willReturn(Optional.empty());
 
         var req = new UserDto.CreateRequest("nick", "재하정", 25,
-                UserType.KOREAN_STUDENT, "https://img/p.png", Sido.SEOUL, "hi", List.of("food"),
-                List.of("한국어"), new TravelStyle(10, 20, 30, 40));
+                UserType.KOREAN_STUDENT, "https://img/p.png", Sido.SEOUL, "hi", List.of("회화"));
 
         assertThatThrownBy(() -> userService.completeProfile(99L, req))
                 .isInstanceOf(GlobalException.class)
@@ -128,20 +124,10 @@ class UserServiceTest {
         User user = createUser();
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
 
-        var req = new UserDto.UpdateRequest("newNick", null, null, null, null, null, null);
+        var req = new UserDto.UpdateRequest("newNick", null, null, null, null);
         UserDto.Response res = userService.update(1L, req);
 
         assertThat(res.nickname()).isEqualTo("newNick");
-    }
-
-    @Test
-    @DisplayName("매칭 설정 변경")
-    void setMatchingEnabled() {
-        User user = createUser();
-        given(userRepository.findById(1L)).willReturn(Optional.of(user));
-
-        userService.setMatchingEnabled(1L, false);
-        assertThat(user.isMatchingEnabled()).isFalse();
     }
 
     @Test

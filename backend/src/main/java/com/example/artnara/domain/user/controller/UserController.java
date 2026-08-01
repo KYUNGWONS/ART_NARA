@@ -4,7 +4,6 @@ import com.example.artnara.domain.user.dto.UserDto;
 import com.example.artnara.domain.user.service.UserService;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,21 +58,6 @@ public class UserController {
     public BaseResponse<UserDto.Response> updateMe(@RequestBody UserDto.UpdateRequest req,
                                                    Principal principal) {
         return BaseResponse.success("내 프로필 수정", userService.update(userId(principal), req));
-    }
-
-    @PatchMapping("/me/matching")
-    @Operation(summary = "매칭 설정 변경",
-            description = "로그인한 본인의 매칭 활성화/비활성화를 설정합니다. 대상은 JWT 신원에서 결정됩니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "매칭 설정 변경 성공"),
-            @ApiResponse(responseCode = "401", description = "인증 필요"),
-            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
-    })
-    public BaseResponse<Void> setMatching(
-            @Parameter(description = "매칭 활성화 여부", example = "true") @RequestParam boolean enabled,
-            Principal principal) {
-        userService.setMatchingEnabled(userId(principal), enabled);
-        return BaseResponse.success("매칭 설정 변경", null);
     }
 
     @DeleteMapping("/me")

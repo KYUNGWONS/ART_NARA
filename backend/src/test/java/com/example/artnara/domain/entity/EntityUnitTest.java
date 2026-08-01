@@ -2,7 +2,6 @@ package com.example.artnara.domain.entity;
 
 import com.example.artnara.domain.chat.entity.*;
 import com.example.artnara.domain.user.entity.Sido;
-import com.example.artnara.domain.user.entity.TravelStyle;
 import com.example.artnara.domain.user.entity.User;
 import com.example.artnara.domain.user.entity.UserType;
 import com.example.artnara.domain.verification.entity.Verification;
@@ -32,7 +31,7 @@ class EntityUnitTest {
                     .email("a@test.com").nickname("old").userType(UserType.KOREAN_STUDENT)
                     .region(Sido.SEOUL).aboutMe("hi").build();
 
-            user.updateProfile("new", null, null, null, null, null, null);
+            user.updateProfile("new", null, null, null, null);
 
             assertThat(user.getNickname()).isEqualTo("new");
             assertThat(user.getRegion()).isEqualTo(Sido.SEOUL);
@@ -45,27 +44,13 @@ class EntityUnitTest {
             User user = User.builder()
                     .email("a@test.com").nickname("old").userType(UserType.KOREAN_STUDENT).build();
 
-            TravelStyle style = new TravelStyle(10, 20, 30, 40);
-            user.updateProfile("new", "재하정", Sido.BUSAN, "bye", style, List.of("music"), List.of("한국어"));
+            user.updateProfile("new", "재하정", Sido.BUSAN, "bye", List.of("회화"));
 
             assertThat(user.getNickname()).isEqualTo("new");
             assertThat(user.getDisplayName()).isEqualTo("재하정");
             assertThat(user.getRegion()).isEqualTo(Sido.BUSAN);
             assertThat(user.getAboutMe()).isEqualTo("bye");
-            assertThat(user.getTravelStyle()).isEqualTo(style);
-            assertThat(user.getInterests()).containsExactly("music");
-            assertThat(user.getLanguages()).containsExactly("한국어");
-        }
-
-        @Test
-        @DisplayName("매칭 활성화/비활성화")
-        void setMatchingEnabled() {
-            User user = User.builder()
-                    .email("a@test.com").nickname("n").userType(UserType.FOREIGN_TOURIST).build();
-
-            assertThat(user.isMatchingEnabled()).isTrue();
-            user.setMatchingEnabled(false);
-            assertThat(user.isMatchingEnabled()).isFalse();
+            assertThat(user.getInterests()).containsExactly("회화");
         }
     }
 

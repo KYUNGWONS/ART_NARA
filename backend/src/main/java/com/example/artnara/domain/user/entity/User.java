@@ -51,34 +51,19 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Sido region;
 
-    // 지도(구 단위 메이트 분포) 전용 위치. region(Sido)과 별개이며 현재는 프로필 API로 설정할 수 없다.
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "district_id")
-    private District district;
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "user_languages", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "language")
-    private List<String> languages = new ArrayList<>();
-
     @Column(length = 1000)
     private String aboutMe;
 
-    @Embedded
-    private TravelStyle travelStyle;
-
+    /** 작가는 주요 장르, 컬렉터는 관심 장르 (회화·조각·디지털 …) */
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_interests", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "interest")
     private List<String> interests = new ArrayList<>();
 
-    private boolean matchingEnabled = true;
-
     @Builder
     public User(OAuthProvider provider, String providerId,
                 String email, String nickname, String displayName, Integer age, UserType userType,
-                String profileImageUrl, Sido region, String aboutMe,
-                TravelStyle travelStyle, List<String> interests, List<String> languages) {
+                String profileImageUrl, Sido region, String aboutMe, List<String> interests) {
         this.provider = provider;
         this.providerId = providerId;
         this.email = email;
@@ -89,9 +74,7 @@ public class User extends BaseTimeEntity {
         this.profileImageUrl = profileImageUrl;
         this.region = region;
         this.aboutMe = aboutMe;
-        this.travelStyle = travelStyle;
         if (interests != null) this.interests = interests;
-        if (languages != null) this.languages = languages;
     }
 
     /**
@@ -117,14 +100,12 @@ public class User extends BaseTimeEntity {
     }
 
     public void updateProfile(String nickname, String displayName, Sido region, String aboutMe,
-                              TravelStyle travelStyle, List<String> interests, List<String> languages) {
+                              List<String> interests) {
         if (nickname != null) this.nickname = nickname;
         if (displayName != null) this.displayName = displayName;
         if (region != null) this.region = region;
         if (aboutMe != null) this.aboutMe = aboutMe;
-        if (travelStyle != null) this.travelStyle = travelStyle;
         if (interests != null) this.interests = interests;
-        if (languages != null) this.languages = languages;
     }
 
     /**
@@ -132,7 +113,7 @@ public class User extends BaseTimeEntity {
      */
     public void completeProfile(String nickname, String displayName, Integer age, UserType userType,
                                 String profileImageUrl, Sido region, String aboutMe,
-                                TravelStyle travelStyle, List<String> interests, List<String> languages) {
+                                List<String> interests) {
         if (nickname != null) this.nickname = nickname;
         if (displayName != null) this.displayName = displayName;
         if (age != null) this.age = age;
@@ -140,17 +121,7 @@ public class User extends BaseTimeEntity {
         if (profileImageUrl != null) this.profileImageUrl = profileImageUrl;
         if (region != null) this.region = region;
         if (aboutMe != null) this.aboutMe = aboutMe;
-        if (travelStyle != null) this.travelStyle = travelStyle;
         if (interests != null) this.interests = interests;
-        if (languages != null) this.languages = languages;
         this.profileCompleted = true;
-    }
-
-    public void setMatchingEnabled(boolean enabled) {
-        this.matchingEnabled = enabled;
-    }
-
-    public void assignDistrict(District district) {
-        this.district = district;
     }
 }
