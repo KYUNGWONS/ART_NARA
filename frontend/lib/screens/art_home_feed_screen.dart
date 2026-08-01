@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
 import '../models/home_feed.dart';
+import '../services/artwork_like_api_service.dart';
 import '../services/home_feed_api_service.dart';
 import 'artist_portfolio_screen.dart';
 import 'artwork_detail_screen.dart';
@@ -33,6 +34,18 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _toggleLike(Artwork artwork) async {
+    final liked = await ArtworkLikeApiService.toggle(artwork.id);
+    if (!mounted) return;
+    if (liked == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('관심 작품은 로그인 후 이용할 수 있어요')),
+      );
+      return;
+    }
+    _search(); // 서버 상태로 목록 갱신
   }
 
   void _search() {
@@ -81,11 +94,11 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
               const SizedBox(height: DustSpacing.lg),
               const _SectionHeader(title: '추천 작품'),
               const SizedBox(height: DustSpacing.sm),
-              _ArtworkGrid(items: feed.recommended),
+              _ArtworkGrid(items: feed.recommended, onToggleLike: _toggleLike),
               const SizedBox(height: DustSpacing.lg),
               const _SectionHeader(title: '마감 임박 경매'),
               const SizedBox(height: DustSpacing.sm),
-              _ArtworkGrid(items: feed.auctions),
+              _ArtworkGrid(items: feed.auctions, onToggleLike: _toggleLike),
               const SizedBox(height: DustSpacing.lg),
               _ArtistSection(artists: feed.artists),
             ],
@@ -230,9 +243,10 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _ArtworkGrid extends StatelessWidget {
-  const _ArtworkGrid({required this.items});
+  const _ArtworkGrid({required this.items, required this.onToggleLike});
 
   final List<Artwork> items;
+  final void Function(Artwork artwork) onToggleLike;
 
   @override
   Widget build(BuildContext context) {
@@ -252,14 +266,19 @@ class _ArtworkGrid extends StatelessWidget {
         mainAxisSpacing: DustSpacing.sm,
         mainAxisExtent: 258,
       ),
-      itemBuilder: (context, index) => _ArtworkCard(artwork: items[index]),
+      itemBuilder: (context, index) => _ArtworkCard(
+        artwork: items[index],
+        onToggleLike: () => onToggleLike(items[index]),
+      ),
     );
   }
 }
 
 /// 작품 카드 (디자인: paper 카드, 이미지 160 + 하트, 제목/작가/가격)
 class _ArtworkCard extends StatelessWidget {
-  const _ArtworkCard({required this.artwork});
+  const _ArtworkCard({required this.artwork, required this.onToggleLike});
+
+  final VoidCallback onToggleLike;
 
   final Artwork artwork;
 
@@ -288,14 +307,24 @@ class _ArtworkCard extends StatelessWidget {
               children: [
                 _ArtworkThumb(imageUrl: artwork.imageUrl, height: 160),
                 Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Icon(
-                    artwork.liked ? Icons.favorite : Icons.favorite_border,
-                    size: 20,
-                    color: artwork.liked
-                        ? DustColors.brandPrimary
-                        : Colors.white,
+                  top: 4,
+                  right: 4,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: onToggleLike,
+                      borderRadius: BorderRadius.circular(DustRadius.full),
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Icon(
+                          artwork.liked ? Icons.favorite : Icons.favorite_border,
+                          size: 20,
+                          color: artwork.liked
+                              ? DustColors.brandPrimary
+                              : Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
