@@ -5,6 +5,8 @@ import com.example.artnara.domain.chat.entity.*;
 import com.example.artnara.domain.chat.exception.ChatErrorCode;
 import com.example.artnara.domain.chat.repository.*;
 import com.example.artnara.domain.user.entity.User;
+import com.example.artnara.domain.notification.entity.NotificationType;
+import com.example.artnara.domain.notification.service.NotificationService;
 import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
@@ -23,6 +25,7 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     // 방 생성 (자기 ID만으로 생성, 상대 대기)
     @Transactional
@@ -98,7 +101,9 @@ public class ChatService {
                     ChatMessage lastMessage = chatMessageRepository
                             .findFirstByChatRoomIdOrderByCreatedAtDesc(room.getId())
                             .orElse(null);
-                    return ChatRoomResponse.of(room, userId, opponent, lastMessage);
+                    long unread = chatMessageRepository
+                            .countByChatRoomIdAndSenderIdNotAndReadFalse(room.getId(), userId);
+                    return ChatRoomResponse.of(room, userId, opponent, lastMessage, unread);
                 })
                 .toList();
     }
@@ -135,7 +140,23 @@ public class ChatService {
                 .messageType(request.getMessageType())
                 .build();
 
-        return ChatMessageResponse.from(chatMessageRepository.save(message));
+        ChatMessage saved = chatMessageRepository.save(message);
+
+        // 채팅 탭이 없는 구조라(디자인 6탭) 새 메시지는 알림으로도 알려준다.
+        Long receiverId = room.getOpponentId(request.getSenderId());
+        if (receiverId != null) {
+            String sender = userRepository.findById(request.getSenderId())
+                    .map(User::getNickname)
+                    .orElse("상대방");
+            notificationService.publishTo(receiverId, NotificationType.CHAT_MESSAGE,
+                    sender + "님의 메시지",
+                    saved.getContent().length() > 60
+                            ? saved.getContent().substring(0, 60) + "…"
+                            : saved.getContent(),
+                    room.getId());
+        }
+
+        return ChatMessageResponse.from(saved);
     }
 
     // 읽음 처리

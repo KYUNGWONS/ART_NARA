@@ -16,6 +16,9 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     /** 채팅방 목록의 미리보기용 — 방의 가장 최근 메시지 1건 */
     Optional<ChatMessage> findFirstByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId);
 
+    /** 내가 아직 읽지 않은 상대 메시지 수 */
+    long countByChatRoomIdAndSenderIdNotAndReadFalse(Long chatRoomId, Long userId);
+
     @Query("SELECT m.id FROM ChatMessage m WHERE m.chatRoom.id = :roomId AND m.senderId != :userId AND m.read = false")
     List<Long> findUnreadMessageIds(@Param("roomId") Long roomId, @Param("userId") Long userId);
 

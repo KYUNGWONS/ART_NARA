@@ -55,6 +55,9 @@ public class ChatRoomResponse {
     @Schema(description = "마지막 메시지 시각", example = "2026-03-16T12:30:00")
     private LocalDateTime lastMessageAt;
 
+    @Schema(description = "내가 읽지 않은 메시지 수", example = "2")
+    private long unreadCount;
+
     public static ChatRoomResponse of(ChatRoom room, Long myUserId) {
         return of(room, myUserId, null, null);
     }
@@ -63,6 +66,11 @@ public class ChatRoomResponse {
      * 목록 화면용. 상대 프로필과 마지막 메시지를 함께 채운다(둘 다 nullable).
      */
     public static ChatRoomResponse of(ChatRoom room, Long myUserId, User opponent, ChatMessage lastMessage) {
+        return of(room, myUserId, opponent, lastMessage, 0);
+    }
+
+    public static ChatRoomResponse of(ChatRoom room, Long myUserId, User opponent,
+                                      ChatMessage lastMessage, long unreadCount) {
         return ChatRoomResponse.builder()
                 .roomId(room.getId())
                 .creatorId(room.getCreatorId())
@@ -77,6 +85,7 @@ public class ChatRoomResponse {
                 .opponentUserType(opponent != null ? opponent.getUserType() : null)
                 .lastMessage(lastMessage != null ? lastMessage.getContent() : null)
                 .lastMessageAt(lastMessage != null ? lastMessage.getCreatedAt() : null)
+                .unreadCount(unreadCount)
                 .build();
     }
 }
