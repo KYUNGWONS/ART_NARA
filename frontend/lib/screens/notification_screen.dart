@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import '../constants/dust_tokens.dart';
 import '../models/app_notification.dart';
 import '../services/notification_api_service.dart';
+import 'artwork_detail_screen.dart';
+import 'order_history_screen.dart';
 
 /// 알림 탭 (디자인 하단 내비 nav-item-notifications)
 /// GET /api/notifications — 제작 의뢰·경매 마감·결제 완료 등 도메인 이벤트가 쌓인다.
 class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+  /// 알림을 눌렀을 때 다른 탭으로 이동해야 하는 경우 MainScreen 이 넘겨준다.
+  final void Function(int tabIndex)? onOpenTab;
+
+  const NotificationScreen({super.key, this.onOpenTab});
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -40,10 +45,32 @@ class _NotificationScreenState extends State<NotificationScreen> {
     await _load();
   }
 
-  Future<void> _read(AppNotification item) async {
-    if (item.read) return;
-    await NotificationApiService.markAsRead(item.id);
-    await _load();
+  Future<void> _open(AppNotification item) async {
+    if (!item.read) {
+      await NotificationApiService.markAsRead(item.id);
+      await _load();
+    }
+    if (!mounted) return;
+
+    // 알림 종류별 이동 (targetId 해석: 의뢰 id · 작품 id · 주문 id)
+    switch (item.type) {
+      case 'COMMISSION_CREATED':
+      case 'COMMISSION_OFFER':
+        widget.onOpenTab?.call(3); // 제작 의뢰 탭
+        break;
+      case 'AUCTION_CLOSED':
+        if (item.targetId != null) {
+          Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (_) => ArtworkDetailScreen(artworkId: item.targetId!),
+          ));
+        }
+        break;
+      case 'ORDER_COMPLETED':
+        Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => const OrderHistoryScreen(),
+        ));
+        break;
+    }
   }
 
   static IconData _iconFor(String type) {
@@ -160,7 +187,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _tile(AppNotification item) {
     return InkWell(
-      onTap: () => _read(item),
+      onTap: () => _open(item),
       child: Container(
         color: item.read ? Colors.transparent : DustColors.bgInfo,
         padding: const EdgeInsets.symmetric(

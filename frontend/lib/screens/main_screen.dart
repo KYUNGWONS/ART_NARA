@@ -373,7 +373,9 @@ class _MainScreenState extends State<MainScreen>
       case 3: // 제작 의뢰 (역경매)
         return const CommissionScreen();
       case 4: // 알림
-        return const NotificationScreen();
+        return NotificationScreen(
+          onOpenTab: (index) => setState(() => _currentTab = index),
+        );
       case 5: // 마이페이지
         return const MyProfileScreen(embedded: true);
       default:
