@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_strings.dart';
 import '../constants/dust_tokens.dart';
@@ -94,7 +93,7 @@ class _MainScreenState extends State<MainScreen>
                   // 타이틀
                   Text(
                     localeProvider.tr(AppStrings.settings),
-                    style: GoogleFonts.gowunDodum(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: DustColors.textPrimary,
@@ -119,7 +118,7 @@ class _MainScreenState extends State<MainScreen>
                     ),
                     title: Text(
                       localeProvider.tr(AppStrings.logout),
-                      style: GoogleFonts.gowunDodum(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: DustColors.danger,
@@ -152,7 +151,7 @@ class _MainScreenState extends State<MainScreen>
               ),
               title: Text(
                 localeProvider.tr(AppStrings.logout),
-                style: GoogleFonts.gowunDodum(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: DustColors.textPrimary,
@@ -160,7 +159,7 @@ class _MainScreenState extends State<MainScreen>
               ),
               content: Text(
                 localeProvider.tr(AppStrings.logoutConfirm),
-                style: GoogleFonts.gowunDodum(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                   color: DustColors.textSecondary,
@@ -171,7 +170,7 @@ class _MainScreenState extends State<MainScreen>
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     localeProvider.tr(AppStrings.cancel),
-                    style: GoogleFonts.gowunDodum(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: DustColors.textSecondary,
@@ -185,7 +184,7 @@ class _MainScreenState extends State<MainScreen>
                   },
                   child: Text(
                     localeProvider.tr(AppStrings.logout),
-                    style: GoogleFonts.gowunDodum(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: DustColors.danger,
@@ -445,7 +444,7 @@ class _MainScreenState extends State<MainScreen>
           const SizedBox(height: 16),
           Text(
             locale.tr(labels[_currentTab]),
-            style: GoogleFonts.gowunDodum(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: DustColors.textSecondary,
@@ -454,7 +453,7 @@ class _MainScreenState extends State<MainScreen>
           const SizedBox(height: 8),
           Text(
             'Coming Soon',
-            style: GoogleFonts.gowunDodum(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
               color: DustColors.borderSoft,

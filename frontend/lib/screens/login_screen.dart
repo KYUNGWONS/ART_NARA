@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_strings.dart';
 import '../constants/dust_tokens.dart';
@@ -169,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen>
       SnackBar(
         content: Text(
           locale.tr(AppStrings.loginError),
-          style: GoogleFonts.gowunDodum(fontWeight: FontWeight.w500),
+          style: TextStyle(fontWeight: FontWeight.w500),
         ),
         backgroundColor: DustColors.danger,
         behavior: SnackBarBehavior.floating,
@@ -297,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         label: Text(
                           locale.tr(AppStrings.back),
-                          style: GoogleFonts.gowunDodum(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: DustColors.textSecondary,
