@@ -71,8 +71,9 @@ public class OrderService {
         order.issueCertificate(certificateNo);
 
         // 거래 완료 → 디지털 소유권 자동 이전
-        certificateService.register(new CertificateDto.Ownership(
-                certificateNo, artwork.title(), artwork.artistName(), today, false));
+        certificateService.register(new CertificateDto.IssueRequest(
+                certificateNo, artwork.title(), artwork.artistName(), today,
+                artwork.year(), artwork.size(), artwork.medium()));
 
         notificationService.publish(NotificationType.ORDER_COMPLETED,
                 "결제가 완료되었어요",

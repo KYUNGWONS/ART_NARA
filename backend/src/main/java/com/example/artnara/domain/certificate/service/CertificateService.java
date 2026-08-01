@@ -37,21 +37,24 @@ public class CertificateService {
      * 같은 인증 번호로 QR 정품 인증서도 발급한다.
      * QR 코드는 "ARTNARA-QR-{인증번호 끝자리}" 형식.
      */
-    public void register(CertificateDto.Ownership ownership) {
+    public void register(CertificateDto.IssueRequest request) {
         ownershipRepository.save(Ownership.builder()
-                .certificateNo(ownership.certificateNo())
-                .artworkTitle(ownership.artworkTitle())
-                .artistName(ownership.artistName())
-                .acquiredDate(ownership.acquiredDate())
+                .certificateNo(request.certificateNo())
+                .artworkTitle(request.artworkTitle())
+                .artistName(request.artistName())
+                .acquiredDate(request.acquiredDate())
                 .qrIssued(true)
                 .build());
         certificateRepository.save(Certificate.builder()
-                .qrCode(qrCodeOf(ownership.certificateNo()))
-                .certificateNo(ownership.certificateNo())
-                .artworkTitle(ownership.artworkTitle())
-                .artistName(ownership.artistName())
+                .qrCode(qrCodeOf(request.certificateNo()))
+                .certificateNo(request.certificateNo())
+                .artworkTitle(request.artworkTitle())
+                .artistName(request.artistName())
                 .ownerName("나")
-                .issuedDate(ownership.acquiredDate())
+                .issuedDate(request.acquiredDate())
+                .yearCreated(request.yearCreated())
+                .sizeInfo(request.sizeInfo())
+                .medium(request.medium())
                 .verified(true)
                 .note(CERT_NOTE)
                 .build());
@@ -69,8 +72,9 @@ public class CertificateService {
         return new CertificateDto.Certificate(
                 certificate.getCertificateNo(), certificate.getArtworkTitle(),
                 certificate.getArtistName(), certificate.getOwnerName(),
-                certificate.getIssuedDate(), certificate.isVerified(),
-                certificate.getNote());
+                certificate.getIssuedDate(), certificate.getYearCreated(),
+                certificate.getSizeInfo(), certificate.getMedium(),
+                certificate.isVerified(), certificate.getNote());
     }
 
     /** ARTNARA-2026-0001 → ARTNARA-QR-0001 */

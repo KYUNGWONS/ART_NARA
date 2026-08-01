@@ -27,8 +27,9 @@ class CertificateServiceTest {
     @Test
     @DisplayName("소유권 등록 시 목록 최신순으로 추가된다")
     void register() {
-        certificateService.register(new CertificateDto.Ownership(
-                "ARTNARA-2026-9999", "새 작품", "나", "2026-07-31", false));
+        certificateService.register(new CertificateDto.IssueRequest(
+                "ARTNARA-2026-9999", "새 작품", "나", "2026-07-31",
+                2026, "40.0 x 40.0cm", "캔버스에 아크릴"));
         var ownerships = certificateService.listOwnerships().ownerships();
         assertThat(ownerships).hasSize(3);
         assertThat(ownerships.get(0).certificateNo()).isEqualTo("ARTNARA-2026-9999");
@@ -37,8 +38,9 @@ class CertificateServiceTest {
     @Test
     @DisplayName("소유권 등록 시 QR 인증서도 발급되어 스캔된다")
     void registerIssuesScannableCertificate() {
-        certificateService.register(new CertificateDto.Ownership(
-                "ARTNARA-2026-7777", "새 작품", "나", "2026-07-31", false));
+        certificateService.register(new CertificateDto.IssueRequest(
+                "ARTNARA-2026-7777", "새 작품", "나", "2026-07-31",
+                2026, "40.0 x 40.0cm", "캔버스에 아크릴"));
 
         CertificateDto.Certificate certificate = certificateService.scan(
                 new CertificateDto.ScanRequest("ARTNARA-QR-7777"));

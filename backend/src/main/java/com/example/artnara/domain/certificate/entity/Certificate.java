@@ -41,6 +41,13 @@ public class Certificate extends BaseTimeEntity {
     /** 표시용 발급일 문자열 (예: "2026-05-12") */
     private String issuedDate;
 
+    /** 인증서에 함께 새기는 작품 사양 (디자인: 제작 연도 · 크기 · 재료) */
+    private Integer yearCreated;
+
+    private String sizeInfo;
+
+    private String medium;
+
     @Column(nullable = false)
     private boolean verified;
 
@@ -49,6 +56,7 @@ public class Certificate extends BaseTimeEntity {
     @Builder
     public Certificate(String qrCode, String certificateNo, String artworkTitle,
                        String artistName, String ownerName, String issuedDate,
+                       Integer yearCreated, String sizeInfo, String medium,
                        boolean verified, String note) {
         this.qrCode = qrCode;
         this.certificateNo = certificateNo;
@@ -56,6 +64,9 @@ public class Certificate extends BaseTimeEntity {
         this.artistName = artistName;
         this.ownerName = ownerName;
         this.issuedDate = issuedDate;
+        this.yearCreated = yearCreated;
+        this.sizeInfo = sizeInfo;
+        this.medium = medium;
         this.verified = verified;
         this.note = note;
     }
