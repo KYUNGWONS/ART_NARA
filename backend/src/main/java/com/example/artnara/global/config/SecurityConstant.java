@@ -43,12 +43,19 @@ public class SecurityConstant {
             "/h2-console/**"
     };
 
+    // 컨트롤러에서 예외가 나면 서블릿이 /error 로 ERROR 디스패치를 한다. 이때 JwtAuthenticationFilter는
+    // (OncePerRequestFilter 기본값상) 건너뛰어져 SecurityContext가 비어 있으므로, /error 가 인증 대상이면
+    // 원래 에러(400/500)가 전부 401 빈 응답으로 둔갑한다. 실제 상태코드가 그대로 나가도록 열어둔다.
+    public static final String[] ERROR_URLS = {
+            "/error"
+    };
+
     public static final String[] ADMIN_URLS = {
     };
 
     public static final String[] PUBLIC_URLS =
             Stream.of(PUBLIC_AUTH_URLS, PUBLIC_FEED_URLS,
-                            PUBLIC_ARTWORK_URLS, SWAGGER_URLS, WEBSOCKET_URLS, H2_URLS)
+                            PUBLIC_ARTWORK_URLS, SWAGGER_URLS, WEBSOCKET_URLS, H2_URLS, ERROR_URLS)
                     .flatMap(Arrays::stream)
                     .toArray(String[]::new);
 }
