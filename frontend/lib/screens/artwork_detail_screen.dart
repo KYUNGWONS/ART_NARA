@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 import '../utils/artist_inquiry.dart';
 import 'package:flutter/services.dart';
 
@@ -231,7 +232,7 @@ class _ArtworkImage extends StatelessWidget {
       child: imageUrl.isEmpty
           ? const Text('Image',
               style: TextStyle(fontSize: 11, color: DustColors.textSecondary))
-          : Image.network(imageUrl, fit: BoxFit.cover),
+          : Image.network(resolveImageUrl(imageUrl), fit: BoxFit.cover),
     );
   }
 }

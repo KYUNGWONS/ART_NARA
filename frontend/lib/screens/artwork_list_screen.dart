@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 import '../models/home_feed.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import 'artwork_detail_screen.dart';
@@ -80,7 +81,7 @@ class _Card extends StatelessWidget {
                   : ClipRRect(
                       borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(DustRadius.md)),
-                      child: Image.network(artwork.imageUrl, fit: BoxFit.cover),
+                      child: Image.network(resolveImageUrl(artwork.imageUrl), fit: BoxFit.cover),
                     ),
             ),
             Padding(

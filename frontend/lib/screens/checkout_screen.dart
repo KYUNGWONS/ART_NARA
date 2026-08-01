@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 
 import '../models/artwork_detail.dart';
 import '../models/order.dart';
@@ -208,7 +209,7 @@ class _ArtworkSummary extends StatelessWidget {
             child: artwork.imageUrl.isEmpty
                 ? const Icon(Icons.image_outlined,
                     size: 22, color: DustColors.textSecondary)
-                : Image.network(artwork.imageUrl, fit: BoxFit.cover),
+                : Image.network(resolveImageUrl(artwork.imageUrl), fit: BoxFit.cover),
           ),
           const SizedBox(width: 12),
           Expanded(

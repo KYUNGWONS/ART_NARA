@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/commission.dart';
 import '../services/commission_api_service.dart';
@@ -586,7 +587,7 @@ class _CommissionCard extends StatelessWidget {
               if (commission.referenceImageUrl.isNotEmpty) ...[
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: Image.network(commission.referenceImageUrl,
+                  child: Image.network(resolveImageUrl(commission.referenceImageUrl),
                       width: 36,
                       height: 36,
                       fit: BoxFit.cover,

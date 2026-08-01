@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 import '../utils/artist_inquiry.dart';
 import '../models/artist_profile.dart';
 import '../services/artist_api_service.dart';
@@ -191,7 +192,7 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                         ),
                       )
                     : Image.network(
-                        artwork.imageUrl,
+                        resolveImageUrl(artwork.imageUrl),
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) =>
                             Container(color: DustColors.bgSubtle),
@@ -260,7 +261,7 @@ class _CoverHeader extends StatelessWidget {
               : Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(cover.first, fit: BoxFit.cover,
+                    Image.network(resolveImageUrl(cover.first), fit: BoxFit.cover,
                         errorBuilder: (_, _, _) =>
                             Container(color: DustColors.brandDeep)),
                     Container(color: Colors.black.withValues(alpha: 0.35)),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 import '../models/artwork_detail.dart';
 import '../services/artwork_like_api_service.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
@@ -99,7 +100,7 @@ class _LikedArtworksScreenState extends State<LikedArtworksScreen> {
                 color: DustColors.textSecondary, size: 22)
             : ClipRRect(
                 borderRadius: BorderRadius.circular(DustRadius.sm),
-                child: Image.network(artwork.imageUrl, fit: BoxFit.cover),
+                child: Image.network(resolveImageUrl(artwork.imageUrl), fit: BoxFit.cover),
               ),
       ),
       title: Text(artwork.title,

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/sale.dart';
 import '../services/image_api_service.dart';
@@ -631,7 +632,7 @@ class _CompletedView extends StatelessWidget {
                     if (sale.imageUrl.isNotEmpty) ...[
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
-                        child: Image.network(sale.imageUrl,
+                        child: Image.network(resolveImageUrl(sale.imageUrl),
                             width: 44,
                             height: 44,
                             fit: BoxFit.cover,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/image_url.dart';
 import '../utils/artist_inquiry.dart';
 import 'artwork_list_screen.dart';
 import '../models/home_feed.dart';
@@ -479,7 +480,7 @@ class _ArtworkThumb extends StatelessWidget {
       );
     }
     return Image.network(
-      imageUrl,
+      resolveImageUrl(imageUrl),
       height: height,
       width: double.infinity,
       fit: BoxFit.cover,
