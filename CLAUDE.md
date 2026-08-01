@@ -19,8 +19,14 @@
 - 워드마크/배경은 Figma에서 내려받은 에셋 사용: `assets/images/dust_wordmark.png`(배경 투명 PNG — `colorBlendMode` 걸면 투명부가 흰색으로 칠해지니 그냥 그릴 것), `dust_splash_bg.jpg`.
 - 서비스 내부 텍스트는 ART NARA 혼용 중 — 통일 여부는 사용자 결정 대기.
 - 주요 화면 node id: 스플래시/온보딩 `1:309`, 홈 피드 `1:325`·`1:437`, 작품 판매 등록 `1:274`, 제작 의뢰 신청 `23:67`, 작가 포트폴리오 `41:850`, 정품 인증서 `50:1034`·`60:302`.
+- **최신 디자인 리비전: 파일 `ZqY7Mo7424n3gMp5kZJ4AZ`("26.07.29 1-6")** — 프레임 8개(작가 포트폴리오 `1:278`, 제작 의뢰 신청 `1:349`, 홈 피드2 `1:443`, 홈 피드1 `1:549`, 작품 판매 등록 `1:654`, 스플래시/온보딩 `1:722`, 정품 인증서1 `1:737`, 정품 인증서2 `1:806`). 이 리비전에서 바뀐 점:
+  - **하단 내비가 6탭**(홈·판매·지도·제작의뢰·**알림**·**마이페이지**)이고 채팅 탭이 없다 → 채팅(작품 문의)은 홈 헤더 좌측 햄버거 서랍으로 이동.
+  - 헤더는 `메뉴(햄버거) · 화면 제목 · 알림 벨` 한 줄. 화면 제목은 헤더에서만 그린다(본문 중복 금지).
+  - 인증서 항목: 작품 제목·작가·**제작 연도·크기·재료**·고유 인증 ID.
+  - 판매 등록 스텝은 디자인상 5개(…·배송 정보·등록 완료)지만 **배송이 없으므로 4스텝**(작품 정보·상세 정보·가격 설정·등록 완료)으로 운영.
+  - 색은 Foundations 토큰과 사실상 동일(브랜드 teal 미세 차이 `#0A3C36`) — `DustColors` 유지.
 - 디자인 반영 현황(2026-07-31): 스플래시·로그인·홈 피드(칩 필터=백엔드 category 연동)·하단 내비(홈/판매/지도/제작의뢰/채팅)·판매 등록(4스텝 위저드) 완료. 전 화면 색상은 DustColors 토큰으로 통일됨. 제작 의뢰(23:67 멀티칩+안내박스)·정품 인증서(50:1034 골드 프레임 카드)도 완료. 작가 포트폴리오(41:850)도 완료(`GET /api/artists/{작가명}` + artist_portfolio_screen, 홈 피드 작가 리스트·작품 상세 작가 카드에서 진입). **디자인 6화면 전부 반영 완료.** 렌더 이미지는 Figma REST `/v1/images`로 받는다(MCP는 호출 제한 있음).
-- 코드베이스는 Knot/UniTrip(여행 매칭 앱)에서 가져와 리네임한 것. 프론트 화면 잔재는 2026-07-31 정리 완료(랜딩/여행 온보딩/브랜드 화면 삭제, 역할=작가·컬렉터, 프로필 설정 아트나라화, 마이페이지 여행 필드 제거). 백엔드 여행 도메인도 2026-07-31 정리: booking/festival/magazine/notification/wishlist/brand 삭제 완료. 2026-08-01 지도 탭을 아트나라 전용(작품 마커 + /api/artworks/nearby)으로 재편하면서 content·recommendation·map 도메인, 프론트 여행 화면·서비스(tour_api, content_api, mate_match 등)도 삭제 완료. 2026-08-02 여행 잔재 정리 마무리: User 의 travelStyle·languages·district·matchingEnabled 및 TravelStyle/District 엔티티 삭제, 시드(test.sql)를 작가/컬렉터·장르·작품 문의 대화로 교체, 채팅 목록·상세를 실제 API + DUST-ART 로 재작성(프론트의 임시 Node WebSocket 서버 `frontend/server/` 삭제). **남은 여행 잔재**: verification 의 PASSPORT/FLIGHT 타입(대학 인증만 사용 중), app_strings 의 여행 문구 일부.
+- 코드베이스는 Knot/UniTrip(여행 매칭 앱)에서 가져와 리네임한 것. 프론트 화면 잔재는 2026-07-31 정리 완료(랜딩/여행 온보딩/브랜드 화면 삭제, 역할=작가·컬렉터, 프로필 설정 아트나라화, 마이페이지 여행 필드 제거). 백엔드 여행 도메인도 2026-07-31 정리: booking/festival/magazine/notification/wishlist/brand 삭제 완료. 2026-08-01 지도 탭을 아트나라 전용(작품 마커 + /api/artworks/nearby)으로 재편하면서 content·recommendation·map 도메인, 프론트 여행 화면·서비스(tour_api, content_api, mate_match 등)도 삭제 완료. 2026-08-02 여행 잔재 정리 마무리: User 의 travelStyle·languages·district·matchingEnabled 및 TravelStyle/District 엔티티 삭제, 시드(test.sql)를 작가/컬렉터·장르·작품 문의 대화로 교체, 채팅 목록·상세를 실제 API + DUST-ART 로 재작성(프론트의 임시 Node WebSocket 서버 `frontend/server/` 삭제). 2026-08-02 2차: VerificationType 을 UNIVERSITY 만 남기고, 프론트의 참조 없는 여행 트리(커뮤니티 게시판·약속 달력·메이트 스토리·관광공사 모델·여행 콘텐츠 옵션)와 미사용 i18n 문자열 138개를 삭제. **여행 잔재 정리 완료.**
 
 ## 작업 규칙 (사용자 요구)
 
