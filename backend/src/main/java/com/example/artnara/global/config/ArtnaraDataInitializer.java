@@ -82,9 +82,13 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
         return LocalDateTime.now().plusHours(hours);
     }
 
+    /** 시드 작품 이미지. resources/static/artworks/seed-n.png 를 순서대로 붙인다. */
+    private int seedImageIndex = 0;
+
     private void seedArtwork(String title, String artistName, String artistIntroduction,
                              String description, String medium, String sizeInfo, int yearCreated,
                              int price, boolean auction, LocalDateTime auctionEndAt, String category) {
+        seedImageIndex++;
         Artwork artwork = artworkRepository.save(Artwork.builder()
                 .title(title)
                 .artistName(artistName)
@@ -96,7 +100,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 .price(price)
                 .auction(auction)
                 .currentBid(auction ? price : null)
-                .imageUrl("")
+                .imageUrl("/artworks/seed-" + seedImageIndex + ".png")
                 .auctionEndAt(auctionEndAt)
                 .category(category)
                 .build());

@@ -24,6 +24,7 @@ public class SecurityConstant {
             "/api/orders/**",
             "/api/images/**",
             "/images/**",
+            "/artworks/**",
             "/api/artists/**"
     };
 
