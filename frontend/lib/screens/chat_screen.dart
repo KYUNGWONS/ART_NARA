@@ -39,6 +39,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  // 약속 시트용. 시트를 닫자마자 dispose 하면 리빌드 중 참조될 수 있어 State 가 소유한다.
+  final TextEditingController _placeController = TextEditingController();
+
   StompClient? _client;
   bool _connected = false;
   bool _loadingHistory = true;
@@ -186,7 +189,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _showAppointmentSheet() {
     DateTime selectedDate = DateTime.now();
     TimeOfDay selectedTime = TimeOfDay.now();
-    final placeController = TextEditingController();
+    _placeController.clear();
 
     showModalBottomSheet<void>(
       context: context,
@@ -253,7 +256,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 const SizedBox(height: DustSpacing.xs),
                 TextField(
-                  controller: placeController,
+                  controller: _placeController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.place_outlined,
                         color: DustColors.brandPrimary, size: 22),
@@ -276,7 +279,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   height: 48,
                   child: FilledButton(
                     onPressed: () {
-                      final place = placeController.text.trim();
+                      final place = _placeController.text.trim();
                       final text = '[작품 보기 약속]\n'
                           '날짜: ${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일\n'
                           '시간: ${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}\n'
@@ -301,13 +304,14 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ),
-    ).then((_) => placeController.dispose());
+    );
   }
 
   @override
   void dispose() {
     _client?.deactivate();
     _textController.dispose();
+    _placeController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
