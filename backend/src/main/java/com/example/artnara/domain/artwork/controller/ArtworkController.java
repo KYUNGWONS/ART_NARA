@@ -4,6 +4,8 @@ import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
 import com.example.artnara.domain.artwork.dto.NearbyArtworkDto;
 import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.global.common.BaseResponse;
+import com.example.artnara.global.common.DomainResultCode;
+import com.example.artnara.global.exception.GlobalException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
 
 @Tag(name = "Artwork", description = "ART NARA 작품 상세/입찰 API")
 @RestController
@@ -41,6 +45,17 @@ public class ArtworkController {
     @Operation(summary = "경매 마감 처리", description = "경매를 마감하고 최고 입찰자를 낙찰자로 확정합니다. (프로토타입: 수동 마감)")
     public BaseResponse<ArtworkDetailDto> closeAuction(@PathVariable Long artworkId) {
         return BaseResponse.success("경매 마감 처리", artworkService.closeAuction(artworkId));
+    }
+
+    @PostMapping("/{artworkId}/like")
+    @Operation(summary = "관심 작품 토글",
+            description = "하트를 눌러 관심 작품에 등록/해제합니다. 로그인(JWT)이 필요하며, 응답 data 는 토글 후 상태입니다.")
+    public BaseResponse<Boolean> toggleLike(@PathVariable Long artworkId, Principal principal) {
+        if (principal == null) {
+            throw new GlobalException(DomainResultCode.AUTH_REQUIRED);
+        }
+        return BaseResponse.success("관심 작품 토글",
+                artworkService.toggleLike(artworkId, Long.parseLong(principal.getName())));
     }
 
     @PostMapping("/{artworkId}/bids")

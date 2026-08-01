@@ -5,7 +5,9 @@ import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
 import com.example.artnara.domain.artwork.dto.NearbyArtworkDto;
 import com.example.artnara.domain.artwork.entity.Artwork;
 import com.example.artnara.domain.artwork.entity.ArtworkBid;
+import com.example.artnara.domain.artwork.entity.ArtworkLike;
 import com.example.artnara.domain.artwork.repository.ArtworkBidRepository;
+import com.example.artnara.domain.artwork.repository.ArtworkLikeRepository;
 import com.example.artnara.domain.artwork.repository.ArtworkRepository;
 import com.example.artnara.domain.notification.entity.NotificationType;
 import com.example.artnara.domain.notification.service.NotificationService;
@@ -21,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +54,7 @@ public class ArtworkService {
 
     private final ArtworkRepository artworkRepository;
     private final ArtworkBidRepository artworkBidRepository;
+    private final ArtworkLikeRepository artworkLikeRepository;
     private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
@@ -149,6 +154,32 @@ public class ArtworkService {
                 .findFirstByArtworkIdOrderByAmountDesc(artworkId)
                 .map(ArtworkBid::getBidderName)
                 .orElse(null);
+    }
+
+    /** 관심 작품 토글. 반환값은 토글 후 상태(true = 관심 등록됨). */
+    public boolean toggleLike(Long artworkId, Long userId) {
+        if (!artworkRepository.existsById(artworkId)) {
+            throw new GlobalException(DomainResultCode.ARTWORK_NOT_FOUND);
+        }
+        return artworkLikeRepository.findByUserIdAndArtworkId(userId, artworkId)
+                .map(like -> {
+                    artworkLikeRepository.delete(like);
+                    return false;
+                })
+                .orElseGet(() -> {
+                    artworkLikeRepository.save(ArtworkLike.builder()
+                            .userId(userId).artworkId(artworkId).build());
+                    return true;
+                });
+    }
+
+    /** 사용자가 하트를 누른 작품 id 집합. 비로그인(userId null)이면 빈 집합. */
+    @Transactional(readOnly = true)
+    public Set<Long> likedArtworkIds(Long userId) {
+        if (userId == null) return Set.of();
+        return artworkLikeRepository.findByUserId(userId).stream()
+                .map(ArtworkLike::getArtworkId)
+                .collect(Collectors.toSet());
     }
 
     @Transactional(readOnly = true)

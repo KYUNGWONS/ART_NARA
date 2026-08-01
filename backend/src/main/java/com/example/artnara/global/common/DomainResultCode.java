@@ -38,6 +38,7 @@ public enum DomainResultCode implements ResultCode {
     IMAGE_STORE_FAILED("IMAGE_500", "이미지 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ARTIST_NOT_FOUND("ARTIST_404", "작가를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     NOTIFICATION_NOT_FOUND("NOTIFICATION_404", "알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    AUTH_REQUIRED("COMMON_401", "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
     REQUEST_BODY_INVALID("COMMON_400_BODY", "요청 본문을 해석할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
