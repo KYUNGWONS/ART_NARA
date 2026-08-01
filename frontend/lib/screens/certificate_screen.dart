@@ -203,7 +203,7 @@ class _CertificateCard extends StatelessWidget {
           children: [
             const Text('DUST ART',
                 style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 30,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 6,
                     color: DustColors.textPrimary)),
@@ -212,11 +212,18 @@ class _CertificateCard extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 13, color: DustColors.textSecondary)),
             const SizedBox(height: DustSpacing.lg),
+            // 디자인 정품 인증서1/2 항목 순서
             _certRow('작품 제목', certificate.artworkTitle),
             _certRow('작가', certificate.artistName),
+            if (certificate.yearCreated != null)
+              _certRow('제작 연도', '${certificate.yearCreated}'),
+            if (certificate.sizeInfo != null && certificate.sizeInfo!.isNotEmpty)
+              _certRow('크기', certificate.sizeInfo!),
+            if (certificate.medium != null && certificate.medium!.isNotEmpty)
+              _certRow('재료', certificate.medium!),
+            _certRow('고유 인증 ID', certificate.certificateNo),
             _certRow('소유자', certificate.ownerName),
             _certRow('발급일', certificate.issuedDate),
-            _certRow('고유 인증 ID', certificate.certificateNo),
             const SizedBox(height: DustSpacing.lg),
             Container(
               width: 96,

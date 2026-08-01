@@ -33,6 +33,9 @@ class Certificate {
     required this.issuedDate,
     required this.verified,
     required this.note,
+    this.yearCreated,
+    this.sizeInfo,
+    this.medium,
   });
 
   final String certificateNo;
@@ -43,6 +46,11 @@ class Certificate {
   final bool verified;
   final String note;
 
+  /// 인증서에 새겨지는 작품 사양 (디자인: 제작 연도 · 크기 · 재료)
+  final int? yearCreated;
+  final String? sizeInfo;
+  final String? medium;
+
   factory Certificate.fromJson(Map<String, dynamic> json) {
     return Certificate(
       certificateNo: json['certificateNo'] as String? ?? '',
@@ -52,6 +60,9 @@ class Certificate {
       issuedDate: json['issuedDate'] as String? ?? '',
       verified: json['verified'] as bool? ?? false,
       note: json['note'] as String? ?? '',
+      yearCreated: json['yearCreated'] as int?,
+      sizeInfo: json['sizeInfo'] as String?,
+      medium: json['medium'] as String?,
     );
   }
 }
