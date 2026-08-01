@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../constants/app_colors.dart';
-import '../constants/app_strings.dart';
+
+import '../constants/dust_tokens.dart';
 import '../models/chat_room_item.dart';
-import '../providers/locale_provider.dart';
 import '../services/chat_api_service.dart';
 import 'chat_screen.dart';
 
 /// 참여 중인 채팅방 목록 화면
 /// 진입: 홈 하단 내비 > 채팅 탭
-/// GET /chat/rooms API 사용 (서버 미연결 시 ChatApiService 내 mock 폴백)
+/// GET /api/chat/rooms/my (서버 미연결 시 ChatApiService 내 mock 폴백)
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
 
@@ -44,92 +41,81 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LocaleProvider>(
-      builder: (context, locale, _) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(locale),
-            Expanded(
-              child: _loading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    )
-                  : _rooms.isEmpty
-                  ? _buildEmpty(locale)
-                  : ListView.separated(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _rooms.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        return _ChatRoomTile(
-                          room: _rooms[index],
-                          locale: locale,
-                          onTap: () => _openChat(_rooms[index]),
-                        );
-                      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildHeader(),
+        Expanded(
+          child: _loading
+              ? const Center(
+                  child:
+                      CircularProgressIndicator(color: DustColors.brandPrimary),
+                )
+              : _rooms.isEmpty
+              ? _buildEmpty()
+              : RefreshIndicator(
+                  color: DustColors.brandPrimary,
+                  onRefresh: _loadRooms,
+                  child: ListView.separated(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: DustSpacing.xs),
+                    itemCount: _rooms.length,
+                    separatorBuilder: (_, __) => const Divider(
+                      height: 1,
+                      color: DustColors.borderSoft,
                     ),
-            ),
-          ],
-        );
-      },
+                    itemBuilder: (context, index) => _ChatRoomTile(
+                      room: _rooms[index],
+                      onTap: () => _openChat(_rooms[index]),
+                    ),
+                  ),
+                ),
+        ),
+      ],
     );
   }
 
-  Widget _buildHeader(LocaleProvider locale) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+  Widget _buildHeader() {
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(
+          DustSpacing.lg, DustSpacing.md, DustSpacing.lg, DustSpacing.sm),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text(
-            locale.tr(AppStrings.navChat),
-            style: GoogleFonts.gowunDodum(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: AppColors.black,
+          Text('작품 문의', style: DustText.section),
+          SizedBox(width: DustSpacing.xs),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 4),
+              child: Text(
+                '작가와 직접 이야기해보세요',
+                style: DustText.caption,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.search_rounded),
-                onPressed: () {},
-                color: AppColors.darkGrey,
-              ),
-              IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                onPressed: () {},
-                color: AppColors.darkGrey,
-              ),
-            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEmpty(LocaleProvider locale) {
+  Widget _buildEmpty() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.chat_bubble_outline_rounded,
             size: 64,
-            color: AppColors.lightGrey,
+            color: DustColors.borderSoft,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: DustSpacing.md),
           Text(
-            '참여 중인 채팅방이 없어요',
-            style: GoogleFonts.gowunDodum(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.grey,
-            ),
+            '아직 진행 중인 대화가 없어요',
+            style: DustText.body.copyWith(color: DustColors.textSecondary),
           ),
+          const SizedBox(height: DustSpacing.xs),
+          const Text('마음에 드는 작품에서 작가에게 문의해보세요', style: DustText.caption),
         ],
       ),
     );
@@ -138,7 +124,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void _openChat(ChatRoomItem room) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => ChatScreen(mate: room.toUserLocation()),
+        builder: (context) => ChatScreen(
+          partnerNickname: room.opponentNickname,
+          partnerProfileImageUrl: room.opponentProfileImageUrl,
+        ),
       ),
     );
   }
@@ -146,14 +135,9 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
 class _ChatRoomTile extends StatelessWidget {
   final ChatRoomItem room;
-  final LocaleProvider locale;
   final VoidCallback onTap;
 
-  const _ChatRoomTile({
-    required this.room,
-    required this.locale,
-    required this.onTap,
-  });
+  const _ChatRoomTile({required this.room, required this.onTap});
 
   static String _formatLastMessageTime(DateTime? at) {
     if (at == null) return '';
@@ -163,73 +147,43 @@ class _ChatRoomTile extends StatelessWidget {
     final diff = today.difference(msgDay).inDays;
     if (diff == 0) {
       final hour = at.hour;
-      final min = at.minute;
       final ampm = hour >= 12 ? '오후' : '오전';
       final h = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-      return '$ampm ${h.toString().padLeft(2, '0')}:${min.toString().padLeft(2, '0')}';
+      return '$ampm ${h.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
     }
     if (diff == 1) return '어제';
-    if (diff < 7) return '${diff}일 전';
+    if (diff < 7) return '$diff일 전';
     return '${at.month}/${at.day}';
-  }
-
-  static String _interestLabel(String id) {
-    const map = {
-      'travel': '여행',
-      'food': '맛집',
-      'activity': '액티비티',
-      'culture': '문화/예술',
-      'cafe': '카페',
-      'unique': '이색체험',
-    };
-    return map[id] ?? id;
-  }
-
-  static String _planningTag(int score) {
-    if (score > 20) return '계획형';
-    if (score < -20) return '즉흥형';
-    return '중립';
-  }
-
-  static String _activityTag(int score) {
-    if (score > 20) return '조용한';
-    if (score < -20) return '활발한';
-    return '중립';
   }
 
   @override
   Widget build(BuildContext context) {
-    final ageNationality = [
-      if (room.partnerAge != null) '${room.partnerAge}세',
-      if (room.partnerNationality != null) room.partnerNationality,
-    ].join(' · ');
-    final lastMsg = room.lastMessage ?? '';
-    final lastMsgShort = lastMsg.length > 40
-        ? '${lastMsg.substring(0, 40)}…'
-        : lastMsg;
+    final roleLabel = room.opponentRoleLabel;
+    final waiting = room.status == 'WAITING';
 
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: const EdgeInsets.symmetric(
+            horizontal: DustSpacing.lg, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-              backgroundImage: room.partnerProfileImageUrl != null
-                  ? NetworkImage(room.partnerProfileImageUrl!)
+              backgroundColor: DustColors.bgSubtle,
+              backgroundImage: room.opponentProfileImageUrl != null
+                  ? NetworkImage(room.opponentProfileImageUrl!)
                   : null,
-              child: room.partnerProfileImageUrl == null
+              child: room.opponentProfileImageUrl == null
                   ? Text(
-                      room.partnerNickname.isNotEmpty
-                          ? room.partnerNickname[0]
+                      room.opponentNickname.isNotEmpty
+                          ? room.opponentNickname[0]
                           : '?',
-                      style: GoogleFonts.gowunDodum(
+                      style: DustText.body.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
+                        color: DustColors.brandPrimary,
                       ),
                     )
                   : null,
@@ -243,109 +197,39 @@ class _ChatRoomTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          room.partnerNickname,
-                          style: GoogleFonts.gowunDodum(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.black,
-                          ),
+                          room.opponentNickname,
+                          style: DustText.body
+                              .copyWith(fontWeight: FontWeight.w700),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
                         _formatLastMessageTime(room.lastMessageAt),
-                        style: GoogleFonts.gowunDodum(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.grey,
-                        ),
+                        style: DustText.caption,
                       ),
                     ],
                   ),
-                  if (ageNationality.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      ageNationality,
-                      style: GoogleFonts.gowunDodum(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.grey,
-                      ),
+                  if (roleLabel != null || waiting) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        if (roleLabel != null) _Badge(label: roleLabel),
+                        if (waiting) ...[
+                          if (roleLabel != null)
+                            const SizedBox(width: DustSpacing.xs),
+                          const _Badge(label: '상대 대기 중', muted: true),
+                        ],
+                      ],
                     ),
                   ],
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _planningTag(room.partnerPlanningScore),
-                          style: GoogleFonts.gowunDodum(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.mint.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _activityTag(room.partnerActivityScore),
-                          style: GoogleFonts.gowunDodum(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.mint,
-                          ),
-                        ),
-                      ),
-                      ...room.partnerInterests
-                          .take(3)
-                          .map(
-                            (id) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.lightGrey,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _interestLabel(id),
-                                style: GoogleFonts.gowunDodum(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.darkGrey,
-                                ),
-                              ),
-                            ),
-                          ),
-                    ],
-                  ),
-                  if (lastMsgShort.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                  if (room.lastMessage != null &&
+                      room.lastMessage!.isNotEmpty) ...[
+                    const SizedBox(height: DustSpacing.xs),
                     Text(
-                      lastMsgShort,
-                      style: GoogleFonts.gowunDodum(
+                      room.lastMessage!,
+                      style: DustText.body.copyWith(
                         fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.darkGrey,
+                        color: DustColors.textSecondary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -355,6 +239,33 @@ class _ChatRoomTile extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge({required this.label, this.muted = false});
+
+  final String label;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(horizontal: DustSpacing.xs, vertical: 3),
+      decoration: BoxDecoration(
+        color: muted ? DustColors.bgSubtle : DustColors.brandPrimary,
+        borderRadius: BorderRadius.circular(DustRadius.full),
+      ),
+      child: Text(
+        label,
+        style: DustText.caption.copyWith(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: muted ? DustColors.textSecondary : DustColors.textOnBrand,
         ),
       ),
     );

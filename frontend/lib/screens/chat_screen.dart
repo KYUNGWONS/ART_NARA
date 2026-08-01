@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 import '../models/chat_message.dart';
-import '../models/user_location.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// WebSocket URL 설정
@@ -16,9 +15,15 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 const String kWebSocketUrl = 'ws://localhost:8080'; // 로컬 테스트 서버
 
 class ChatScreen extends StatefulWidget {
-  final UserLocation mate;
+  /// 대화 상대(작가 또는 컬렉터) 표시용 최소 정보
+  final String partnerNickname;
+  final String? partnerProfileImageUrl;
 
-  const ChatScreen({super.key, required this.mate});
+  const ChatScreen({
+    super.key,
+    required this.partnerNickname,
+    this.partnerProfileImageUrl,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -390,13 +395,13 @@ class _ChatScreenState extends State<ChatScreen> {
             CircleAvatar(
               radius: 20,
               backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-              backgroundImage: widget.mate.profileImageUrl != null
-                  ? NetworkImage(widget.mate.profileImageUrl!)
+              backgroundImage: widget.partnerProfileImageUrl != null
+                  ? NetworkImage(widget.partnerProfileImageUrl!)
                   : null,
-              child: widget.mate.profileImageUrl == null
+              child: widget.partnerProfileImageUrl == null
                   ? Text(
-                      widget.mate.nickname.isNotEmpty
-                          ? widget.mate.nickname[0]
+                      widget.partnerNickname.isNotEmpty
+                          ? widget.partnerNickname[0]
                           : '?',
                       style: GoogleFonts.gowunDodum(
                         fontWeight: FontWeight.w700,
@@ -412,7 +417,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    widget.mate.nickname,
+                    widget.partnerNickname,
                     style: GoogleFonts.gowunDodum(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

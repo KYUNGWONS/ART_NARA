@@ -1,85 +1,46 @@
-import 'user_location.dart';
-
-/// 참여 중인 채팅방 목록 아이템 (GET /chat/rooms 응답 항목)
+/// 참여 중인 채팅방 목록 아이템 (GET /api/chat/rooms/my 응답 항목)
+///
+/// 백엔드 ChatRoomResponse 가 상대 프로필과 마지막 메시지를 함께 내려주므로
+/// 목록 화면은 방마다 추가 조회 없이 그릴 수 있다.
 class ChatRoomItem {
   final String chatRoomId;
-  final String? partnerProfileImageUrl;
-  final String partnerNickname;
-  final int? partnerAge;
-  final String? partnerNationality;
-  final int partnerPlanningScore;
-  final int partnerActivityScore;
-  final List<String> partnerInterests;
+  final String? opponentProfileImageUrl;
+  final String opponentNickname;
+
+  /// 백엔드 userType 원문(KOREAN_STUDENT / FOREIGN_TOURIST)
+  final String? opponentUserType;
   final String? lastMessage;
   final DateTime? lastMessageAt;
 
+  /// WAITING / ACTIVE / CLOSED
+  final String? status;
+
   const ChatRoomItem({
     required this.chatRoomId,
-    this.partnerProfileImageUrl,
-    required this.partnerNickname,
-    this.partnerAge,
-    this.partnerNationality,
-    this.partnerPlanningScore = 0,
-    this.partnerActivityScore = 0,
-    this.partnerInterests = const [],
+    this.opponentProfileImageUrl,
+    required this.opponentNickname,
+    this.opponentUserType,
     this.lastMessage,
     this.lastMessageAt,
+    this.status,
   });
+
+  /// 역할 배지 문구. 상대가 아직 없으면 null.
+  String? get opponentRoleLabel {
+    if (opponentUserType == null) return null;
+    return opponentUserType!.toUpperCase().startsWith('FOREIGN') ? '컬렉터' : '작가';
+  }
 
   factory ChatRoomItem.fromJson(Map<String, dynamic> json) {
     final lastAt = json['lastMessageAt'];
-    // 백엔드 ChatRoomResponse는 'roomId'(정수), 구 프론트 목업은 'chatRoomId'(문자열).
-    final rawRoomId = json['chatRoomId'] ?? json['roomId'];
     return ChatRoomItem(
-      chatRoomId: rawRoomId?.toString() ?? '',
-      partnerProfileImageUrl: json['partnerProfileImageUrl'] as String?,
-      partnerNickname: json['partnerNickname'] as String? ?? '',
-      partnerAge: json['partnerAge'] as int?,
-      partnerNationality: json['partnerNationality'] as String?,
-      partnerPlanningScore: json['partnerPlanningScore'] as int? ?? 0,
-      partnerActivityScore: json['partnerActivityScore'] as int? ?? 0,
-      partnerInterests:
-          (json['partnerInterests'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
+      chatRoomId: (json['roomId'] ?? json['chatRoomId'])?.toString() ?? '',
+      opponentProfileImageUrl: json['opponentProfileImageUrl'] as String?,
+      opponentNickname: json['opponentNickname'] as String? ?? '대화 상대 대기 중',
+      opponentUserType: json['opponentUserType'] as String?,
       lastMessage: json['lastMessage'] as String?,
-      lastMessageAt: lastAt != null
-          ? (lastAt is String ? DateTime.tryParse(lastAt) : null)
-          : null,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'chatRoomId': chatRoomId,
-      'partnerProfileImageUrl': partnerProfileImageUrl,
-      'partnerNickname': partnerNickname,
-      'partnerAge': partnerAge,
-      'partnerNationality': partnerNationality,
-      'partnerPlanningScore': partnerPlanningScore,
-      'partnerActivityScore': partnerActivityScore,
-      'partnerInterests': partnerInterests,
-      'lastMessage': lastMessage,
-      'lastMessageAt': lastMessageAt?.toIso8601String(),
-    };
-  }
-
-  /// 채팅 상세 화면 진입용 UserLocation 변환 (주소/좌표는 빈 값)
-  UserLocation toUserLocation() {
-    return UserLocation(
-      userId: chatRoomId,
-      nickname: partnerNickname,
-      age: partnerAge,
-      address: '',
-      lat: 0,
-      lng: 0,
-      profileImageUrl: partnerProfileImageUrl,
-      role: '',
-      introduction: partnerNationality != null ? '$partnerNationality' : null,
-      interests: partnerInterests,
-      planningScore: partnerPlanningScore,
-      activityScore: partnerActivityScore,
+      lastMessageAt: lastAt is String ? DateTime.tryParse(lastAt) : null,
+      status: json['status'] as String?,
     );
   }
 }
