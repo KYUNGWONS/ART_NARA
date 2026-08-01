@@ -8,11 +8,7 @@ import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
 import '../services/kakao_auth_service.dart';
-// TODO: 매거진(Mate Stories) 화면 추후 복구 예정 — 현재는 숨김
-// import '../widgets/mate_stories_section.dart';
 import 'chat_list_screen.dart';
-// TODO: 게시판 화면 추후 복구 예정 — 현재는 준비중
-// import 'community_screen.dart';
 import 'art_home_feed_screen.dart';
 import 'commission_screen.dart';
 import 'splash_onboarding_screen.dart';
