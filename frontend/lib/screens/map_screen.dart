@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../constants/dust_tokens.dart';
+import 'art_home_feed_screen.dart' show formatPrice;
 import '../main.dart' show isNaverMapInitialized;
 import '../models/nearby_artwork.dart';
 import '../services/artwork_api_service.dart';
@@ -101,20 +102,18 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // 지도 SDK 를 못 쓰는 환경(NAVER_MAP_CLIENT_ID 미설정)에서는 목록 폴백을 위해 바로 조회한다.
+    if (!isNaverMapInitialized) {
+      _loadArtworks(_defaultCenter.latitude, _defaultCenter.longitude);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (!isNaverMapInitialized) {
-      return Container(
-        color: DustColors.bgCanvas,
-        alignment: Alignment.center,
-        child: const Padding(
-          padding: EdgeInsets.all(DustSpacing.lg),
-          child: Text(
-            '지도를 사용할 수 없습니다.\n네이버 지도 초기화에 실패했어요.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: DustColors.textSecondary),
-          ),
-        ),
-      );
+      return _buildListFallback();
     }
 
     return Stack(
@@ -234,16 +233,79 @@ class _MapScreenState extends State<MapScreen> {
 }
 
 /// 마커 탭 시 뜨는 작품 요약 카드
+/// 지도 SDK 없이도 '집 주변 작품'을 쓸 수 있게 하는 거리순 목록 폴백.
+extension _MapFallback on _MapScreenState {
+  Widget _buildListFallback() {
+    return Container(
+      color: DustColors.bgCanvas,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(DustSpacing.lg, DustSpacing.xs,
+                DustSpacing.lg, DustSpacing.sm),
+            padding: const EdgeInsets.all(DustSpacing.sm),
+            decoration: BoxDecoration(
+              color: DustColors.bgInfo,
+              borderRadius: BorderRadius.circular(DustRadius.sm),
+            ),
+            child: const Text(
+              '지도 키가 없어 목록으로 보여드려요. 기준 위치에서 가까운 순입니다.',
+              style: DustText.caption,
+            ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                        color: DustColors.brandPrimary))
+                : _artworks.isEmpty
+                ? const Center(
+                    child: Text('주변에 등록된 작품이 없어요',
+                        style: DustText.caption))
+                : ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(DustSpacing.lg, 0,
+                        DustSpacing.lg, DustSpacing.lg),
+                    itemCount: _artworks.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: DustSpacing.sm),
+                    itemBuilder: (context, index) {
+                      final artwork = _artworks[index];
+                      return _ArtworkMapCard(
+                        artwork: artwork,
+                        showClose: false,
+                        onClose: () {},
+                        onOpen: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) =>
+                                ArtworkDetailScreen(artworkId: artwork.id),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ArtworkMapCard extends StatelessWidget {
   const _ArtworkMapCard({
     required this.artwork,
     required this.onClose,
     required this.onOpen,
+    this.showClose = true,
   });
 
   final NearbyArtwork artwork;
   final VoidCallback onClose;
   final VoidCallback onOpen;
+
+  /// 목록 폴백에서는 닫기 버튼이 필요 없다.
+  final bool showClose;
 
   @override
   Widget build(BuildContext context) {
@@ -296,7 +358,7 @@ class _ArtworkMapCard extends StatelessWidget {
                           fontSize: 11, color: DustColors.textSecondary)),
                   const SizedBox(height: 3),
                   Text(
-                    '${artwork.auction ? '현재가' : '정가'} ₩${artwork.price} · ${artwork.distanceKm}km',
+                    '${artwork.auction ? '현재가' : '정가'} ₩${formatPrice(artwork.price)} · ${artwork.distanceKm}km',
                     style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -305,11 +367,12 @@ class _ArtworkMapCard extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: onClose,
-              icon: const Icon(Icons.close,
-                  size: 18, color: DustColors.textSecondary),
-            ),
+            if (showClose)
+              IconButton(
+                onPressed: onClose,
+                icon: const Icon(Icons.close,
+                    size: 18, color: DustColors.textSecondary),
+              ),
           ],
         ),
       ),
