@@ -4,7 +4,7 @@
 
 ## 프로젝트 개요
 
-DUST-ART(아트나라)는 미대생 미술품 거래 플랫폼 Flutter 앱입니다(다국어 KO/EN/JA/ZH, iOS/Android). 디자인 토큰은 `lib/constants/dust_tokens.dart`(DustColors/DustText/DustSpacing/DustRadius) — **새 화면은 하드코딩 대신 이 토큰 사용**. [server/](server/) 디렉터리에는 실제 채팅 백엔드가 준비되기 전까지 임시로 사용하는 작은 Node.js WebSocket 헬퍼가 들어 있습니다.
+DUST-ART(아트나라)는 미대생 미술품 거래 플랫폼 Flutter 앱입니다(다국어 KO/EN/JA/ZH, iOS/Android). 디자인 토큰은 `lib/constants/dust_tokens.dart`(DustColors/DustText/DustSpacing/DustRadius) — **새 화면은 하드코딩 대신 이 토큰 사용**.
 
 ## 자주 쓰는 명령어
 
@@ -23,14 +23,6 @@ flutter test
 
 # 단일 테스트 파일만 실행
 flutter test test/widget_test.dart
-```
-
-로컬 채팅 테스트 서버 (Node.js, 실제 채팅 백엔드 준비 전까지 사용):
-
-```bash
-cd server
-npm install
-npm start            # ws://localhost:8080, 들어오는 메시지를 모든 클라이언트에 브로드캐스트
 ```
 
 ## 아키텍처
@@ -64,7 +56,11 @@ npm start            # ws://localhost:8080, 들어오는 메시지를 모든 클
 
 ### 채팅 / WebSocket
 
-- `ChatScreen`은 [lib/screens/chat_screen.dart](lib/screens/chat_screen.dart) 상단에 선언된 `kWebSocketUrl`로 연결합니다. 현재는 [server/index.js](server/index.js)의 로컬 브로드캐스트 서버를 가리키며, 백엔드 전환은 한 줄 수정으로 가능합니다. 개발 서버가 보낸 메시지를 송신자에게 그대로 되돌려주기 때문에, `ChatScreen`은 `_lastSentText` / `_sentEchoThreshold`로 중복을 제거합니다 — 수신 경로를 리팩터링할 때 이 로직을 유지하세요.
+- `ChatScreen`([lib/screens/chat_screen.dart](lib/screens/chat_screen.dart))은 백엔드 STOMP 서버에 붙습니다. 접속 주소는 `apiBaseUrl`의 http→ws 치환(`chatWebSocketUrl`)이라 별도 설정이 없습니다.
+  - 이전 대화: `GET /api/chat/rooms/{roomId}/messages` (본인이 참여한 방만, 아니면 403)
+  - 실시간 수신: 구독 `/topic/chat/{roomId}` / 전송: `/app/chat/send` `{roomId, senderId, content, messageType}`
+  - **보낸 메시지를 로컬에 먼저 추가하지 마세요.** 서버가 `/topic`으로 되돌려주는 것 하나만 표시합니다(중복 방지).
+  - `senderId`는 `AuthApiService.userId`이며 로그인 시 JWT `sub`에서 채워집니다.
 
 ### 네이티브 SDK 키
 

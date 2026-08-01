@@ -20,7 +20,7 @@
 - 서비스 내부 텍스트는 ART NARA 혼용 중 — 통일 여부는 사용자 결정 대기.
 - 주요 화면 node id: 스플래시/온보딩 `1:309`, 홈 피드 `1:325`·`1:437`, 작품 판매 등록 `1:274`, 제작 의뢰 신청 `23:67`, 작가 포트폴리오 `41:850`, 정품 인증서 `50:1034`·`60:302`.
 - 디자인 반영 현황(2026-07-31): 스플래시·로그인·홈 피드(칩 필터=백엔드 category 연동)·하단 내비(홈/판매/지도/제작의뢰/채팅)·판매 등록(4스텝 위저드) 완료. 전 화면 색상은 DustColors 토큰으로 통일됨. 제작 의뢰(23:67 멀티칩+안내박스)·정품 인증서(50:1034 골드 프레임 카드)도 완료. 작가 포트폴리오(41:850)도 완료(`GET /api/artists/{작가명}` + artist_portfolio_screen, 홈 피드 작가 리스트·작품 상세 작가 카드에서 진입). **디자인 6화면 전부 반영 완료.** 렌더 이미지는 Figma REST `/v1/images`로 받는다(MCP는 호출 제한 있음).
-- 코드베이스는 Knot/UniTrip(여행 매칭 앱)에서 가져와 리네임한 것. 프론트 화면 잔재는 2026-07-31 정리 완료(랜딩/여행 온보딩/브랜드 화면 삭제, 역할=작가·컬렉터, 프로필 설정 아트나라화, 마이페이지 여행 필드 제거). 백엔드 여행 도메인도 2026-07-31 정리: booking/festival/magazine/notification/wishlist/brand 삭제 완료. 2026-08-01 지도 탭을 아트나라 전용(작품 마커 + /api/artworks/nearby)으로 재편하면서 content·recommendation·map 도메인, 프론트 여행 화면·서비스(tour_api, content_api, mate_match 등)도 삭제 완료. **남은 여행 잔재**: verification(UserService 참조), User 엔티티의 여행 필드(travelStyle 등 — 프론트 회원가입 계약과 결합), 채팅의 Knot 스타일 화면.
+- 코드베이스는 Knot/UniTrip(여행 매칭 앱)에서 가져와 리네임한 것. 프론트 화면 잔재는 2026-07-31 정리 완료(랜딩/여행 온보딩/브랜드 화면 삭제, 역할=작가·컬렉터, 프로필 설정 아트나라화, 마이페이지 여행 필드 제거). 백엔드 여행 도메인도 2026-07-31 정리: booking/festival/magazine/notification/wishlist/brand 삭제 완료. 2026-08-01 지도 탭을 아트나라 전용(작품 마커 + /api/artworks/nearby)으로 재편하면서 content·recommendation·map 도메인, 프론트 여행 화면·서비스(tour_api, content_api, mate_match 등)도 삭제 완료. 2026-08-02 여행 잔재 정리 마무리: User 의 travelStyle·languages·district·matchingEnabled 및 TravelStyle/District 엔티티 삭제, 시드(test.sql)를 작가/컬렉터·장르·작품 문의 대화로 교체, 채팅 목록·상세를 실제 API + DUST-ART 로 재작성(프론트의 임시 Node WebSocket 서버 `frontend/server/` 삭제). **남은 여행 잔재**: verification 의 PASSPORT/FLIGHT 타입(대학 인증만 사용 중), app_strings 의 여행 문구 일부.
 
 ## 작업 규칙 (사용자 요구)
 
@@ -42,6 +42,7 @@
 - 새 공개 API는 `SecurityConstant.PUBLIC_URLS`에 경로 추가 필요.
 - 경매: `Artwork.auctionEndAt` 기준 `AuctionScheduler`가 1분 주기 자동 마감, remainingTime은 동적 계산("D-n"/"HH:mm:ss"). 낙찰자("나")만 낙찰가로 `/api/orders` 결제 가능.
 - 주문: 결제수단만 받음(CARD/KAKAO_PAY/NAVER_PAY/TOSS, mock PG). 결제 완료 시 디지털 소유권 + QR 인증서(Certificate 엔티티, `ARTNARA-QR-xxxx`) 자동 발급 — 마이페이지 QR 스캔으로 즉시 조회 가능.
+- 채팅: STOMP `/ws`(네이티브 + SockJS 둘 다 등록). 대화 내역은 `GET /api/chat/rooms/{roomId}/messages`(참여자만), 실시간은 `/topic/chat/{roomId}` 구독 + `/app/chat/send`. 목록 `GET /api/chat/rooms/my` 는 상대 프로필·마지막 메시지를 포함하며 대상은 JWT 신원으로 결정된다.
 - 이미지: `POST /api/images` multipart → `/images/{파일명}` 정적 서빙, 저장 위치 `app.upload-dir`(기본 uploads/, gitignore됨).
 - **에러가 401 로 둔갑하는 함정**: 컨트롤러 예외 → 서블릿이 `/error` 로 ERROR 디스패치 → `JwtAuthenticationFilter`(OncePerRequestFilter 는 ERROR 디스패치를 건너뜀)가 안 돌아 SecurityContext 가 비어 401 빈 응답이 나갔다. `/error` 를 `SecurityConstant.ERROR_URLS` 로 열어 해결(2026-08-01). **401 빈 본문이 보이면 인증이 아니라 서버 예외를 의심할 것.**
 - `Sido`(시·도) enum 은 `@JsonCreator`/`@JsonValue` 로 한글 라벨("서울특별시")을 주고받는다. DB 에는 enum 이름(SEOUL)이 저장된다.
