@@ -1,9 +1,22 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+// 카카오 네이티브 앱 키는 커스텀 스킴(kakao{키}://oauth)에 들어가야 해서 매니페스트에 필요하다.
+// 저장소에 커밋되지 않도록 git 미추적 파일 android/local.properties 에서 읽는다.
+//   kakaoNativeAppKey=xxxxxxxx
+// (CI 등에서는 KAKAO_NATIVE_APP_KEY 환경변수로도 넣을 수 있다)
+val kakaoNativeAppKey: String = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}.getProperty("kakaoNativeAppKey")
+    ?: System.getenv("KAKAO_NATIVE_APP_KEY")
+    ?: ""
 
 android {
     namespace = "com.artnara.artnara"
@@ -28,6 +41,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // AndroidManifest 의 카카오 로그인 리다이렉트 스킴에 주입된다.
+        manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
     }
 
     buildTypes {
