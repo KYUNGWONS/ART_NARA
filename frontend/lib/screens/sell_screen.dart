@@ -517,7 +517,7 @@ class _UploadBox extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           color: DustColors.textPrimary)),
                   SizedBox(height: 4),
-                  Text('JPG, PNG 지원 (최대 10MB)',
+                  Text('JPG, PNG, WEBP 지원 (최대 10MB)',
                       style: TextStyle(
                           fontSize: 12, color: DustColors.textSecondary)),
                 ],
