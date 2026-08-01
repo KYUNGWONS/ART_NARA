@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/dust_tokens.dart';
 import '../providers/locale_provider.dart';
@@ -75,7 +74,7 @@ class _MainScreenState extends State<MainScreen>
           builder: (context, localeProvider, _) {
             return Container(
               decoration: const BoxDecoration(
-                color: AppColors.white,
+                color: DustColors.bgSurface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
@@ -87,7 +86,7 @@ class _MainScreenState extends State<MainScreen>
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.lightGrey,
+                      color: DustColors.borderSoft,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -98,24 +97,24 @@ class _MainScreenState extends State<MainScreen>
                     style: GoogleFonts.gowunDodum(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.black,
+                      color: DustColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Divider(height: 1, color: AppColors.lightGrey),
+                  const Divider(height: 1, color: DustColors.borderSoft),
                   // 로그아웃 버튼
                   ListTile(
                     leading: Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.1),
+                        color: DustColors.danger.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.logout_rounded,
                         size: 20,
-                        color: AppColors.accent,
+                        color: DustColors.danger,
                       ),
                     ),
                     title: Text(
@@ -123,7 +122,7 @@ class _MainScreenState extends State<MainScreen>
                       style: GoogleFonts.gowunDodum(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.accent,
+                        color: DustColors.danger,
                       ),
                     ),
                     onTap: () {
@@ -156,7 +155,7 @@ class _MainScreenState extends State<MainScreen>
                 style: GoogleFonts.gowunDodum(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.black,
+                  color: DustColors.textPrimary,
                 ),
               ),
               content: Text(
@@ -164,7 +163,7 @@ class _MainScreenState extends State<MainScreen>
                 style: GoogleFonts.gowunDodum(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.darkGrey,
+                  color: DustColors.textSecondary,
                 ),
               ),
               actions: [
@@ -175,7 +174,7 @@ class _MainScreenState extends State<MainScreen>
                     style: GoogleFonts.gowunDodum(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.grey,
+                      color: DustColors.textSecondary,
                     ),
                   ),
                 ),
@@ -189,7 +188,7 @@ class _MainScreenState extends State<MainScreen>
                     style: GoogleFonts.gowunDodum(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.accent,
+                      color: DustColors.danger,
                     ),
                   ),
                 ),
@@ -442,14 +441,14 @@ class _MainScreenState extends State<MainScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icons[_currentTab], size: 48, color: AppColors.lightGrey),
+          Icon(icons[_currentTab], size: 48, color: DustColors.borderSoft),
           const SizedBox(height: 16),
           Text(
             locale.tr(labels[_currentTab]),
             style: GoogleFonts.gowunDodum(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: AppColors.grey,
+              color: DustColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
@@ -458,7 +457,7 @@ class _MainScreenState extends State<MainScreen>
             style: GoogleFonts.gowunDodum(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: AppColors.lightGrey,
+              color: DustColors.borderSoft,
             ),
           ),
         ],

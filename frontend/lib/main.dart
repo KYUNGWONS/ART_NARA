@@ -4,7 +4,6 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:provider/provider.dart';
-import 'constants/app_colors.dart';
 import 'constants/dust_tokens.dart';
 import 'providers/locale_provider.dart';
 import 'screens/splash_onboarding_screen.dart';
@@ -66,7 +65,7 @@ class ArtNaraApp extends StatelessWidget {
             secondary: DustColors.brandDeep,
           ),
           useMaterial3: true,
-          scaffoldBackgroundColor: AppColors.white,
+          scaffoldBackgroundColor: DustColors.bgSurface,
           textTheme: GoogleFonts.notoSansKrTextTheme(),
         ),
         home: const SplashOnboardingScreen(),

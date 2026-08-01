@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/dust_tokens.dart';
 import '../providers/locale_provider.dart';
@@ -172,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen>
           locale.tr(AppStrings.loginError),
           style: GoogleFonts.gowunDodum(fontWeight: FontWeight.w500),
         ),
-        backgroundColor: AppColors.accent,
+        backgroundColor: DustColors.danger,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         margin: const EdgeInsets.all(16),
@@ -294,14 +293,14 @@ class _LoginScreenState extends State<LoginScreen>
                         icon: const Icon(
                           Icons.arrow_back_ios_rounded,
                           size: 16,
-                          color: AppColors.grey,
+                          color: DustColors.textSecondary,
                         ),
                         label: Text(
                           locale.tr(AppStrings.back),
                           style: GoogleFonts.gowunDodum(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.grey,
+                            color: DustColors.textSecondary,
                           ),
                         ),
                       ),
@@ -416,9 +415,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   ? null
                                   : _handleGoogleLogin,
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.black,
+                                foregroundColor: DustColors.textPrimary,
                                 side: const BorderSide(
-                                  color: AppColors.lightGrey,
+                                  color: DustColors.borderSoft,
                                   width: 1.5,
                                 ),
                                 shape: RoundedRectangleBorder(
@@ -431,7 +430,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       height: 22,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2.5,
-                                        color: AppColors.darkGrey,
+                                        color: DustColors.textSecondary,
                                       ),
                                     )
                                   : Row(
@@ -447,7 +446,7 @@ class _LoginScreenState extends State<LoginScreen>
                                                 return const Icon(
                                                   Icons.g_mobiledata_rounded,
                                                   size: 24,
-                                                  color: AppColors.darkGrey,
+                                                  color: DustColors.textSecondary,
                                                 );
                                               },
                                         ),
@@ -457,7 +456,7 @@ class _LoginScreenState extends State<LoginScreen>
                                           style: const TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
-                                            color: AppColors.darkGrey,
+                                            color: DustColors.textSecondary,
                                           ),
                                         ),
                                       ],

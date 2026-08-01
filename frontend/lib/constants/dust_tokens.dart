@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 ///
 /// Figma "DUST-ART Foundations"(파일 LghoZTZPejVsF7jndmqJEm, node 25:210)에서
 /// 그대로 옮긴 값이다. 새 화면은 하드코딩 대신 이 토큰을 사용할 것.
-/// (Knot 잔재 화면들은 아직 [AppColors]를 쓰므로 점진적으로 교체한다.)
 class DustColors {
   DustColors._();
 
