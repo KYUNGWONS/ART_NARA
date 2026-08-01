@@ -9,6 +9,7 @@ import com.example.artnara.domain.order.entity.ArtOrder;
 import com.example.artnara.domain.order.repository.ArtOrderRepository;
 import com.example.artnara.domain.notification.entity.NotificationType;
 import com.example.artnara.domain.notification.service.NotificationService;
+import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class OrderService {
     private final ArtworkService artworkService;
     private final CertificateService certificateService;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public OrderDto.Response create(OrderDto.CreateRequest request) {
         validate(request);
@@ -80,6 +82,14 @@ public class OrderService {
                 "'" + artwork.title() + "' 결제가 완료되어 디지털 소유권과 정품 인증서("
                         + certificateNo + ")가 발급되었습니다.",
                 order.getId());
+
+        // 판매된 작품의 작가(같은 활동명으로 가입한 사용자)에게 개인 알림을 보낸다.
+        userRepository.findFirstByNickname(artwork.artistName()).ifPresent(artist ->
+                notificationService.publishTo(artist.getId(), NotificationType.ORDER_COMPLETED,
+                        "작품이 판매되었어요",
+                        "'" + artwork.title() + "' 이(가) "
+                                + String.format("%,d", order.getAmount()) + "원에 판매되었습니다.",
+                        order.getId()));
 
         return toDto(order);
     }
