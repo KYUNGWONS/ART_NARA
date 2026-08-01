@@ -12,5 +12,7 @@ public interface ArtworkLikeRepository extends JpaRepository<ArtworkLike, Long> 
 
     List<ArtworkLike> findByUserId(Long userId);
 
+    List<ArtworkLike> findByUserIdOrderByIdDesc(Long userId);
+
     long countByArtworkId(Long artworkId);
 }

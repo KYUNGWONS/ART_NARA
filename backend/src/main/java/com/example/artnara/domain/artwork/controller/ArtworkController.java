@@ -35,6 +35,17 @@ public class ArtworkController {
         return BaseResponse.success("집 주변 작품 매칭", artworkService.getNearby(latitude, longitude));
     }
 
+    @GetMapping("/liked")
+    @Operation(summary = "내 관심 작품 목록",
+            description = "하트를 누른 작품을 최근 순으로 조회합니다. 로그인(JWT)이 필요합니다.")
+    public BaseResponse<java.util.List<ArtworkDetailDto>> liked(Principal principal) {
+        if (principal == null) {
+            throw new GlobalException(DomainResultCode.AUTH_REQUIRED);
+        }
+        return BaseResponse.success("내 관심 작품 목록",
+                artworkService.listLiked(Long.parseLong(principal.getName())));
+    }
+
     @GetMapping("/{artworkId}")
     @Operation(summary = "작품 상세 조회", description = "작품 정보, 작가 소개, 경매 작품이면 입찰 내역까지 조회합니다.")
     public BaseResponse<ArtworkDetailDto> detail(@PathVariable Long artworkId) {

@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -171,6 +172,19 @@ public class ArtworkService {
                             .userId(userId).artworkId(artworkId).build());
                     return true;
                 });
+    }
+
+    /** 내가 하트를 누른 작품 목록(최근 등록순). */
+    @Transactional(readOnly = true)
+    public List<ArtworkDetailDto> listLiked(Long userId) {
+        List<Long> ids = artworkLikeRepository.findByUserIdOrderByIdDesc(userId).stream()
+                .map(ArtworkLike::getArtworkId)
+                .toList();
+        return ids.stream()
+                .map(artworkRepository::findById)
+                .flatMap(Optional::stream)
+                .map(this::toDto)
+                .toList();
     }
 
     /** 사용자가 하트를 누른 작품 id 집합. 비로그인(userId null)이면 빈 집합. */
