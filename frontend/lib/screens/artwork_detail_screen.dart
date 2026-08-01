@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/artist_inquiry.dart';
 import 'package:flutter/services.dart';
 
 import '../models/artwork_detail.dart';
 import '../services/artwork_api_service.dart';
-import '../services/chat_api_service.dart';
 import 'artist_portfolio_screen.dart';
-import 'chat_screen.dart';
 import 'checkout_screen.dart';
 
 class ArtworkDetailScreen extends StatefulWidget {
@@ -351,27 +350,6 @@ class _ArtistCard extends StatelessWidget {
   final String name;
   final String introduction;
 
-  /// 작가와 1:1 문의 방을 열고 채팅으로 들어간다.
-  Future<void> _openInquiry(BuildContext context) async {
-    final room = await ChatApiService.openDirectRoom(name);
-    if (!context.mounted) return;
-    if (room == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('작가에게 문의할 수 없어요. 잠시 후 다시 시도해주세요')),
-      );
-      return;
-    }
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ChatScreen(
-          roomId: room.chatRoomId,
-          partnerNickname: room.opponentNickname,
-          partnerProfileImageUrl: room.opponentProfileImageUrl,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -389,7 +367,7 @@ class _ArtistCard extends StatelessWidget {
       title: Text(name, style: const TextStyle(fontSize: 13)),
       subtitle: Text(introduction, style: const TextStyle(fontSize: 11)),
       trailing: OutlinedButton(
-        onPressed: () => _openInquiry(context),
+        onPressed: () => openArtistInquiry(context, name),
         style: OutlinedButton.styleFrom(
           foregroundColor: DustColors.brandPrimary,
           side: const BorderSide(color: DustColors.brandPrimary),

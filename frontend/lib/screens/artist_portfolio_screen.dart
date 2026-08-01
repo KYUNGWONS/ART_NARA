@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/artist_inquiry.dart';
 import '../models/artist_profile.dart';
 import '../services/artist_api_service.dart';
 import 'artwork_detail_screen.dart';
@@ -71,6 +72,25 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                       fontSize: 13,
                       height: 1.6,
                       color: DustColors.textSecondary),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    DustSpacing.lg, DustSpacing.md, DustSpacing.lg, 0),
+                child: SizedBox(
+                  height: 44,
+                  child: OutlinedButton.icon(
+                    onPressed: () => openArtistInquiry(context, profile.name),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: DustColors.brandPrimary,
+                      side: const BorderSide(color: DustColors.brandPrimary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(DustRadius.full),
+                      ),
+                    ),
+                    icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                    label: const Text('작가에게 문의하기'),
+                  ),
                 ),
               ),
               const SizedBox(height: DustSpacing.md),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../utils/artist_inquiry.dart';
 import '../models/home_feed.dart';
 import '../services/artwork_like_api_service.dart';
 import '../services/home_feed_api_service.dart';
@@ -418,7 +419,7 @@ class _ArtistSection extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 12, color: DustColors.textSecondary)),
               trailing: OutlinedButton(
-                onPressed: () {},
+                onPressed: () => openArtistInquiry(context, artist.name),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: DustColors.brandPrimary,
                   side: const BorderSide(color: DustColors.brandPrimary),
@@ -426,7 +427,7 @@ class _ArtistSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(DustRadius.full),
                   ),
                 ),
-                child: const Text('팔로우'),
+                child: const Text('문의하기'),
               ),
             ),
           ),
