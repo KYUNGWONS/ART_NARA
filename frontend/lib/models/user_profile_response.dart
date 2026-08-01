@@ -5,14 +5,8 @@ class UserProfileData {
   final int? age;
   final String? userType;
   final String? profileImageUrl;
-  final String? address;
-  final String? addressDetail;
-  final String? nationality;
-  final List<String> languages;
-  final dynamic visitExperience;
+  final String? region;
   final List<String> interests;
-  final int? planningScore;
-  final int? activityScore;
   final String? bio;
   final bool profileCompleted;
 
@@ -22,22 +16,13 @@ class UserProfileData {
     this.age,
     this.userType,
     this.profileImageUrl,
-    this.address,
-    this.addressDetail,
-    this.nationality,
-    this.languages = const [],
-    this.visitExperience,
+    this.region,
     this.interests = const [],
-    this.planningScore,
-    this.activityScore,
     this.bio,
     this.profileCompleted = false,
   });
 
   factory UserProfileData.fromJson(Map<String, dynamic> json) {
-    // 백엔드 UserDto.Response는 점수를 travelStyle{planning,vibe,role,dynamic}로 중첩해 반환한다.
-    final travelStyle = json['travelStyle'] as Map<String, dynamic>?;
-
     // 백엔드 userType enum(KOREAN_STUDENT/FOREIGN_TOURIST)을 앱 내부 표기로 정규화.
     // 앱은 외국인을 'FOREIGNER'로 다루므로 FOREIGN_TOURIST를 매핑한다.
     final rawUserType = json['userType'] as String?;
@@ -50,25 +35,13 @@ class UserProfileData {
       age: json['age'] as int?,
       userType: userType,
       profileImageUrl: json['profileImageUrl'] as String?,
-      // 백엔드는 단일 'region' 필드 사용.
-      address: json['address'] as String? ?? json['region'] as String?,
-      addressDetail: json['addressDetail'] as String?,
-      nationality: json['nationality'] as String?,
-      languages:
-          (json['languages'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
-      visitExperience: json['visitExperience'],
+      // 백엔드는 시·도 한글 라벨("서울특별시")을 region 으로 돌려준다.
+      region: json['region'] as String?,
       interests:
           (json['interests'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      planningScore:
-          json['planningScore'] as int? ?? travelStyle?['planning'] as int?,
-      activityScore:
-          json['activityScore'] as int? ?? travelStyle?['dynamic'] as int?,
       // 백엔드는 'aboutMe' 필드 사용.
       bio: json['bio'] as String? ?? json['aboutMe'] as String?,
       profileCompleted: json['profileCompleted'] as bool? ?? false,

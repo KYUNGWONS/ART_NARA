@@ -104,14 +104,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       _row('역할', _roleLabel(_profile!.userType!)),
                     _row('프로필 완료', _profile!.profileCompleted ? '완료' : '미완료'),
                   ]),
-                  if (_profile!.address != null ||
-                      _profile!.addressDetail != null) ...[
+                  if (_profile!.region != null) ...[
                     const SizedBox(height: DustSpacing.md),
                     _buildSection('활동 지역', [
-                      if (_profile!.address != null)
-                        _row('지역', _profile!.address!),
-                      if (_profile!.addressDetail != null)
-                        _row('상세', _profile!.addressDetail!),
+                      _row('지역', _profile!.region!),
                     ]),
                   ],
                   if (_profile!.interests.isNotEmpty) ...[

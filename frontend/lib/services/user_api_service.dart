@@ -58,20 +58,14 @@ class UserApiService {
       message: null,
       data: const UserProfileData(
         userId: 9007199254740991,
-        nickname: '재혁',
+        nickname: '예진',
         age: 24,
         userType: 'KOREAN_STUDENT',
         profileImageUrl:
             'https://k.kakaocdn.net/dn/cpObSK/dJMcabirNp2/6k8AYPwXmaMXKlGBRmWja0/img_640x640.jpg',
-        address: '서울특별시 종로구',
-        addressDetail: '101동 1001호',
-        nationality: null,
-        languages: [],
-        visitExperience: true,
-        interests: ['travel', 'food', 'culture'],
-        planningScore: 40,
-        activityScore: -40,
-        bio: '여행과 맛집 탐방을 좋아하는 대학생이에요!',
+        region: '서울특별시',
+        interests: ['회화', '일러스트'],
+        bio: '빛과 계절을 그리는 미대생입니다.',
         profileCompleted: true,
       ),
     );
@@ -79,7 +73,7 @@ class UserApiService {
 
   /// PATCH /api/users/me
   /// 부분 프로필 수정. 백엔드 UpdateRequest 스키마에 맞춰
-  /// {nickname, displayName, region, aboutMe, interests, languages, travelStyle}만 전송한다.
+  /// {nickname, displayName, region, aboutMe, interests}만 전송한다.
   /// (age·userType은 이 엔드포인트에서 수정하지 않는다.)
   static Future<bool> updateMe({
     required String nickname,
@@ -87,22 +81,10 @@ class UserApiService {
     String? region,
     String? introduction,
     required List<String> interests,
-    List<String>? languages,
-    required int planningScore,
-    int vibeScore = 0,
-    int roleScore = 0,
-    required int activityScore,
   }) async {
     final bodyMap = <String, dynamic>{
       'nickname': nickname,
       'interests': interests,
-      'languages': languages ?? const <String>[],
-      'travelStyle': <String, dynamic>{
-        'planning': planningScore,
-        'vibe': vibeScore,
-        'role': roleScore,
-        'dynamic': activityScore,
-      },
     };
     if (displayName != null && displayName.isNotEmpty) {
       bodyMap['displayName'] = displayName;
@@ -163,11 +145,6 @@ class UserApiService {
     required String region,
     String? aboutMe,
     required List<String> interests,
-    required List<String> languages,
-    required int planningScore,
-    required int vibeScore,
-    required int roleScore,
-    required int activityScore,
   }) async {
     final bodyMap = <String, dynamic>{
       'email': email,
@@ -179,13 +156,6 @@ class UserApiService {
       'region': region,
       'aboutMe': aboutMe ?? '',
       'interests': interests,
-      'languages': languages,
-      'travelStyle': <String, dynamic>{
-        'planning': planningScore,
-        'vibe': vibeScore,
-        'role': roleScore,
-        'dynamic': activityScore,
-      },
     };
 
     debugPrint('[UserAPI] POST /api/users email: $email, userType: $userType');

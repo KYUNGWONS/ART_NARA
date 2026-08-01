@@ -88,11 +88,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       region: _region!,
       aboutMe: _bioController.text.trim(),
       interests: _selectedGenres.toList(),
-      languages: const ['한국어'],
-      planningScore: 50,
-      vibeScore: 50,
-      roleScore: 50,
-      activityScore: 50,
     );
 
     if (!mounted) return;
