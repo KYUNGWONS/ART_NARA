@@ -9,9 +9,10 @@ public class ArtistDto {
             String introduction,
             String location,
             int artworkCount,
-            int salesCount,
-            double rating,
-            int reviewCount,
+            long salesCount,
+            /** 리뷰 기능이 아직 없어 null (있는 척하지 않는다) */
+            Double rating,
+            Integer reviewCount,
             List<ArtworkSummary> artworks
     ) {}
 

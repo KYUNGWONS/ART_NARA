@@ -28,8 +28,11 @@ class ArtistServiceTest {
         assertThat(portfolio.artworkCount()).isEqualTo(1);
         assertThat(portfolio.artworks()).hasSize(1);
         assertThat(portfolio.artworks().get(0).title()).isEqualTo("봄의 정원");
-        assertThat(portfolio.rating()).isBetween(4.0, 5.0);
-        assertThat(portfolio.salesCount()).isPositive();
+        // 리뷰 도메인이 없어 평점·리뷰 수는 내려주지 않는다.
+        assertThat(portfolio.rating()).isNull();
+        assertThat(portfolio.reviewCount()).isNull();
+        // 판매 수는 실제 주문 기준이라 시드 상태에서는 0.
+        assertThat(portfolio.salesCount()).isZero();
     }
 
     @Test
