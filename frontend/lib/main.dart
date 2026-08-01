@@ -15,10 +15,14 @@ bool isNaverMapInitialized = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 카카오 SDK 초기화
+  // 카카오 SDK 초기화.
+  // 이 키는 android/local.properties 의 kakaoNativeAppKey(커스텀 스킴용)와 **같은 값**이어야 한다.
   const kakaoAppKey = String.fromEnvironment('KAKAO_NATIVE_APP_KEY');
   if (kakaoAppKey.isNotEmpty) {
     KakaoSdk.init(nativeAppKey: kakaoAppKey);
+  } else {
+    debugPrint('[Kakao] KAKAO_NATIVE_APP_KEY 미설정 — 카카오 로그인이 동작하지 않습니다. '
+        '--dart-define=KAKAO_NATIVE_APP_KEY=... 로 네이티브 앱 키를 넘겨주세요.');
   }
 
   // 네이버 지도 SDK 초기화
