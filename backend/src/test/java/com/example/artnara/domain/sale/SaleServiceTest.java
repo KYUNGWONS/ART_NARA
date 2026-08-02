@@ -36,7 +36,7 @@ class SaleServiceTest {
     @Test
     @DisplayName("즉시 판매 등록")
     void createDirectSale() {
-        SaleDto.Response sale = saleService.create(request(false));
+        SaleDto.Response sale = saleService.create(request(false), "나");
         assertThat(sale.id()).isPositive();
         assertThat(sale.auctionEnabled()).isFalse();
         assertThat(sale.status()).isEqualTo("검수 대기");
@@ -45,7 +45,7 @@ class SaleServiceTest {
     @Test
     @DisplayName("경매 포함 판매 등록")
     void createAuctionSale() {
-        SaleDto.Response sale = saleService.create(request(true));
+        SaleDto.Response sale = saleService.create(request(true), "나");
         assertThat(sale.auctionStartPrice()).isEqualTo(200000);
         assertThat(sale.auctionEndDate()).isAfter(LocalDate.now());
     }
@@ -53,8 +53,8 @@ class SaleServiceTest {
     @Test
     @DisplayName("등록한 판매는 목록 최신순으로 조회된다")
     void listNewestFirst() {
-        saleService.create(request(false));
-        SaleDto.Response latest = saleService.create(request(true));
+        saleService.create(request(false), "나");
+        SaleDto.Response latest = saleService.create(request(true), "나");
         assertThat(saleService.list().sales().get(0).id()).isEqualTo(latest.id());
     }
 
@@ -63,7 +63,7 @@ class SaleServiceTest {
     void createRegistersArtwork() {
         int artworksBefore = artworkService.listAll().size();
 
-        saleService.create(request(false));
+        saleService.create(request(false), "나");
 
         var artworks = artworkService.listAll();
         assertThat(artworks).hasSize(artworksBefore + 1);
@@ -78,7 +78,7 @@ class SaleServiceTest {
     void createWithoutTitle() {
         var invalid = new SaleDto.CreateRequest(
                 " ", null, null, null, null, 300000, false, null, null, null, null);
-        assertThatThrownBy(() -> saleService.create(invalid))
+        assertThatThrownBy(() -> saleService.create(invalid, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.SALE_TITLE_REQUIRED);
@@ -90,7 +90,7 @@ class SaleServiceTest {
         var invalid = new SaleDto.CreateRequest(
                 "작품", null, null, null, null, 300000, true,
                 400000, LocalDate.now().plusDays(7), null, null);
-        assertThatThrownBy(() -> saleService.create(invalid))
+        assertThatThrownBy(() -> saleService.create(invalid, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.SALE_INVALID_AUCTION);
@@ -102,7 +102,7 @@ class SaleServiceTest {
         var invalid = new SaleDto.CreateRequest(
                 "작품", null, null, null, null, 300000, true,
                 200000, LocalDate.now(), null, null);
-        assertThatThrownBy(() -> saleService.create(invalid))
+        assertThatThrownBy(() -> saleService.create(invalid, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.SALE_INVALID_AUCTION);

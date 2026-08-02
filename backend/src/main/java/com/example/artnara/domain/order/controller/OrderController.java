@@ -2,6 +2,7 @@ package com.example.artnara.domain.order.controller;
 
 import com.example.artnara.domain.order.dto.OrderDto;
 import com.example.artnara.domain.order.service.OrderService;
+import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @Tag(name = "Order", description = "ART NARA 작품 구매/결제 API")
 @RestController
 @RequestMapping("/api/orders")
@@ -19,12 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     private final OrderService orderService;
+    private final CurrentUser currentUser;
 
     @PostMapping
     @Operation(summary = "작품 구매(결제)",
             description = "결제 수단을 선택해 작품을 결제합니다. 결제 완료 시 디지털 소유권이 자동 발급됩니다.")
-    public BaseResponse<OrderDto.Response> create(@RequestBody OrderDto.CreateRequest request) {
-        return BaseResponse.success("작품 결제 완료", orderService.create(request));
+    public BaseResponse<OrderDto.Response> create(@RequestBody OrderDto.CreateRequest request,
+                                                  Principal principal) {
+        // 구매자·소유권자는 로그인 신원에서 정한다.
+        return BaseResponse.success("작품 결제 완료",
+                orderService.create(request, currentUser.nicknameOf(principal)));
     }
 
     @GetMapping

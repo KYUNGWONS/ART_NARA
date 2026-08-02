@@ -37,7 +37,7 @@ public class CertificateService {
      * 같은 인증 번호로 QR 정품 인증서도 발급한다.
      * QR 코드는 "ARTNARA-QR-{인증번호 끝자리}" 형식.
      */
-    public void register(CertificateDto.IssueRequest request) {
+    public void register(CertificateDto.IssueRequest request, String ownerName) {
         ownershipRepository.save(Ownership.builder()
                 .certificateNo(request.certificateNo())
                 .artworkTitle(request.artworkTitle())
@@ -50,7 +50,7 @@ public class CertificateService {
                 .certificateNo(request.certificateNo())
                 .artworkTitle(request.artworkTitle())
                 .artistName(request.artistName())
-                .ownerName("나")
+                .ownerName(ownerName)
                 .issuedDate(request.acquiredDate())
                 .yearCreated(request.yearCreated())
                 .sizeInfo(request.sizeInfo())

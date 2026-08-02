@@ -48,7 +48,7 @@ class ArtworkServiceTest {
     @Test
     @DisplayName("입찰 성공 시 현재가와 입찰 내역이 갱신된다")
     void placeBid() {
-        ArtworkDetailDto detail = artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000));
+        ArtworkDetailDto detail = artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000), "나");
         assertThat(detail.currentBid()).isEqualTo(800000);
         assertThat(detail.bidHistory().get(0).amount()).isEqualTo(800000);
     }
@@ -56,7 +56,7 @@ class ArtworkServiceTest {
     @Test
     @DisplayName("최소 입찰 단위 미만 입찰 시 422")
     void placeBidTooLow() {
-        assertThatThrownBy(() -> artworkService.placeBid(6L, new ArtworkDetailDto.BidRequest(340001)))
+        assertThatThrownBy(() -> artworkService.placeBid(6L, new ArtworkDetailDto.BidRequest(340001), "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.BID_AMOUNT_TOO_LOW);
@@ -65,7 +65,7 @@ class ArtworkServiceTest {
     @Test
     @DisplayName("일반 판매 작품에 입찰 시 400")
     void placeBidOnNonAuction() {
-        assertThatThrownBy(() -> artworkService.placeBid(1L, new ArtworkDetailDto.BidRequest(500000)))
+        assertThatThrownBy(() -> artworkService.placeBid(1L, new ArtworkDetailDto.BidRequest(500000), "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ARTWORK_NOT_AUCTION);
@@ -74,7 +74,7 @@ class ArtworkServiceTest {
     @Test
     @DisplayName("경매 마감 시 최고 입찰자가 낙찰자가 된다")
     void closeAuction() {
-        artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000));
+        artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000), "나");
         ArtworkDetailDto closed = artworkService.closeAuction(5L);
         assertThat(closed.auctionClosed()).isTrue();
         assertThat(closed.winnerName()).isEqualTo("나");
@@ -96,7 +96,7 @@ class ArtworkServiceTest {
     @DisplayName("마감된 경매에 입찰 시 409")
     void placeBidAfterClose() {
         artworkService.closeAuction(7L);
-        assertThatThrownBy(() -> artworkService.placeBid(7L, new ArtworkDetailDto.BidRequest(600000)))
+        assertThatThrownBy(() -> artworkService.placeBid(7L, new ArtworkDetailDto.BidRequest(600000), "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.AUCTION_ALREADY_CLOSED);

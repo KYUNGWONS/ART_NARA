@@ -18,13 +18,11 @@ import java.time.LocalDate;
 @Transactional
 public class SaleService {
 
-    /** 프로토타입 단일 사용자 판매자명. */
-    private static final String SELLER_NAME = "나";
 
     private final SaleRepository saleRepository;
     private final ArtworkService artworkService;
 
-    public SaleDto.Response create(SaleDto.CreateRequest request) {
+    public SaleDto.Response create(SaleDto.CreateRequest request, String sellerName) {
         validate(request);
         Sale sale = saleRepository.save(Sale.builder()
                 .title(request.title().trim())
@@ -43,7 +41,7 @@ public class SaleService {
 
         // 프로토타입: 검수 절차 없이 바로 작품 저장소에 등록해 홈 피드에 노출한다.
         artworkService.register(new ArtworkCreate(
-                sale.getTitle(), SELLER_NAME, "내가 등록한 작품입니다.",
+                sale.getTitle(), sellerName, "내가 등록한 작품입니다.",
                 sale.getDescription(), sale.getMedium(), sale.getSizeInfo(),
                 sale.getYearCreated() == null ? LocalDate.now().getYear() : sale.getYearCreated(),
                 sale.getBuyNowPrice(), sale.isAuctionEnabled(),

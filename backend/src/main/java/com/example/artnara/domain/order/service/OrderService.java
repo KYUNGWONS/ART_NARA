@@ -25,7 +25,6 @@ import java.util.Set;
 public class OrderService {
 
     /** 프로토타입 단일 사용자 — ArtworkService.placeBid 가 기록하는 입찰자명과 동일해야 한다. */
-    private static final String BUYER_NAME = "나";
 
     private static final Set<String> PAYMENT_METHODS =
             Set.of("CARD", "KAKAO_PAY", "NAVER_PAY", "TOSS");
@@ -36,7 +35,7 @@ public class OrderService {
     private final NotificationService notificationService;
     private final UserRepository userRepository;
 
-    public OrderDto.Response create(OrderDto.CreateRequest request) {
+    public OrderDto.Response create(OrderDto.CreateRequest request, String buyerName) {
         validate(request);
         ArtworkDetailDto artwork = artworkService.getDetail(request.artworkId());
         int amount = artwork.price();
@@ -48,7 +47,7 @@ public class OrderService {
             if (artwork.winnerName() == null) {
                 throw new GlobalException(DomainResultCode.ORDER_AUCTION_NO_WINNER);
             }
-            if (!BUYER_NAME.equals(artwork.winnerName())) {
+            if (!buyerName.equals(artwork.winnerName())) {
                 throw new GlobalException(DomainResultCode.ORDER_NOT_WINNER);
             }
             amount = artwork.currentBid();
@@ -75,7 +74,7 @@ public class OrderService {
         // 거래 완료 → 디지털 소유권 자동 이전
         certificateService.register(new CertificateDto.IssueRequest(
                 certificateNo, artwork.title(), artwork.artistName(), today,
-                artwork.year(), artwork.size(), artwork.medium()));
+                artwork.year(), artwork.size(), artwork.medium()), buyerName);
 
         notificationService.publish(NotificationType.ORDER_COMPLETED,
                 "결제가 완료되었어요",

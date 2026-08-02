@@ -29,7 +29,7 @@ class CertificateServiceTest {
     void register() {
         certificateService.register(new CertificateDto.IssueRequest(
                 "ARTNARA-2026-9999", "새 작품", "나", "2026-07-31",
-                2026, "40.0 x 40.0cm", "캔버스에 아크릴"));
+                2026, "40.0 x 40.0cm", "캔버스에 아크릴"), "나");
         var ownerships = certificateService.listOwnerships().ownerships();
         assertThat(ownerships).hasSize(3);
         assertThat(ownerships.get(0).certificateNo()).isEqualTo("ARTNARA-2026-9999");
@@ -40,7 +40,7 @@ class CertificateServiceTest {
     void registerIssuesScannableCertificate() {
         certificateService.register(new CertificateDto.IssueRequest(
                 "ARTNARA-2026-7777", "새 작품", "나", "2026-07-31",
-                2026, "40.0 x 40.0cm", "캔버스에 아크릴"));
+                2026, "40.0 x 40.0cm", "캔버스에 아크릴"), "나");
 
         CertificateDto.Certificate certificate = certificateService.scan(
                 new CertificateDto.ScanRequest("ARTNARA-QR-7777"));

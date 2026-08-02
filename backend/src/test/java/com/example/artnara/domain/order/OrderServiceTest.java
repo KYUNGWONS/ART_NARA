@@ -36,7 +36,7 @@ class OrderServiceTest {
     void create() {
         int ownershipsBefore = certificateService.listOwnerships().ownerships().size();
 
-        OrderDto.Response order = orderService.create(request(1L));
+        OrderDto.Response order = orderService.create(request(1L), "나");
 
         assertThat(order.status()).isEqualTo("결제 완료");
         assertThat(order.amount()).isEqualTo(320000);
@@ -50,8 +50,8 @@ class OrderServiceTest {
     @Test
     @DisplayName("주문 내역은 최신순으로 조회된다")
     void listNewestFirst() {
-        orderService.create(request(1L));
-        OrderDto.Response latest = orderService.create(request(2L));
+        orderService.create(request(1L), "나");
+        OrderDto.Response latest = orderService.create(request(2L), "나");
         assertThat(orderService.list().orders().get(0).orderId())
                 .isEqualTo(latest.orderId());
     }
@@ -59,8 +59,8 @@ class OrderServiceTest {
     @Test
     @DisplayName("이미 판매된 작품 재구매 시 409")
     void createAlreadySold() {
-        orderService.create(request(1L));
-        assertThatThrownBy(() -> orderService.create(request(1L)))
+        orderService.create(request(1L), "나");
+        assertThatThrownBy(() -> orderService.create(request(1L), "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ORDER_ALREADY_SOLD);
@@ -69,7 +69,7 @@ class OrderServiceTest {
     @Test
     @DisplayName("진행 중인 경매 작품 즉시 구매 시 400")
     void createAuctionArtwork() {
-        assertThatThrownBy(() -> orderService.create(request(5L)))
+        assertThatThrownBy(() -> orderService.create(request(5L), "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ORDER_AUCTION_NOT_BUYABLE);
@@ -78,10 +78,10 @@ class OrderServiceTest {
     @Test
     @DisplayName("낙찰자는 마감된 경매 작품을 낙찰가로 결제할 수 있다")
     void createForWonAuction() {
-        artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000));
+        artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000), "나");
         artworkService.closeAuction(5L);
 
-        OrderDto.Response order = orderService.create(request(5L));
+        OrderDto.Response order = orderService.create(request(5L), "나");
 
         assertThat(order.amount()).isEqualTo(800000);
         assertThat(order.status()).isEqualTo("결제 완료");
@@ -92,7 +92,7 @@ class OrderServiceTest {
     void createForLostAuction() {
         // 입찰 없이 마감 → 낙찰자는 시드 최고 입찰자(박*현)
         artworkService.closeAuction(6L);
-        assertThatThrownBy(() -> orderService.create(request(6L)))
+        assertThatThrownBy(() -> orderService.create(request(6L), "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ORDER_NOT_WINNER);
@@ -102,7 +102,7 @@ class OrderServiceTest {
     @DisplayName("지원하지 않는 결제 수단이면 400")
     void createInvalidPaymentMethod() {
         var invalid = new OrderDto.CreateRequest(1L, "BITCOIN");
-        assertThatThrownBy(() -> orderService.create(invalid))
+        assertThatThrownBy(() -> orderService.create(invalid, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ORDER_INVALID_PAYMENT_METHOD);
@@ -111,7 +111,7 @@ class OrderServiceTest {
     @Test
     @DisplayName("존재하지 않는 작품 결제 시 404")
     void createUnknownArtwork() {
-        assertThatThrownBy(() -> orderService.create(request(999L)))
+        assertThatThrownBy(() -> orderService.create(request(999L), "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.ARTWORK_NOT_FOUND);

@@ -2,6 +2,7 @@ package com.example.artnara.domain.sale.controller;
 
 import com.example.artnara.domain.sale.dto.SaleDto;
 import com.example.artnara.domain.sale.service.SaleService;
+import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @Tag(name = "Sale", description = "ART NARA 작품 판매 등록 API")
 @RestController
 @RequestMapping("/api/sales")
@@ -19,11 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class SaleController {
 
     private final SaleService saleService;
+    private final CurrentUser currentUser;
 
     @PostMapping
     @Operation(summary = "판매 등록", description = "즉시 판매가와 선택적 경매(최저가·마감일) 정보로 작품 판매를 등록합니다.")
-    public BaseResponse<SaleDto.Response> create(@RequestBody SaleDto.CreateRequest request) {
-        return BaseResponse.success("판매 등록", saleService.create(request));
+    public BaseResponse<SaleDto.Response> create(@RequestBody SaleDto.CreateRequest request,
+                                                 Principal principal) {
+        // 등록 작품의 작가명은 로그인 사용자의 활동명으로 채운다.
+        return BaseResponse.success("판매 등록",
+                saleService.create(request, currentUser.nicknameOf(principal)));
     }
 
     @GetMapping

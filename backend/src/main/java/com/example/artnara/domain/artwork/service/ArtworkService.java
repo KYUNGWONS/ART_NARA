@@ -35,7 +35,6 @@ public class ArtworkService {
     private static final int MIN_BID_INCREMENT = 10000;
 
     /** 프로토타입 단일 사용자 입찰자명. */
-    private static final String BIDDER_NAME = "나";
 
     // 작품 위치 mock (판매자 동네 기준) — 시드 id 순서대로 홍대, 성수, 이태원, 연남, 망원, 합정, 상수, 서교
     private static final Map<Long, double[]> LOCATIONS = Map.of(
@@ -95,7 +94,7 @@ public class ArtworkService {
         return artworkRepository.save(artwork).getId();
     }
 
-    public ArtworkDetailDto placeBid(Long artworkId, ArtworkDetailDto.BidRequest request) {
+    public ArtworkDetailDto placeBid(Long artworkId, ArtworkDetailDto.BidRequest request, String bidderName) {
         Artwork artwork = find(artworkId);
         if (!artwork.isAuction()) {
             throw new GlobalException(DomainResultCode.ARTWORK_NOT_AUCTION);
@@ -113,7 +112,7 @@ public class ArtworkService {
         artwork.updateCurrentBid(request.amount());
         artworkBidRepository.save(ArtworkBid.builder()
                 .artworkId(artworkId)
-                .bidderName(BIDDER_NAME)
+                .bidderName(bidderName)
                 .amount(request.amount())
                 .bidTime("방금 전")
                 .build());

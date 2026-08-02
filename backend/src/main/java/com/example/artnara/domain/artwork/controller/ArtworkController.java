@@ -3,9 +3,8 @@ package com.example.artnara.domain.artwork.controller;
 import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
 import com.example.artnara.domain.artwork.dto.NearbyArtworkDto;
 import com.example.artnara.domain.artwork.service.ArtworkService;
+import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.common.BaseResponse;
-import com.example.artnara.global.common.DomainResultCode;
-import com.example.artnara.global.exception.GlobalException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +25,7 @@ import java.security.Principal;
 public class ArtworkController {
 
     private final ArtworkService artworkService;
+    private final CurrentUser currentUser;
 
     @GetMapping("/nearby")
     @Operation(summary = "집 주변 작품 매칭", description = "기준 좌표에서 가까운 순으로 판매 중인 작품을 조회합니다.")
@@ -39,11 +39,8 @@ public class ArtworkController {
     @Operation(summary = "내 관심 작품 목록",
             description = "하트를 누른 작품을 최근 순으로 조회합니다. 로그인(JWT)이 필요합니다.")
     public BaseResponse<java.util.List<ArtworkDetailDto>> liked(Principal principal) {
-        if (principal == null) {
-            throw new GlobalException(DomainResultCode.AUTH_REQUIRED);
-        }
         return BaseResponse.success("내 관심 작품 목록",
-                artworkService.listLiked(Long.parseLong(principal.getName())));
+                artworkService.listLiked(currentUser.idOf(principal)));
     }
 
     @GetMapping("/{artworkId}")
@@ -62,18 +59,18 @@ public class ArtworkController {
     @Operation(summary = "관심 작품 토글",
             description = "하트를 눌러 관심 작품에 등록/해제합니다. 로그인(JWT)이 필요하며, 응답 data 는 토글 후 상태입니다.")
     public BaseResponse<Boolean> toggleLike(@PathVariable Long artworkId, Principal principal) {
-        if (principal == null) {
-            throw new GlobalException(DomainResultCode.AUTH_REQUIRED);
-        }
         return BaseResponse.success("관심 작품 토글",
-                artworkService.toggleLike(artworkId, Long.parseLong(principal.getName())));
+                artworkService.toggleLike(artworkId, currentUser.idOf(principal)));
     }
 
     @PostMapping("/{artworkId}/bids")
     @Operation(summary = "작품 입찰", description = "경매 작품에 입찰합니다. 입찰가는 현재가보다 최소 입찰 단위 이상 높아야 합니다.")
     public BaseResponse<ArtworkDetailDto> bid(
             @PathVariable Long artworkId,
-            @RequestBody ArtworkDetailDto.BidRequest request) {
-        return BaseResponse.success("작품 입찰", artworkService.placeBid(artworkId, request));
+            @RequestBody ArtworkDetailDto.BidRequest request,
+            Principal principal) {
+        // 입찰자는 body 가 아니라 로그인 신원에서 정한다(남의 이름으로 입찰 방지).
+        return BaseResponse.success("작품 입찰",
+                artworkService.placeBid(artworkId, request, currentUser.nicknameOf(principal)));
     }
 }
