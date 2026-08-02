@@ -68,7 +68,9 @@
 - 아트나라 도메인은 JPA 전환 완료: 엔티티 Artwork/ArtworkBid/Sale/Commission/CommissionOffer/Ownership/ArtOrder(테이블 `art_orders` — order는 예약어).
 - 시드는 `ArtnaraDataInitializer`(CommandLineRunner) — test 프로필은 sql init을 안 돌리므로 시드는 반드시 이 러너에. **작품 id 1~8 순서는 ArtworkService의 위치 mock(LOCATIONS)과 결합되어 있으므로 유지할 것.**
 - 서비스 테스트는 `@IntegrationTest`(@SpringBootTest + @Transactional + test 프로필).
-- 새 공개 API는 `SecurityConstant.PUBLIC_URLS`에 경로 추가 필요.
+- **보안 기본값: 조회(GET)만 공개, 나머지 메서드는 로그인 필수.** 새 조회 API 는 `SecurityConstant.PUBLIC_READ_URLS`, 메서드 무관 공개가 필요하면 `PUBLIC_ANY_METHOD_URLS`(현재 QR 검증만). 프론트 쓰기 호출은 `services/api_headers.dart` 의 `authJsonHeaders()`/`authOnlyHeaders()` 만 쓴다.
+- **거래 주체는 JWT 신원에서 결정**(`global/auth/CurrentUser`): 입찰자·구매자·판매자·인증서 소유자 모두 로그인 사용자의 활동명. 낙찰 여부도 서버가 계산해 `ArtworkDetailDto.wonByViewer` 로 내려준다 — 클라이언트가 이름을 비교하지 않는다.
+- 이미지(`/images/**`, `/artworks/**`)는 `Cache-Control: max-age=30d, public`. 알림 목록 100건·대화 내역 200건 상한.
 - 경매: `Artwork.auctionEndAt` 기준 `AuctionScheduler`가 1분 주기 자동 마감, remainingTime은 동적 계산("D-n"/"HH:mm:ss"). 낙찰자("나")만 낙찰가로 `/api/orders` 결제 가능.
 - 주문: 결제수단만 받음(CARD/KAKAO_PAY/NAVER_PAY/TOSS, mock PG). 결제 완료 시 디지털 소유권 + QR 인증서(Certificate 엔티티, `ARTNARA-QR-xxxx`) 자동 발급 — 마이페이지 QR 스캔으로 즉시 조회 가능.
 - 채팅: STOMP `/ws`(네이티브 + SockJS 둘 다 등록). 대화 내역은 `GET /api/chat/rooms/{roomId}/messages`(참여자만), 실시간은 `/topic/chat/{roomId}` 구독 + `/app/chat/send`. 목록 `GET /api/chat/rooms/my` 는 상대 프로필·마지막 메시지를 포함하며 대상은 JWT 신원으로 결정된다.
@@ -88,7 +90,8 @@
 ## 남은 작업 후보
 
 - 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
-- 작품 이미지 시드가 비어 있어 카드가 회색 플레이스홀더로 보인다(업로드는 동작).
+- 홈 피드/작품 목록 페이징 (현재는 전체 조회. 작품 수가 늘면 필요)
+- 리뷰 도메인 (작가 평점·리뷰가 없어 포트폴리오에서 '-' 로 표시 중)
 
 ## 로컬 실행 (에뮬레이터)
 
