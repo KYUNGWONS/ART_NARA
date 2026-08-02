@@ -17,6 +17,27 @@ public class AuthDto {
             String accessToken
     ) {}
 
+    @Schema(description = "토큰 재발급 요청")
+    public record RefreshRequest(
+            @Schema(description = "로그인 시 발급받은 refresh token")
+            String refreshToken
+    ) {}
+
+    @Schema(description = "토큰 재발급 응답")
+    public record RefreshResponse(
+            @Schema(description = "새 access token")
+            String accessToken,
+
+            @Schema(description = "새 refresh token (회전 발급)")
+            String refreshToken,
+
+            @Schema(description = "사용자 유형", example = "KOREAN_STUDENT")
+            UserType userType,
+
+            @Schema(description = "프로필 설정 완료 여부", example = "true")
+            boolean profileCompleted
+    ) {}
+
     @Schema(description = "OAuth 로그인 응답")
     public record LoginResponse(
             @Schema(description = "앱 JWT access token")

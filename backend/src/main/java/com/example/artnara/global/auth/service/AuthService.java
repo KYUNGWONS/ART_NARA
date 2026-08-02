@@ -75,4 +75,32 @@ public class AuthService {
         return new AuthDto.LoginResponse(
                 accessToken, refreshToken, isNewUser, user.getUserType(), user.isProfileCompleted());
     }
+
+    /**
+     * refresh token 으로 새 토큰 쌍을 발급한다(회전 발급 — 이전 refresh 는 클라이언트가 버린다).
+     * 서명·만료를 검증하고, 그 사이 탈퇴한 사용자면 거절한다.
+     */
+    @Transactional(readOnly = true)
+    public AuthDto.RefreshResponse refresh(AuthDto.RefreshRequest request) {
+        String token = request == null ? null : request.refreshToken();
+        if (token == null || token.isBlank()
+                || !jwtProvider.validateSignature(token) || jwtProvider.isExpired(token)) {
+            throw new GlobalException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        Long userId;
+        try {
+            userId = Long.parseLong(jwtProvider.getClaims(token).getSubject());
+        } catch (NumberFormatException e) {
+            throw new GlobalException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(AuthErrorCode.INVALID_REFRESH_TOKEN));
+
+        String subject = String.valueOf(user.getId());
+        return new AuthDto.RefreshResponse(
+                jwtProvider.generateAccessToken(subject, DEFAULT_ROLE),
+                jwtProvider.generateRefreshToken(subject, DEFAULT_ROLE),
+                user.getUserType(), user.isProfileCompleted());
+    }
 }

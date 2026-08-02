@@ -34,4 +34,16 @@ public class AuthController {
     public BaseResponse<AuthDto.LoginResponse> login(@RequestBody AuthDto.LoginRequest request) {
         return BaseResponse.success(null, authService.login(request));
     }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "토큰 재발급",
+            description = "refresh token 으로 새 access/refresh 쌍을 발급합니다. 자동 로그인과 " +
+                    "access token(1시간) 만료 갱신에 사용합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "재발급 성공"),
+            @ApiResponse(responseCode = "401", description = "refresh token 이 유효하지 않음")
+    })
+    public BaseResponse<AuthDto.RefreshResponse> refresh(@RequestBody AuthDto.RefreshRequest request) {
+        return BaseResponse.success(null, authService.refresh(request));
+    }
 }
