@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
 import '../models/login_response.dart';
+import 'token_storage.dart';
 
 /// 인증 관련 백엔드 API (로그인, 로그아웃)
 class AuthApiService {
@@ -82,6 +83,8 @@ class AuthApiService {
         accessToken = data.accessToken;
         refreshToken = data.refreshToken;
         userId = _userIdFromJwt(data.accessToken);
+        // 앱 재시작 자동 로그인용. 실패해도 로그인 자체는 성공으로 둔다.
+        await TokenStorage.save(data.accessToken, data.refreshToken);
         debugPrint('[AuthAPI] 로그인 성공 (isNewUser: ${data.isNewUser}, userId: $userId)');
         return loginResponse;
       }
@@ -94,12 +97,49 @@ class AuthApiService {
     }
   }
 
+  /// 저장된 refresh token 으로 자동 로그인을 시도한다.
+  ///
+  /// 성공 시 새 토큰 쌍을 메모리·보안 저장소에 반영하고
+  /// (profileCompleted) 를 반환한다. 실패(만료·위조·네트워크)면 null.
+  static Future<bool?> tryAutoLogin() async {
+    final saved = await TokenStorage.readRefreshToken();
+    if (saved == null || saved.isEmpty) return null;
+    try {
+      final response = await http.post(
+        Uri.parse('$apiBaseUrl/auth/refresh'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refreshToken': saved}),
+      );
+      if (response.statusCode != 200) {
+        debugPrint('[AuthAPI] 자동 로그인 실패: ${response.statusCode} → 저장 토큰 폐기');
+        await TokenStorage.clear();
+        return null;
+      }
+      final map = jsonDecode(response.body) as Map<String, dynamic>;
+      final data = map['data'] as Map<String, dynamic>?;
+      final newAccess = data?['accessToken'] as String?;
+      final newRefresh = data?['refreshToken'] as String?;
+      if (newAccess == null || newRefresh == null) return null;
+
+      accessToken = newAccess;
+      refreshToken = newRefresh;
+      userId = _userIdFromJwt(newAccess);
+      await TokenStorage.save(newAccess, newRefresh);
+      debugPrint('[AuthAPI] 자동 로그인 성공 (userId: $userId)');
+      return data?['profileCompleted'] as bool? ?? false;
+    } catch (e) {
+      debugPrint('[AuthAPI] 자동 로그인 요청 실패: $e');
+      return null; // 네트워크 오류는 토큰을 지우지 않는다(다음 실행에서 재시도)
+    }
+  }
+
   /// 토큰 초기화 (로그아웃 시 호출)
-  static void clearTokens() {
+  static Future<void> clearTokens() async {
     accessToken = null;
     refreshToken = null;
     userEmail = null;
     userId = null;
+    await TokenStorage.clear();
   }
 
   /// POST /auth/logout
@@ -117,15 +157,15 @@ class AuthApiService {
       final response = await http.post(uri, headers: headers, body: body);
       if (response.statusCode == 200) {
         debugPrint('[AuthAPI] 로그아웃 성공');
-        clearTokens();
+        await clearTokens();
         return true;
       }
       debugPrint('[AuthAPI] 로그아웃 실패: ${response.statusCode}');
-      clearTokens();
+      await clearTokens();
       return false;
     } catch (e) {
       debugPrint('[AuthAPI] 로그아웃 요청 실패: $e');
-      clearTokens();
+      await clearTokens();
       return false;
     }
   }

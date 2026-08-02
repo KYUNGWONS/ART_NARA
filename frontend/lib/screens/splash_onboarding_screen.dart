@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../services/auth_api_service.dart';
 import '../widgets/artnara_wordmark.dart';
 import 'login_screen.dart';
+import 'main_screen.dart';
+import 'role_selection_screen.dart';
 
 /// Figma 스플래시/온보딩(node 1:309) 기준 좌표계. 이 값에 맞춰 화면 크기에 비례 배치한다.
 const _designWidth = 390.0;
@@ -42,6 +45,25 @@ class SplashOnboardingScreen extends StatefulWidget {
 class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _tryAutoLogin();
+  }
+
+  /// 저장된 refresh token 이 있으면 온보딩을 건너뛰고 바로 진입한다.
+  Future<void> _tryAutoLogin() async {
+    final profileCompleted = await AuthApiService.tryAutoLogin();
+    if (!mounted || profileCompleted == null) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => profileCompleted
+            ? const MainScreen()
+            : const RoleSelectionScreen(),
+      ),
+    );
+  }
 
   @override
   void dispose() {
