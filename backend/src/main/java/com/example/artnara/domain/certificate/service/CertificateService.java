@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CertificateService {
 
-    private static final String CERT_NOTE = "DUST-ART 전문가 검수를 통과한 정품 인증 작품입니다.";
+    private static final String CERT_NOTE = "ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.";
 
     private final OwnershipRepository ownershipRepository;
     private final CertificateRepository certificateRepository;

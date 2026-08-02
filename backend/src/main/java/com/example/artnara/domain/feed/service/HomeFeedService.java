@@ -38,7 +38,7 @@ public class HomeFeedService {
         Set<Long> liked = artworkService.likedArtworkIds(userId);
         return new HomeFeedDto(
                 "봄빛을 담은 작가들의 이야기",
-                "DUST-ART 에디터가 직접 고른 이번 주 주목작",
+                "ART NARA 에디터가 직접 고른 이번 주 주목작",
                 filter(artworks, normalizedQuery, normalizedCategory, false, liked),
                 filter(artworks, normalizedQuery, normalizedCategory, true, liked),
                 filterArtists(normalizedQuery)

@@ -1,4 +1,4 @@
-# CLAUDE.md — ART NARA (DUST-ART)
+# CLAUDE.md — ART NARA
 
 미대생 미술품 거래 플랫폼. 원격: https://github.com/KYUNGWONS/ART_NARA (master에 직접 커밋·푸시).
 기능 명세 원천은 레포 루트의 사업계획서 PDF(DUST-ART_...pdf): 3탭(구매/판매/제작의뢰) + 경매, 지도 집 주변 매칭, QR 정품 인증, 디지털 소유권. **블록체인 없음, 배송 없음** (사용자 확정).
@@ -8,7 +8,7 @@
 - `frontend/` — Flutter 앱 (상세 규칙은 frontend/CLAUDE.md). 하단 탭: 홈/판매/지도/제작의뢰/채팅.
 - `backend/` — Spring Boot 3, 패키지 `com.example.artnara`, H2(dev)/JPA.
 
-## 디자인 시스템 (DUST-ART)
+## 디자인 시스템 (Figma "DUST-ART" 파일 기준)
 
 - Figma "DUST-ART Foundations"(파일 `LghoZTZPejVsF7jndmqJEm`, node `25:210`)에서 추출한 토큰을 `frontend/lib/constants/dust_tokens.dart`에 정의해 둠. **새 화면은 하드코딩 대신 이 토큰 사용.**
   - 브랜드: teal `#07524E` / deep `#084742` (네이비 아님)
@@ -16,8 +16,8 @@
   - 텍스트: primary `#141413`, secondary `#6B665E`, on-brand `#FFFFFF`, 테두리 `#E0DBD1`
   - 타이포: Noto Sans KR — Heading 28 Bold / Section 22 Bold / Body 16 Regular / Caption 12 Regular
   - Spacing 8·12·16·24, Radius 8·14·22·Full
-- 워드마크/배경은 Figma에서 내려받은 에셋 사용: `assets/images/dust_wordmark.png`(배경 투명 PNG — `colorBlendMode` 걸면 투명부가 흰색으로 칠해지니 그냥 그릴 것), `dust_splash_bg.jpg`.
-- 브랜드 표기는 **DUST-ART 로 통일**(2026-08-02). 앱 이름·런처 아이콘·서버 문구 모두 DUST-ART. 인증 번호 포맷 `ARTNARA-2026-xxxx` 만 이미 발급된 식별자라 유지.
+- 워드마크는 `widgets/artnara_wordmark.dart`(ART·NARA 텍스트 + 오렌지 점)로 그린다. Figma 워드마크 PNG 는 옛 브랜드명이라 삭제했다. 배경은 `assets/images/dust_splash_bg.jpg` 유지.
+- 브랜드 표기는 **ART NARA 로 통일**(2026-08-02, 사용자 확정). 앱 이름·화면 문구·서버 문구 모두 ART NARA. 디자인 파일명/토큰 클래스명(DUST-ART, `DustColors`)은 Figma 파일에서 온 **내부 식별자**라 그대로 둔다.
 - 주요 화면 node id: 스플래시/온보딩 `1:309`, 홈 피드 `1:325`·`1:437`, 작품 판매 등록 `1:274`, 제작 의뢰 신청 `23:67`, 작가 포트폴리오 `41:850`, 정품 인증서 `50:1034`·`60:302`.
 - **최신 디자인 리비전: 파일 `ZqY7Mo7424n3gMp5kZJ4AZ`("26.07.29 1-6")** — 프레임 8개(작가 포트폴리오 `1:278`, 제작 의뢰 신청 `1:349`, 홈 피드2 `1:443`, 홈 피드1 `1:549`, 작품 판매 등록 `1:654`, 스플래시/온보딩 `1:722`, 정품 인증서1 `1:737`, 정품 인증서2 `1:806`). 이 리비전에서 바뀐 점:
   - **하단 내비가 6탭**(홈·판매·지도·제작의뢰·**알림**·**마이페이지**)이고 채팅 탭이 없다 → 채팅(작품 문의)은 홈 헤더 좌측 햄버거 서랍으로 이동.
@@ -39,6 +39,16 @@
 - 파일 키: DUST-ART 디자인 `LghoZTZPejVsF7jndmqJEm`, Manyfast 와이어프레임 `PEgRT86N0VTa1bXgTruP4S`.
 - **계정 연동형 Figma 커넥터는 다른 프로젝트(Knot) 소속이므로 이 레포에서 사용 금지** — 아트나라 정보가 그 계정에 남으면 안 됨.
 - 같은 이유로 아트나라 컨텍스트는 계정 메모리에 저장하지 말고 이 파일(CLAUDE.md)에 기록할 것.
+
+## 토큰 절약 규칙 (기본값)
+
+- **에뮬레이터 검증·스크린샷은 사용자가 요청할 때만.** 평소 검증은 `flutter test` / `./gradlew test` / API `curl` 로 끝낸다. 스크린샷은 토큰이 가장 비싸다 — 한 작업당 1장 이내, 필요 없으면 0장.
+- 화면 변경을 눈으로 확인해야 하면 **마지막에 한 번만** 찍고, 중간 단계는 찍지 않는다.
+- 파일은 통째로 읽지 말고 `grep`/부분 읽기로 필요한 구간만 본다. 이미 읽은 파일은 다시 읽지 않는다.
+- 빌드·테스트 출력은 `| tail -3` 처럼 잘라서 본다.
+- 로그인→프로필→메인 전체 플로우 재현은 금지. 필요하면 JWT 를 직접 만들어(`jwt.secret` 사용) API 로 검증한다.
+- 보고는 짧게: 무엇을 고쳤고 어떻게 확인했는지 3~5줄. 코드 전문 붙여넣기 금지.
+- 답이 이미 정해진 질문(선택지가 명백한 것)은 묻지 말고 진행한다.
 
 ## 백엔드 컨벤션
 

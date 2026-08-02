@@ -55,10 +55,10 @@ class ArtNaraApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LocaleProvider(),
       child: MaterialApp(
-        title: 'DUST-ART',
+        title: 'ART NARA',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          // DUST-ART 디자인 토큰 기준 (Figma Foundations 25:210)
+          // 디자인 토큰 기준 (Figma "DUST-ART Foundations" 25:210 — 파일명이 옛 브랜드명이다)
           colorScheme: ColorScheme.fromSeed(
             seedColor: DustColors.brandPrimary,
             primary: DustColors.brandPrimary,

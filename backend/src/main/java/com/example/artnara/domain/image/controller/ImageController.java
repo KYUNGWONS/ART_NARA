@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
-@Tag(name = "Image", description = "DUST-ART 이미지 업로드 API")
+@Tag(name = "Image", description = "ART NARA 이미지 업로드 API")
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor

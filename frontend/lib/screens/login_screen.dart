@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_strings.dart';
 import '../constants/dust_tokens.dart';
+import '../widgets/artnara_wordmark.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
@@ -313,12 +314,9 @@ class _LoginScreenState extends State<LoginScreen>
                       position: _slideAnimation,
                       child: Column(
                         children: [
-                          // DUST-ART 워드마크 (Figma image 11 에셋)
-                          Image.asset(
-                            'assets/images/dust_wordmark.png',
-                            width: 260,
-                            fit: BoxFit.contain,
-                          ),
+                          // ART NARA 워드마크
+                          const ArtNaraWordmark(fontSize: 34),
+                          const SizedBox(height: 12),
                           const Text(
                             '당신의 예술, 새로운 가치를 만나다',
                             style: TextStyle(

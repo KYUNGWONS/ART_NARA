@@ -11,7 +11,7 @@ import 'profile_setup_screen.dart';
 /// koreanStudent = 작가, foreigner = 컬렉터.
 enum UserRole { koreanStudent, foreigner }
 
-/// 역할 선택 — 작가 / 컬렉터 (DUST-ART 스타일)
+/// 역할 선택 — 작가 / 컬렉터
 class RoleSelectionScreen extends StatelessWidget {
   final String? kakaoProfileImageUrl;
   final String? kakaoNickname;

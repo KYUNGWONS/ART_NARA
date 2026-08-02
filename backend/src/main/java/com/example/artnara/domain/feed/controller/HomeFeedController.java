@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Home Feed", description = "DUST-ART 홈 피드 API")
+@Tag(name = "Home Feed", description = "ART NARA 홈 피드 API")
 @RestController
 @RequestMapping("/api/feed")
 @RequiredArgsConstructor

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Sale", description = "DUST-ART 작품 판매 등록 API")
+@Tag(name = "Sale", description = "ART NARA 작품 판매 등록 API")
 @RestController
 @RequestMapping("/api/sales")
 @RequiredArgsConstructor

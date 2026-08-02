@@ -263,7 +263,7 @@ class _MainScreenState extends State<MainScreen>
             const Padding(
               padding: EdgeInsets.fromLTRB(DustSpacing.lg, DustSpacing.lg,
                   DustSpacing.lg, DustSpacing.sm),
-              child: Text('DUST-ART',
+              child: Text('ART NARA',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,

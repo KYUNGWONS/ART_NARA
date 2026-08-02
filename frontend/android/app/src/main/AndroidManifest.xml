@@ -5,7 +5,7 @@
     <!-- 개발용 백엔드가 평문 HTTP(http://10.0.2.2:8080)라 cleartext 허용.
          TODO(보안): 운영 전 백엔드를 HTTPS로 전환하고 usesCleartextTraffic 제거할 것. -->
     <application
-        android:label="DUST-ART"
+        android:label="ART NARA"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/dust_tokens.dart';
+import '../widgets/artnara_wordmark.dart';
 import 'login_screen.dart';
 
 /// Figma 스플래시/온보딩(node 1:309) 기준 좌표계. 이 값에 맞춰 화면 크기에 비례 배치한다.
@@ -139,7 +140,7 @@ class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
   }
 }
 
-/// 1페이지 — DUST-ART 워드마크 + 태그라인 (Figma 좌표 그대로)
+/// 1페이지 — ART NARA 워드마크 + 태그라인 (Figma 좌표 그대로)
 class _WordmarkPage extends StatelessWidget {
   const _WordmarkPage({required this.sw, required this.sh});
 
@@ -150,16 +151,12 @@ class _WordmarkPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // 워드마크 이미지(image 11) — 배경이 투명한 PNG 라 그대로 겹쳐 그린다.
+        // 워드마크 (디자인 image 11 자리 — 브랜드명이 ART NARA 라 텍스트로 그린다)
         Positioned(
-          left: -14 * sw,
-          top: 231 * sh,
-          width: 417 * sw,
-          height: 278 * sh,
-          child: Image.asset(
-            'assets/images/dust_wordmark.png',
-            fit: BoxFit.contain,
-          ),
+          top: 336 * sh,
+          left: 0,
+          right: 0,
+          child: Center(child: ArtNaraWordmark(fontSize: 40 * sw)),
         ),
         // 태그라인 (디자인: y=386)
         Positioned(

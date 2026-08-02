@@ -201,7 +201,7 @@ class _CertificateCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            const Text('DUST ART',
+            const Text('ART NARA',
                 style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.w700,

@@ -11,7 +11,7 @@ import 'role_selection_screen.dart';
 /// 관심 장르 — 작품 카테고리와 동일한 축을 쓴다.
 const _genres = ['회화', '조각', '디지털', '사진', '일러스트', '공예'];
 
-/// 프로필 설정 (작가/컬렉터 공용) — DUST-ART 스타일.
+/// 프로필 설정 (작가/컬렉터 공용)
 ///
 /// 백엔드 `POST /api/users` 계약은 여행 시절 필드(languages, travelStyle 점수)를
 /// 아직 요구하므로 기본값으로 채워 보낸다. TODO(서버 정리): 아트나라 전용 계약으로 축소.
@@ -247,7 +247,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(DustRadius.full)),
               ),
-              child: Text(_submitting ? '저장 중...' : 'DUST-ART 시작하기',
+              child: Text(_submitting ? '저장 중...' : 'ART NARA 시작하기',
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w700)),
             ),
