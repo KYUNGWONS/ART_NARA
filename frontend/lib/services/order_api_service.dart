@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
+import 'api_headers.dart';
 import '../models/order.dart';
 
 class OrderApiService {
@@ -14,7 +15,7 @@ class OrderApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/orders'),
-      headers: {'Content-Type': 'application/json'},
+      headers: authJsonHeaders(),
       body: jsonEncode({
         'artworkId': artworkId,
         'paymentMethod': paymentMethod,

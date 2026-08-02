@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import '../constants/api_config.dart';
+import 'api_headers.dart';
 
 class ImageApiService {
   const ImageApiService();
@@ -13,7 +14,7 @@ class ImageApiService {
     final request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiBaseUrl/api/images'),
-    );
+    )..headers.addAll(authOnlyHeaders());
     request.files.add(
       await http.MultipartFile.fromPath(
         'file',

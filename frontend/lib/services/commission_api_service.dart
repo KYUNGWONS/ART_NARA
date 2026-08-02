@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
+import 'api_headers.dart';
 import '../models/commission.dart';
 
 class CommissionApiService {
@@ -33,7 +34,7 @@ class CommissionApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/commissions'),
-      headers: {'Content-Type': 'application/json'},
+      headers: authJsonHeaders(),
       body: jsonEncode({
         'title': title,
         'description': description,
@@ -60,7 +61,7 @@ class CommissionApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/commissions/$commissionId/offers'),
-      headers: {'Content-Type': 'application/json'},
+      headers: authJsonHeaders(),
       body: jsonEncode({
         'artistName': artistName,
         'amount': amount,

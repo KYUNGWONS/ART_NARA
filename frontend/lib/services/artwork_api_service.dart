@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
+import 'api_headers.dart';
 import '../models/artwork_detail.dart';
 import '../models/nearby_artwork.dart';
 
@@ -46,6 +47,7 @@ class ArtworkApiService {
   Future<ArtworkDetail> closeAuction(int artworkId) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/artworks/$artworkId/close'),
+      headers: authJsonHeaders(),
     );
     final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
     if (response.statusCode != 200) {
@@ -57,7 +59,7 @@ class ArtworkApiService {
   Future<ArtworkDetail> placeBid(int artworkId, int amount) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/artworks/$artworkId/bids'),
-      headers: {'Content-Type': 'application/json'},
+      headers: authJsonHeaders(),
       body: jsonEncode({'amount': amount}),
     );
     final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
