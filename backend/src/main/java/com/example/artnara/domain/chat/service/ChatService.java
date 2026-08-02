@@ -14,12 +14,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.PageRequest;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ChatService {
+
+    /** 대화 내역은 최근 것부터 이만큼만 내려준다(방이 길어져도 응답이 커지지 않게). */
+    private static final int RECENT_MESSAGES = 200;
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -119,12 +127,15 @@ public class ChatService {
         return getMessages(roomId);
     }
 
-    // 메시지 목록 조회
+    // 메시지 목록 조회 — 방이 길어져도 최근 RECENT_MESSAGES 건만 내려 응답 크기를 묶어둔다.
     public List<ChatMessageResponse> getMessages(Long roomId) {
-        return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(roomId)
+        List<ChatMessageResponse> recent = chatMessageRepository
+                .findByChatRoomIdOrderByCreatedAtDesc(roomId, PageRequest.of(0, RECENT_MESSAGES))
                 .stream()
                 .map(ChatMessageResponse::from)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
+        Collections.reverse(recent); // 화면은 시간순으로 그린다
+        return recent;
     }
 
     // 메시지 전송

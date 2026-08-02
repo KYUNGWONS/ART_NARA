@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -119,7 +121,8 @@ class ChatServiceTest {
         ChatMessage msg = ChatMessage.builder()
                 .chatRoom(room).senderId(1L).content("hi").messageType(MessageType.TEXT).build();
         ReflectionTestUtils.setField(msg, "id", 100L);
-        given(chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(10L)).willReturn(List.of(msg));
+        given(chatMessageRepository.findByChatRoomIdOrderByCreatedAtDesc(eq(10L), any(Pageable.class)))
+                .willReturn(List.of(msg));
 
         List<ChatMessageResponse> res = chatService.getMessages(10L);
         assertThat(res).hasSize(1);

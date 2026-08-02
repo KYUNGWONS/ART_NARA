@@ -1,6 +1,7 @@
 package com.example.artnara.domain.chat.repository;
 
 import com.example.artnara.domain.chat.entity.ChatMessage;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,9 @@ import java.util.Optional;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
     List<ChatMessage> findByChatRoomIdOrderByCreatedAtAsc(Long chatRoomId);
+
+    /** 대화 내역 조회용 — 최신 N건(호출부에서 시간순으로 뒤집어 쓴다). */
+    List<ChatMessage> findByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId, Pageable pageable);
 
     /** 채팅방 목록의 미리보기용 — 방의 가장 최근 메시지 1건 */
     Optional<ChatMessage> findFirstByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId);

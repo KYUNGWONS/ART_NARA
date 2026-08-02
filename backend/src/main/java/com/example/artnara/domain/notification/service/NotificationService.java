@@ -7,6 +7,8 @@ import com.example.artnara.domain.notification.repository.NotificationRepository
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class NotificationService {
 
+    /** 알림 목록은 최근 것만 의미가 있어 한 번에 내려주는 건수를 제한한다. */
+    private static final int MAX_ITEMS = 100;
+
     private final NotificationRepository notificationRepository;
 
     public NotificationDto.ListResponse list(Long userId) {
         return new NotificationDto.ListResponse(
-                notificationRepository.findVisibleTo(userId).stream()
+                notificationRepository.findVisibleTo(userId, PageRequest.of(0, MAX_ITEMS)).stream()
                         .map(NotificationDto.Item::from)
                         .toList(),
                 notificationRepository.countUnreadFor(userId));
@@ -34,7 +39,8 @@ public class NotificationService {
 
     @Transactional
     public void markAllAsRead(Long userId) {
-        notificationRepository.findVisibleTo(userId).forEach(Notification::markAsRead);
+        notificationRepository.findVisibleTo(userId, Pageable.unpaged())
+                .forEach(Notification::markAsRead);
     }
 
     /** 도메인 서비스에서 호출하는 발행 헬퍼. userId 가 null 이면 시스템 알림. */
