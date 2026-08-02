@@ -45,6 +45,9 @@ public class HomeFeedService {
         );
     }
 
+    /** 홈 피드 섹션당 카드 상한. 작품이 늘어도 첫 화면 응답이 커지지 않게 한다. */
+    private static final int SECTION_LIMIT = 20;
+
     private List<HomeFeedDto.Artwork> filter(
             List<ArtworkDetailDto> artworks, String query, String category, boolean auction,
             Set<Long> liked) {
@@ -55,6 +58,7 @@ public class HomeFeedService {
                 .filter(artwork -> query.isEmpty()
                         || artwork.title().toLowerCase().contains(query)
                         || artwork.artistName().toLowerCase().contains(query))
+                .limit(SECTION_LIMIT)
                 .map(artwork -> toFeedArtwork(artwork, liked.contains(artwork.id())))
                 .toList();
     }

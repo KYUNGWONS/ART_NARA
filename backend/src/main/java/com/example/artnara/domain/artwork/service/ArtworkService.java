@@ -67,7 +67,20 @@ public class ArtworkService {
         return toDto(find(artworkId), viewerNickname);
     }
 
+    /** '더보기' 화면용 페이지 조회. size 는 서버에서 1~50 으로 제한한다. */
     @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<ArtworkDetailDto> listPage(
+            int page, int size, String category) {
+        var pageable = org.springframework.data.domain.PageRequest.of(
+                Math.max(0, page), Math.min(Math.max(1, size), 50),
+                org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Direction.DESC, "id"));
+        var result = (category == null || category.isBlank() || category.equals("추천"))
+                ? artworkRepository.findByAuctionClosedFalse(pageable)
+                : artworkRepository.findByCategoryAndAuctionClosedFalse(category.trim(), pageable);
+        return result.map(this::toDto);
+    }
+
     public List<ArtworkDetailDto> listAll() {
         return artworkRepository.findAllByOrderByIdAsc().stream()
                 .map(this::toDto)

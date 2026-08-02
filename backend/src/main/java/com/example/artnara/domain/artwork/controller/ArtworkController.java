@@ -35,6 +35,17 @@ public class ArtworkController {
         return BaseResponse.success("집 주변 작품 매칭", artworkService.getNearby(latitude, longitude));
     }
 
+    @GetMapping
+    @Operation(summary = "작품 목록(페이징)",
+            description = "판매 중인 작품을 최신순으로 페이지 조회합니다. '더보기' 화면에서 사용합니다. "
+                    + "size 는 최대 50으로 제한됩니다.")
+    public BaseResponse<org.springframework.data.domain.Page<ArtworkDetailDto>> list(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String category) {
+        return BaseResponse.success("작품 목록 조회", artworkService.listPage(page, size, category));
+    }
+
     @GetMapping("/liked")
     @Operation(summary = "내 관심 작품 목록",
             description = "하트를 누른 작품을 최근 순으로 조회합니다. 로그인(JWT)이 필요합니다.")
