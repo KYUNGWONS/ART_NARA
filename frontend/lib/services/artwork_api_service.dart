@@ -5,10 +5,38 @@ import 'package:http/http.dart' as http;
 import '../constants/api_config.dart';
 import 'api_headers.dart';
 import '../models/artwork_detail.dart';
+import '../models/home_feed.dart';
 import '../models/nearby_artwork.dart';
 
 class ArtworkApiService {
   const ArtworkApiService();
+
+  /// GET /api/artworks?page=&size=&category= — '더보기' 무한 스크롤용 페이지 조회.
+  Future<ArtworkPage> fetchPage({
+    required int page,
+    int size = 20,
+    String? category,
+  }) async {
+    final uri = Uri.parse('$apiBaseUrl/api/artworks').replace(queryParameters: {
+      'page': '$page',
+      'size': '$size',
+      if (category != null && category.isNotEmpty && category != '추천')
+        'category': category,
+    });
+    final response = await http.get(uri);
+    if (response.statusCode != 200) {
+      throw StateError('작품 목록 조회 실패: ${response.statusCode}');
+    }
+    final body =
+        jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    final data = body['data'] as Map<String, dynamic>? ?? const {};
+    return ArtworkPage(
+      items: (data['content'] as List<dynamic>? ?? [])
+          .map((e) => Artwork.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      last: data['last'] as bool? ?? true,
+    );
+  }
 
   Future<List<NearbyArtwork>> fetchNearby({
     required double latitude,
@@ -71,4 +99,13 @@ class ArtworkApiService {
     }
     return ArtworkDetail.fromJson(body['data'] as Map<String, dynamic>);
   }
+}
+
+
+/// 페이지 조회 결과 — 항목과 마지막 페이지 여부만 쓴다.
+class ArtworkPage {
+  final List<Artwork> items;
+  final bool last;
+
+  const ArtworkPage({required this.items, required this.last});
 }

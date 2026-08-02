@@ -39,10 +39,13 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
     super.dispose();
   }
 
-  void _openMore(String title, List<Artwork> items) {
+  void _openMore(String title) {
     Navigator.of(context)
         .push(MaterialPageRoute<void>(
-          builder: (_) => ArtworkListScreen(title: title, items: items),
+          builder: (_) => ArtworkListScreen(
+            title: title,
+            category: _categories[_selectedCategory],
+          ),
         ))
         .then((_) => _search());
   }
@@ -105,14 +108,14 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
               const SizedBox(height: DustSpacing.lg),
               _SectionHeader(
                 title: '추천 작품',
-                onMore: () => _openMore('추천 작품', feed.recommended),
+                onMore: () => _openMore('추천 작품'),
               ),
               const SizedBox(height: DustSpacing.sm),
               _ArtworkGrid(items: feed.recommended, onToggleLike: _toggleLike),
               const SizedBox(height: DustSpacing.lg),
               _SectionHeader(
                 title: '마감 임박 경매',
-                onMore: () => _openMore('마감 임박 경매', feed.auctions),
+                onMore: () => _openMore('마감 임박 경매'),
               ),
               const SizedBox(height: DustSpacing.sm),
               _ArtworkGrid(items: feed.auctions, onToggleLike: _toggleLike),
