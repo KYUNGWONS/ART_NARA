@@ -4,6 +4,7 @@ import com.example.artnara.global.auth.jwt.JwtAuthenticationFilter;
 import com.example.artnara.global.auth.jwt.JwtProvider;
 import com.example.artnara.global.config.SecurityConstant;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpMethod;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +44,10 @@ public class SecurityConfig {
                         .frameOptions(frame -> frame.sameOrigin())
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // 인프라·인증·QR 검증은 메서드 무관 공개
                         .requestMatchers(SecurityConstant.PUBLIC_URLS).permitAll()
+                        // 조회는 공개, 나머지(POST/PATCH/DELETE)는 로그인 필요
+                        .requestMatchers(HttpMethod.GET, SecurityConstant.PUBLIC_READ_URLS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

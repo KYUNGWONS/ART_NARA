@@ -5,27 +5,39 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+/**
+ * 보안 경로 정의.
+ *
+ * 원칙: **조회(GET)는 열고, 상태를 바꾸는 요청(POST/PATCH/DELETE)은 로그인 필요.**
+ * 예전에는 도메인 경로 전체(`/api/artworks/**` 등)를 permitAll 로 열어 두어 비로그인 상태에서도
+ * 입찰·결제·판매 등록이 가능했다. 조회만 열도록 분리한다.
+ */
 @Configuration
 public class SecurityConstant {
 
+    /** 로그인/토큰 재발급 — 메서드 무관 공개 */
     public static final String[] PUBLIC_AUTH_URLS = {
             "/auth/**"
     };
 
-    public static final String[] PUBLIC_FEED_URLS = {
-            "/api/feed/**"
-    };
-
-    public static final String[] PUBLIC_ARTWORK_URLS = {
+    /** 조회(GET)만 공개하는 경로 */
+    public static final String[] PUBLIC_READ_URLS = {
+            "/api/feed/**",
             "/api/artworks/**",
+            "/api/artists/**",
             "/api/sales/**",
             "/api/commissions/**",
             "/api/certificates/**",
-            "/api/orders/**",
-            "/api/images/**",
             "/images/**",
-            "/artworks/**",
-            "/api/artists/**"
+            "/artworks/**"
+    };
+
+    /**
+     * 메서드와 무관하게 공개해야 하는 예외.
+     * QR 정품 인증은 "누구나 진품 여부를 확인할 수 있어야" 의미가 있어 비로그인도 허용한다.
+     */
+    public static final String[] PUBLIC_ANY_METHOD_URLS = {
+            "/api/certificates/scan"
     };
 
     public static final String[] SWAGGER_URLS = {
@@ -51,12 +63,10 @@ public class SecurityConstant {
             "/error"
     };
 
-    public static final String[] ADMIN_URLS = {
-    };
-
+    /** 메서드 무관 공개 경로 (인프라 + 예외) */
     public static final String[] PUBLIC_URLS =
-            Stream.of(PUBLIC_AUTH_URLS, PUBLIC_FEED_URLS,
-                            PUBLIC_ARTWORK_URLS, SWAGGER_URLS, WEBSOCKET_URLS, H2_URLS, ERROR_URLS)
+            Stream.of(PUBLIC_AUTH_URLS, PUBLIC_ANY_METHOD_URLS,
+                            SWAGGER_URLS, WEBSOCKET_URLS, H2_URLS, ERROR_URLS)
                     .flatMap(Arrays::stream)
                     .toArray(String[]::new);
 }
