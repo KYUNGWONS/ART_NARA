@@ -4,7 +4,9 @@ import '../constants/dust_tokens.dart';
 import '../utils/image_url.dart';
 import '../utils/artist_inquiry.dart';
 import '../models/artist_profile.dart';
+import '../models/review.dart';
 import '../services/artist_api_service.dart';
+import '../services/review_api_service.dart';
 import 'artwork_detail_screen.dart';
 
 /// 작가 포트폴리오 — Figma 41:850 디자인.
@@ -20,12 +22,20 @@ class ArtistPortfolioScreen extends StatefulWidget {
 class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
   final _api = const ArtistApiService();
   late Future<ArtistProfile> _profileFuture;
+  ReviewList? _reviews;
   int _tab = 1; // 디자인 기본 탭: 포트폴리오
 
   @override
   void initState() {
     super.initState();
     _profileFuture = _api.fetchPortfolio(widget.artistName);
+    _loadReviews();
+  }
+
+  Future<void> _loadReviews() async {
+    final reviews = await ReviewApiService.listByArtist(widget.artistName);
+    if (!mounted) return;
+    setState(() => _reviews = reviews);
   }
 
   @override
@@ -112,6 +122,26 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
         },
       ),
     );
+  }
+
+  /// 리뷰 탭 본문 — 아직 없으면 안내, 있으면 카드 목록.
+  List<Widget> _buildReviewList() {
+    final reviews = _reviews?.reviews ?? const <Review>[];
+    if (reviews.isEmpty) {
+      return const [
+        Text('아직 등록된 리뷰가 없어요',
+            style: TextStyle(fontSize: 13, color: DustColors.textSecondary)),
+        SizedBox(height: 4),
+        Text('작품을 구매하면 리뷰를 남길 수 있습니다',
+            style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+      ];
+    }
+    return reviews
+        .map((review) => Padding(
+              padding: const EdgeInsets.only(bottom: DustSpacing.sm),
+              child: _ReviewCard(review: review),
+            ))
+        .toList();
   }
 
   Widget _buildTabContent(ArtistProfile profile) {
@@ -230,10 +260,8 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                             fontSize: 13, color: DustColors.textSecondary)),
                   ],
                 ),
-              const SizedBox(height: DustSpacing.xs),
-              const Text('구매자 리뷰는 준비 중입니다',
-                  style: TextStyle(
-                      fontSize: 12, color: DustColors.textSecondary)),
+              const SizedBox(height: DustSpacing.md),
+              ..._buildReviewList(),
             ],
           ),
         );
@@ -441,6 +469,61 @@ class _Tabs extends StatelessWidget {
           ),
         );
       }),
+    );
+  }
+}
+
+
+/// 리뷰 카드 — 작성자 · 별점 · 내용 · 작품명
+class _ReviewCard extends StatelessWidget {
+  const _ReviewCard({required this.review});
+
+  final Review review;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(DustSpacing.md),
+      decoration: BoxDecoration(
+        color: DustColors.bgSurface,
+        borderRadius: BorderRadius.circular(DustRadius.md),
+        border: Border.all(color: DustColors.borderSoft),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(review.authorNickname,
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: DustColors.textPrimary)),
+              ),
+              ...List.generate(
+                5,
+                (i) => Icon(
+                  i < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                  size: 15,
+                  color: DustColors.brandPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(review.content,
+              style: const TextStyle(
+                  fontSize: 13,
+                  height: 1.5,
+                  color: DustColors.textPrimary)),
+          const SizedBox(height: 6),
+          Text(review.artworkTitle,
+              style: const TextStyle(
+                  fontSize: 11, color: DustColors.textSecondary)),
+        ],
+      ),
     );
   }
 }

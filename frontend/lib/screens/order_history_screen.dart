@@ -5,6 +5,7 @@ import 'art_home_feed_screen.dart' show formatPrice;
 
 import '../models/order.dart';
 import '../services/order_api_service.dart';
+import '../services/review_api_service.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
@@ -76,6 +77,108 @@ class _OrderCard extends StatelessWidget {
 
   final Order order;
 
+  /// 별점 + 후기 입력 시트. 성공/실패는 스낵바로 알린다.
+  void _showReviewSheet(BuildContext context) {
+    int rating = 5;
+    final contentController = TextEditingController();
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setSheetState) => Padding(
+          // 키보드가 올라와도 입력창이 가려지지 않게
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.all(DustSpacing.lg),
+            decoration: const BoxDecoration(
+              color: DustColors.bgSurface,
+              borderRadius:
+                  BorderRadius.vertical(top: Radius.circular(DustRadius.lg)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('${order.artworkTitle} 리뷰',
+                    style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: DustColors.textPrimary)),
+                const SizedBox(height: DustSpacing.md),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (i) {
+                    return IconButton(
+                      onPressed: () => setSheetState(() => rating = i + 1),
+                      icon: Icon(
+                        i < rating
+                            ? Icons.star_rounded
+                            : Icons.star_border_rounded,
+                        size: 32,
+                        color: DustColors.brandPrimary,
+                      ),
+                    );
+                  }),
+                ),
+                TextField(
+                  controller: contentController,
+                  maxLines: 3,
+                  maxLength: 1000,
+                  decoration: InputDecoration(
+                    hintText: '작품과 거래 경험을 남겨주세요',
+                    hintStyle: const TextStyle(
+                        fontSize: 14, color: DustColors.textSecondary),
+                    filled: true,
+                    fillColor: DustColors.bgSubtle,
+                    counterText: '',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(DustRadius.sm),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: const TextStyle(
+                      fontSize: 14, color: DustColors.textPrimary),
+                ),
+                const SizedBox(height: DustSpacing.md),
+                SizedBox(
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: () async {
+                      final content = contentController.text.trim();
+                      if (content.isEmpty) return;
+                      final error = await ReviewApiService.create(
+                        artworkId: order.artworkId,
+                        rating: rating,
+                        content: content,
+                      );
+                      if (!sheetContext.mounted) return;
+                      Navigator.pop(sheetContext);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(error ?? '리뷰가 등록되었어요')));
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: DustColors.brandPrimary,
+                      foregroundColor: DustColors.textOnBrand,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(DustRadius.md),
+                      ),
+                    ),
+                    child: const Text('등록하기',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).then((_) => contentController.dispose());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -117,6 +220,23 @@ class _OrderCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text('디지털 소유권 ${order.certificateNo}',
               style: const TextStyle(fontSize: 11)),
+          const SizedBox(height: DustSpacing.xs),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () => _showReviewSheet(context),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: DustColors.brandPrimary,
+                side: const BorderSide(color: DustColors.borderSoft),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: DustSpacing.sm, vertical: 6),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              icon: const Icon(Icons.star_border_rounded, size: 15),
+              label: const Text('리뷰 쓰기', style: TextStyle(fontSize: 12)),
+            ),
+          ),
         ],
       ),
     );
