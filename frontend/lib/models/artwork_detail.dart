@@ -16,6 +16,7 @@ class ArtworkDetail {
     required this.bidHistory,
     required this.auctionClosed,
     this.winnerName,
+    this.wonByViewer = false,
     this.currentBid,
     this.remainingTime,
   });
@@ -36,6 +37,9 @@ class ArtworkDetail {
   final String? remainingTime;
   final bool auctionClosed;
   final String? winnerName;
+
+  /// 서버가 판단한 '내가 낙찰자인지' — 클라이언트에서 이름을 비교하지 않는다.
+  final bool wonByViewer;
   final bool certified;
   final List<ArtworkBid> bidHistory;
 
@@ -63,6 +67,7 @@ class ArtworkDetail {
       remainingTime: json['remainingTime'] as String?,
       auctionClosed: json['auctionClosed'] as bool? ?? false,
       winnerName: json['winnerName'] as String?,
+      wonByViewer: json['wonByViewer'] as bool? ?? false,
       certified: json['certified'] as bool? ?? false,
       bidHistory: bids,
     );

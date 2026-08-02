@@ -119,7 +119,8 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                     onBid: _placeBid,
                     onClose: _closeAuction,
                   )
-                else if (detail.auction && detail.winnerName == '나')
+                // 낙찰자 판정은 서버가 로그인 신원으로 계산해 내려준다.
+                else if (detail.auction && detail.wonByViewer)
                   _BuyBar(
                     price: detail.currentBid ?? detail.price,
                     label: '낙찰가 결제하기',

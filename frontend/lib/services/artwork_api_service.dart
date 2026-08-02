@@ -35,8 +35,11 @@ class ArtworkApiService {
   }
 
   Future<ArtworkDetail> fetchDetail(int artworkId) async {
-    final response =
-        await http.get(Uri.parse('$apiBaseUrl/api/artworks/$artworkId'));
+    // 로그인 상태면 서버가 낙찰 여부(wonByViewer)까지 채워 내려주므로 토큰을 함께 보낸다.
+    final response = await http.get(
+      Uri.parse('$apiBaseUrl/api/artworks/$artworkId'),
+      headers: authOnlyHeaders(),
+    );
     if (response.statusCode != 200) {
       throw StateError('작품 상세 조회 실패: ${response.statusCode}');
     }

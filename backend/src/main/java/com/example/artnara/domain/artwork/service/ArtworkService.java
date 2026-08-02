@@ -59,7 +59,12 @@ public class ArtworkService {
 
     @Transactional(readOnly = true)
     public ArtworkDetailDto getDetail(Long artworkId) {
-        return toDto(find(artworkId));
+        return toDto(find(artworkId), null);
+    }
+
+    /** 로그인 사용자가 보는 상세 — 낙찰 여부를 서버가 판단해 내려준다. */
+    public ArtworkDetailDto getDetail(Long artworkId, String viewerNickname) {
+        return toDto(find(artworkId), viewerNickname);
     }
 
     @Transactional(readOnly = true)
@@ -220,6 +225,10 @@ public class ArtworkService {
     }
 
     private ArtworkDetailDto toDto(Artwork artwork) {
+        return toDto(artwork, null);
+    }
+
+    private ArtworkDetailDto toDto(Artwork artwork, String viewerNickname) {
         List<ArtworkDetailDto.Bid> bids = artwork.isAuction()
                 ? artworkBidRepository.findByArtworkIdOrderByAmountDesc(artwork.getId()).stream()
                         .map(bid -> new ArtworkDetailDto.Bid(
@@ -235,6 +244,7 @@ public class ArtworkService {
                 MIN_BID_INCREMENT,
                 remainingTimeOf(artwork),
                 artwork.isAuctionClosed(), artwork.getWinnerName(),
+                viewerNickname != null && viewerNickname.equals(artwork.getWinnerName()),
                 true, artwork.getCategory(), bids);
     }
 

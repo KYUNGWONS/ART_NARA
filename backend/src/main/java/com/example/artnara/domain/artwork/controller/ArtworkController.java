@@ -45,8 +45,10 @@ public class ArtworkController {
 
     @GetMapping("/{artworkId}")
     @Operation(summary = "작품 상세 조회", description = "작품 정보, 작가 소개, 경매 작품이면 입찰 내역까지 조회합니다.")
-    public BaseResponse<ArtworkDetailDto> detail(@PathVariable Long artworkId) {
-        return BaseResponse.success("작품 상세 조회", artworkService.getDetail(artworkId));
+    public BaseResponse<ArtworkDetailDto> detail(@PathVariable Long artworkId, Principal principal) {
+        // 조회는 비로그인도 가능하다. 로그인 상태면 낙찰 여부까지 채워 내려준다.
+        String viewer = principal == null ? null : currentUser.nicknameOf(principal);
+        return BaseResponse.success("작품 상세 조회", artworkService.getDetail(artworkId, viewer));
     }
 
     @PostMapping("/{artworkId}/close")

@@ -19,6 +19,8 @@ public record ArtworkDetailDto(
         String remainingTime,
         boolean auctionClosed,
         String winnerName,
+        /** 이 응답을 보는 사용자가 낙찰자인지 (비로그인이면 false) */
+        boolean wonByViewer,
         boolean certified,
         String category,
         List<Bid> bidHistory
