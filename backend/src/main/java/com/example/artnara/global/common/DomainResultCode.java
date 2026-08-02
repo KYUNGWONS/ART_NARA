@@ -38,6 +38,10 @@ public enum DomainResultCode implements ResultCode {
     IMAGE_STORE_FAILED("IMAGE_500", "이미지 저장에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ARTIST_NOT_FOUND("ARTIST_404", "작가를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     NOTIFICATION_NOT_FOUND("NOTIFICATION_404", "알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    REVIEW_INVALID_RATING("REVIEW_400_RATING", "별점은 1~5 사이여야 합니다.", HttpStatus.BAD_REQUEST),
+    REVIEW_CONTENT_REQUIRED("REVIEW_400_CONTENT", "리뷰 내용을 입력해주세요.", HttpStatus.BAD_REQUEST),
+    REVIEW_NOT_PURCHASED("REVIEW_403", "구매한 작품에만 리뷰를 쓸 수 있습니다.", HttpStatus.FORBIDDEN),
+    REVIEW_ALREADY_WRITTEN("REVIEW_409", "이미 리뷰를 작성한 작품입니다.", HttpStatus.CONFLICT),
     AUTH_REQUIRED("COMMON_401", "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
     REQUEST_BODY_INVALID("COMMON_400_BODY", "요청 본문을 해석할 수 없습니다.", HttpStatus.BAD_REQUEST);
 

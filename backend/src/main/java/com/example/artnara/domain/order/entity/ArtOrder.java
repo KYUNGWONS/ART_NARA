@@ -47,11 +47,19 @@ public class ArtOrder extends BaseTimeEntity {
     /** 표시용 주문일 문자열 (예: "2026-07-31") */
     private String orderedDate;
 
+    /** 구매자(로그인 사용자). 리뷰 작성 자격 확인에 쓴다. */
+    private Long buyerId;
+
+    private String buyerName;
+
     @Builder
     public ArtOrder(Long artworkId, String artworkTitle, String artistName,
                     int amount, String paymentMethod, String status,
-                    String certificateNo, String orderedDate) {
+                    String certificateNo, String orderedDate,
+                    Long buyerId, String buyerName) {
         this.artworkId = artworkId;
+        this.buyerId = buyerId;
+        this.buyerName = buyerName;
         this.artworkTitle = artworkTitle;
         this.artistName = artistName;
         this.amount = amount;

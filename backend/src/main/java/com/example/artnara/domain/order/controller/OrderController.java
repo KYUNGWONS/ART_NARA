@@ -30,8 +30,8 @@ public class OrderController {
     public BaseResponse<OrderDto.Response> create(@RequestBody OrderDto.CreateRequest request,
                                                   Principal principal) {
         // 구매자·소유권자는 로그인 신원에서 정한다.
-        return BaseResponse.success("작품 결제 완료",
-                orderService.create(request, currentUser.nicknameOf(principal)));
+        return BaseResponse.success("작품 결제 완료", orderService.create(
+                request, currentUser.idOf(principal), currentUser.nicknameOf(principal)));
     }
 
     @GetMapping

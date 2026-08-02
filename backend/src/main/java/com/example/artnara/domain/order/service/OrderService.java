@@ -35,7 +35,7 @@ public class OrderService {
     private final NotificationService notificationService;
     private final UserRepository userRepository;
 
-    public OrderDto.Response create(OrderDto.CreateRequest request, String buyerName) {
+    public OrderDto.Response create(OrderDto.CreateRequest request, Long buyerId, String buyerName) {
         validate(request);
         ArtworkDetailDto artwork = artworkService.getDetail(request.artworkId());
         int amount = artwork.price();
@@ -67,6 +67,8 @@ public class OrderService {
                 .status("결제 완료")
                 .certificateNo("ARTNARA-2026-PENDING")
                 .orderedDate(today)
+                .buyerId(buyerId)
+                .buyerName(buyerName)
                 .build());
         String certificateNo = "ARTNARA-2026-" + (100 + order.getId());
         order.issueCertificate(certificateNo);
