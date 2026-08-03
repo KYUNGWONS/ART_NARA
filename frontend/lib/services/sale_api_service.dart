@@ -10,7 +10,11 @@ class SaleApiService {
   const SaleApiService();
 
   Future<List<Sale>> fetchSales() async {
-    final response = await http.get(Uri.parse('$apiBaseUrl/api/sales'));
+    // '내 판매 작품' 이라 서버가 JWT 신원으로 스코프한다 — 인증 헤더 필수.
+    final response = await http.get(
+      Uri.parse('$apiBaseUrl/api/sales'),
+      headers: authOnlyHeaders(),
+    );
     if (response.statusCode != 200) {
       throw StateError('판매 목록 조회 실패: ${response.statusCode}');
     }
