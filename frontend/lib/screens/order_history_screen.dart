@@ -72,15 +72,33 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   }
 }
 
-class _OrderCard extends StatelessWidget {
+class _OrderCard extends StatefulWidget {
   const _OrderCard({required this.order});
 
   final Order order;
 
+  @override
+  State<_OrderCard> createState() => _OrderCardState();
+}
+
+class _OrderCardState extends State<_OrderCard> {
+  // 리뷰 시트용. 시트가 닫히는 애니메이션 중에도 TextField 가 컨트롤러를 참조하므로
+  // 시트 종료 시점에 dispose 하면 '_dependents.isEmpty' assertion 으로 죽는다(실측).
+  // 화면이 사라질 때 State 가 정리한다.
+  final TextEditingController _contentController = TextEditingController();
+
+  Order get order => widget.order;
+
+  @override
+  void dispose() {
+    _contentController.dispose();
+    super.dispose();
+  }
+
   /// 별점 + 후기 입력 시트. 성공/실패는 스낵바로 알린다.
   void _showReviewSheet(BuildContext context) {
     int rating = 5;
-    final contentController = TextEditingController();
+    _contentController.clear();
 
     showModalBottomSheet<void>(
       context: context,
@@ -124,7 +142,7 @@ class _OrderCard extends StatelessWidget {
                   }),
                 ),
                 TextField(
-                  controller: contentController,
+                  controller: _contentController,
                   maxLines: 3,
                   maxLength: 1000,
                   decoration: InputDecoration(
@@ -147,7 +165,7 @@ class _OrderCard extends StatelessWidget {
                   height: 48,
                   child: FilledButton(
                     onPressed: () async {
-                      final content = contentController.text.trim();
+                      final content = _contentController.text.trim();
                       if (content.isEmpty) return;
                       final error = await ReviewApiService.create(
                         artworkId: order.artworkId,
@@ -156,7 +174,8 @@ class _OrderCard extends StatelessWidget {
                       );
                       if (!sheetContext.mounted) return;
                       Navigator.pop(sheetContext);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(this.context).showSnackBar(SnackBar(
                           content: Text(error ?? '리뷰가 등록되었어요')));
                     },
                     style: FilledButton.styleFrom(
@@ -176,7 +195,7 @@ class _OrderCard extends StatelessWidget {
           ),
         ),
       ),
-    ).then((_) => contentController.dispose());
+    );
   }
 
   @override
