@@ -375,19 +375,13 @@ class _LoginScreenState extends State<LoginScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        // 카카오 말풍선 아이콘
-                                        Image.network(
-                                          'https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_small.png',
-                                          width: 20,
-                                          height: 20,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                return const Icon(
-                                                  Icons.chat_bubble,
-                                                  size: 20,
-                                                  color: Color(0xFF191919),
-                                                );
-                                              },
+                                        // 카카오 말풍선 아이콘(로컬). 카카오 CDN 에서
+                                        // 받아오던 것을 걷어냈다 — 네트워크가 느리면
+                                        // 버튼 라벨까지 늦게 그려진다.
+                                        const Icon(
+                                          Icons.chat_bubble,
+                                          size: 20,
+                                          color: Color(0xFF191919),
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
@@ -434,18 +428,14 @@ class _LoginScreenState extends State<LoginScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Image.network(
-                                          'https://www.google.com/favicon.ico',
-                                          width: 20,
-                                          height: 20,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                return const Icon(
-                                                  Icons.g_mobiledata_rounded,
-                                                  size: 24,
-                                                  color: DustColors.textSecondary,
-                                                );
-                                              },
+                                        // 로컬 아이콘. 예전엔 google.com/favicon.ico 를
+                                        // Image.network 로 받았는데, 받아오기 전까지
+                                        // 버튼이 빈 칸으로 보이고(실측) 로그인 화면에서
+                                        // 외부 요청이 나가는 문제가 있었다.
+                                        const Icon(
+                                          Icons.g_mobiledata_rounded,
+                                          size: 24,
+                                          color: DustColors.textSecondary,
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
