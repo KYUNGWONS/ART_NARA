@@ -22,6 +22,10 @@ public class Ownership extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 소유자(구매자) 사용자 id. 목록 조회는 이 값으로만 스코프한다. */
+    @Column(nullable = false)
+    private Long ownerId;
+
     @Column(nullable = false, unique = true)
     private String certificateNo;
 
@@ -38,8 +42,9 @@ public class Ownership extends BaseTimeEntity {
     private boolean qrIssued;
 
     @Builder
-    public Ownership(String certificateNo, String artworkTitle, String artistName,
+    public Ownership(Long ownerId, String certificateNo, String artworkTitle, String artistName,
                      String acquiredDate, boolean qrIssued) {
+        this.ownerId = ownerId;
         this.certificateNo = certificateNo;
         this.artworkTitle = artworkTitle;
         this.artistName = artistName;

@@ -27,7 +27,8 @@ public class SecurityConstant {
             "/api/artists/**",
             "/api/sales/**",
             "/api/commissions/**",
-            "/api/certificates/**",
+            // "/api/certificates/**" 는 공개하지 않는다 — 목록은 내 소유권이라 로그인 스코프가 필요하고,
+            // 누구나 확인해야 하는 QR 검증만 PUBLIC_ANY_METHOD_URLS 로 따로 연다.
             "/images/**",
             "/artworks/**"
     };

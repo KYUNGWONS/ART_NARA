@@ -161,6 +161,10 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 "'봄의 정원' 결제가 완료되어 디지털 소유권과 정품 인증서(ARTNARA-2026-0001)가 발급되었습니다.", 1L);
     }
 
+    /** 시드 소유권은 컬렉터 Andrew(users.id=3) 의 것으로 둔다 — 소유자 없는 소유권은 없다. */
+    private static final long SEED_OWNER_ID = 3L;
+    private static final String SEED_OWNER_NAME = "Andrew";
+
     private void seedOwnerships() {
         seedOwnership("ARTNARA-2026-0001", "봄의 정원", "김예진", "2026-05-12", true,
                 2026, "53.0 x 45.5cm (10호)", "캔버스에 유화");
@@ -172,13 +176,14 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                                String artistName, String acquiredDate, boolean qrIssued,
                                int yearCreated, String sizeInfo, String medium) {
         ownershipRepository.save(Ownership.builder()
+                .ownerId(SEED_OWNER_ID)
                 .certificateNo(certificateNo).artworkTitle(artworkTitle)
                 .artistName(artistName).acquiredDate(acquiredDate).qrIssued(qrIssued).build());
         certificateRepository.save(Certificate.builder()
                 .qrCode(com.example.artnara.domain.certificate.service.CertificateService
                         .qrCodeOf(certificateNo))
                 .certificateNo(certificateNo).artworkTitle(artworkTitle)
-                .artistName(artistName).ownerName("나").issuedDate(acquiredDate)
+                .artistName(artistName).ownerName(SEED_OWNER_NAME).issuedDate(acquiredDate)
                 .yearCreated(yearCreated).sizeInfo(sizeInfo).medium(medium)
                 .verified(true)
                 .note("ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.")

@@ -36,7 +36,8 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "주문 내역 조회", description = "내 주문 내역을 최신순으로 조회합니다.")
-    public BaseResponse<OrderDto.ListResponse> list() {
-        return BaseResponse.success("주문 내역 조회", orderService.list());
+    public BaseResponse<OrderDto.ListResponse> list(Principal principal) {
+        return BaseResponse.success("주문 내역 조회",
+                orderService.list(currentUser.idOf(principal)));
     }
 }

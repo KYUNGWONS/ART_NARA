@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface ArtOrderRepository extends JpaRepository<ArtOrder, Long> {
 
-    List<ArtOrder> findAllByOrderByIdDesc();
+    /** 주문 내역은 반드시 구매자로 스코프한다(남의 주문 노출 방지). */
+    List<ArtOrder> findByBuyerIdOrderByIdDesc(Long buyerId);
 
     boolean existsByArtworkId(Long artworkId);
 

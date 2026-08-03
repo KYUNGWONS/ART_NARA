@@ -21,10 +21,11 @@ public class CertificateService {
     private final OwnershipRepository ownershipRepository;
     private final CertificateRepository certificateRepository;
 
+    /** 로그인 사용자 본인의 소유권만 내려준다. */
     @Transactional(readOnly = true)
-    public CertificateDto.ListResponse listOwnerships() {
+    public CertificateDto.ListResponse listOwnerships(Long ownerId) {
         return new CertificateDto.ListResponse(
-                ownershipRepository.findAllByOrderByIdDesc().stream()
+                ownershipRepository.findByOwnerIdOrderByIdDesc(ownerId).stream()
                         .map(ownership -> new CertificateDto.Ownership(
                                 ownership.getCertificateNo(), ownership.getArtworkTitle(),
                                 ownership.getArtistName(), ownership.getAcquiredDate(),
@@ -37,8 +38,9 @@ public class CertificateService {
      * 같은 인증 번호로 QR 정품 인증서도 발급한다.
      * QR 코드는 "ARTNARA-QR-{인증번호 끝자리}" 형식.
      */
-    public void register(CertificateDto.IssueRequest request, String ownerName) {
+    public void register(CertificateDto.IssueRequest request, Long ownerId, String ownerName) {
         ownershipRepository.save(Ownership.builder()
+                .ownerId(ownerId)
                 .certificateNo(request.certificateNo())
                 .artworkTitle(request.artworkTitle())
                 .artistName(request.artistName())

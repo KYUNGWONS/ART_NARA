@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface OwnershipRepository extends JpaRepository<Ownership, Long> {
 
-    List<Ownership> findAllByOrderByIdDesc();
+    /** 소유권 목록은 반드시 소유자로 스코프한다(남의 소유권 노출 방지). */
+    List<Ownership> findByOwnerIdOrderByIdDesc(Long ownerId);
 }

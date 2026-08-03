@@ -2,6 +2,7 @@ package com.example.artnara.domain.certificate.controller;
 
 import com.example.artnara.domain.certificate.dto.CertificateDto;
 import com.example.artnara.domain.certificate.service.CertificateService;
+import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @Tag(name = "Certificate", description = "ART NARA 정품 인증·디지털 소유권 API")
 @RestController
 @RequestMapping("/api/certificates")
@@ -19,11 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class CertificateController {
 
     private final CertificateService certificateService;
+    private final CurrentUser currentUser;
 
     @GetMapping
     @Operation(summary = "디지털 소유권 목록 조회", description = "구매 완료 후 발급된 내 디지털 소유권 목록을 조회합니다.")
-    public BaseResponse<CertificateDto.ListResponse> list() {
-        return BaseResponse.success("디지털 소유권 목록 조회", certificateService.listOwnerships());
+    public BaseResponse<CertificateDto.ListResponse> list(Principal principal) {
+        // 소유자는 JWT 신원에서 정한다 — 남의 소유권이 섞이면 안 된다.
+        return BaseResponse.success("디지털 소유권 목록 조회",
+                certificateService.listOwnerships(currentUser.idOf(principal)));
     }
 
     @PostMapping("/scan")

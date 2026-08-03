@@ -76,7 +76,7 @@ public class OrderService {
         // 거래 완료 → 디지털 소유권 자동 이전
         certificateService.register(new CertificateDto.IssueRequest(
                 certificateNo, artwork.title(), artwork.artistName(), today,
-                artwork.year(), artwork.size(), artwork.medium()), buyerName);
+                artwork.year(), artwork.size(), artwork.medium()), buyerId, buyerName);
 
         notificationService.publish(NotificationType.ORDER_COMPLETED,
                 "결제가 완료되었어요",
@@ -95,10 +95,11 @@ public class OrderService {
         return toDto(order);
     }
 
+    /** 주문 내역은 로그인한 구매자 본인 것만 내려준다. */
     @Transactional(readOnly = true)
-    public OrderDto.ListResponse list() {
+    public OrderDto.ListResponse list(Long buyerId) {
         return new OrderDto.ListResponse(
-                artOrderRepository.findAllByOrderByIdDesc().stream()
+                artOrderRepository.findByBuyerIdOrderByIdDesc(buyerId).stream()
                         .map(this::toDto)
                         .toList());
     }

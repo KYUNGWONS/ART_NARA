@@ -34,16 +34,16 @@ class OrderServiceTest {
     @Test
     @DisplayName("결제 완료 시 주문과 디지털 소유권이 생성된다")
     void create() {
-        int ownershipsBefore = certificateService.listOwnerships().ownerships().size();
+        int ownershipsBefore = certificateService.listOwnerships(1L).ownerships().size();
 
         OrderDto.Response order = orderService.create(request(1L), 1L, "나");
 
         assertThat(order.status()).isEqualTo("결제 완료");
         assertThat(order.amount()).isEqualTo(320000);
         assertThat(order.certificateNo()).startsWith("ARTNARA-2026-");
-        assertThat(certificateService.listOwnerships().ownerships())
+        assertThat(certificateService.listOwnerships(1L).ownerships())
                 .hasSize(ownershipsBefore + 1);
-        assertThat(certificateService.listOwnerships().ownerships().get(0).certificateNo())
+        assertThat(certificateService.listOwnerships(1L).ownerships().get(0).certificateNo())
                 .isEqualTo(order.certificateNo());
     }
 
@@ -52,8 +52,16 @@ class OrderServiceTest {
     void listNewestFirst() {
         orderService.create(request(1L), 1L, "나");
         OrderDto.Response latest = orderService.create(request(2L), 1L, "나");
-        assertThat(orderService.list().orders().get(0).orderId())
+        assertThat(orderService.list(1L).orders().get(0).orderId())
                 .isEqualTo(latest.orderId());
+    }
+
+    @Test
+    @DisplayName("주문 내역에는 남의 주문이 섞이지 않는다")
+    void listScopedToBuyer() {
+        orderService.create(request(1L), 1L, "나");
+
+        assertThat(orderService.list(2L).orders()).isEmpty();
     }
 
     @Test

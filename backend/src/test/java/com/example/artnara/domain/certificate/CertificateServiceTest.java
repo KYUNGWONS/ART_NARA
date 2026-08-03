@@ -18,10 +18,20 @@ class CertificateServiceTest {
     @Autowired
     CertificateService certificateService;
 
+    /** 시드 소유권 2건의 주인 (ArtnaraDataInitializer 의 컬렉터 Andrew) */
+    private static final long SEED_OWNER_ID = 3L;
+    private static final long OTHER_USER_ID = 6L;
+
     @Test
-    @DisplayName("디지털 소유권 목록 조회")
+    @DisplayName("디지털 소유권 목록은 내 것만 조회된다")
     void listOwnerships() {
-        assertThat(certificateService.listOwnerships().ownerships()).hasSize(2);
+        assertThat(certificateService.listOwnerships(SEED_OWNER_ID).ownerships()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("남의 소유권은 내 목록에 보이지 않는다")
+    void listOwnershipsScopedToOwner() {
+        assertThat(certificateService.listOwnerships(OTHER_USER_ID).ownerships()).isEmpty();
     }
 
     @Test
@@ -29,8 +39,8 @@ class CertificateServiceTest {
     void register() {
         certificateService.register(new CertificateDto.IssueRequest(
                 "ARTNARA-2026-9999", "새 작품", "나", "2026-07-31",
-                2026, "40.0 x 40.0cm", "캔버스에 아크릴"), "나");
-        var ownerships = certificateService.listOwnerships().ownerships();
+                2026, "40.0 x 40.0cm", "캔버스에 아크릴"), SEED_OWNER_ID, "Andrew");
+        var ownerships = certificateService.listOwnerships(SEED_OWNER_ID).ownerships();
         assertThat(ownerships).hasSize(3);
         assertThat(ownerships.get(0).certificateNo()).isEqualTo("ARTNARA-2026-9999");
     }
@@ -40,7 +50,7 @@ class CertificateServiceTest {
     void registerIssuesScannableCertificate() {
         certificateService.register(new CertificateDto.IssueRequest(
                 "ARTNARA-2026-7777", "새 작품", "나", "2026-07-31",
-                2026, "40.0 x 40.0cm", "캔버스에 아크릴"), "나");
+                2026, "40.0 x 40.0cm", "캔버스에 아크릴"), SEED_OWNER_ID, "Andrew");
 
         CertificateDto.Certificate certificate = certificateService.scan(
                 new CertificateDto.ScanRequest("ARTNARA-QR-7777"));
