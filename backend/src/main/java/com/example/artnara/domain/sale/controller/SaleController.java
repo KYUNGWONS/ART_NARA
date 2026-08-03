@@ -30,12 +30,15 @@ public class SaleController {
                                                  Principal principal) {
         // 등록 작품의 작가명은 로그인 사용자의 활동명으로 채운다.
         return BaseResponse.success("판매 등록",
-                saleService.create(request, currentUser.nicknameOf(principal)));
+                saleService.create(request,
+                        currentUser.idOf(principal), currentUser.nicknameOf(principal)));
     }
 
     @GetMapping
-    @Operation(summary = "판매 목록 조회", description = "등록한 판매 작품 목록을 최신순으로 조회합니다.")
-    public BaseResponse<SaleDto.ListResponse> list() {
-        return BaseResponse.success("판매 목록 조회", saleService.list());
+    @Operation(summary = "내 판매 목록 조회", description = "내가 등록한 판매 작품을 최신순으로 조회합니다.")
+    public BaseResponse<SaleDto.ListResponse> list(Principal principal) {
+        // '내 판매 작품' 이므로 판매자는 JWT 신원에서 정한다.
+        return BaseResponse.success("판매 목록 조회",
+                saleService.list(currentUser.idOf(principal)));
     }
 }

@@ -18,6 +18,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @IntegrationTest
 class SaleServiceTest {
 
+    private static final long SELLER_ID = 1L;
+    private static final long OTHER_SELLER_ID = 2L;
+
     @Autowired
     SaleService saleService;
 
@@ -36,7 +39,7 @@ class SaleServiceTest {
     @Test
     @DisplayName("즉시 판매 등록")
     void createDirectSale() {
-        SaleDto.Response sale = saleService.create(request(false), "나");
+        SaleDto.Response sale = saleService.create(request(false), SELLER_ID, "나");
         assertThat(sale.id()).isPositive();
         assertThat(sale.auctionEnabled()).isFalse();
         assertThat(sale.status()).isEqualTo("검수 대기");
@@ -45,7 +48,7 @@ class SaleServiceTest {
     @Test
     @DisplayName("경매 포함 판매 등록")
     void createAuctionSale() {
-        SaleDto.Response sale = saleService.create(request(true), "나");
+        SaleDto.Response sale = saleService.create(request(true), SELLER_ID, "나");
         assertThat(sale.auctionStartPrice()).isEqualTo(200000);
         assertThat(sale.auctionEndDate()).isAfter(LocalDate.now());
     }
@@ -53,9 +56,17 @@ class SaleServiceTest {
     @Test
     @DisplayName("등록한 판매는 목록 최신순으로 조회된다")
     void listNewestFirst() {
-        saleService.create(request(false), "나");
-        SaleDto.Response latest = saleService.create(request(true), "나");
-        assertThat(saleService.list().sales().get(0).id()).isEqualTo(latest.id());
+        saleService.create(request(false), SELLER_ID, "나");
+        SaleDto.Response latest = saleService.create(request(true), SELLER_ID, "나");
+        assertThat(saleService.list(SELLER_ID).sales().get(0).id()).isEqualTo(latest.id());
+    }
+
+    @Test
+    @DisplayName("내 판매 목록에는 남의 등록이 섞이지 않는다")
+    void listScopedToSeller() {
+        saleService.create(request(false), SELLER_ID, "나");
+
+        assertThat(saleService.list(OTHER_SELLER_ID).sales()).isEmpty();
     }
 
     @Test
@@ -63,7 +74,7 @@ class SaleServiceTest {
     void createRegistersArtwork() {
         int artworksBefore = artworkService.listAll().size();
 
-        saleService.create(request(false), "나");
+        saleService.create(request(false), SELLER_ID, "나");
 
         var artworks = artworkService.listAll();
         assertThat(artworks).hasSize(artworksBefore + 1);
@@ -78,7 +89,7 @@ class SaleServiceTest {
     void createWithoutTitle() {
         var invalid = new SaleDto.CreateRequest(
                 " ", null, null, null, null, 300000, false, null, null, null, null);
-        assertThatThrownBy(() -> saleService.create(invalid, "나"))
+        assertThatThrownBy(() -> saleService.create(invalid, SELLER_ID, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.SALE_TITLE_REQUIRED);
@@ -90,7 +101,7 @@ class SaleServiceTest {
         var invalid = new SaleDto.CreateRequest(
                 "작품", null, null, null, null, 300000, true,
                 400000, LocalDate.now().plusDays(7), null, null);
-        assertThatThrownBy(() -> saleService.create(invalid, "나"))
+        assertThatThrownBy(() -> saleService.create(invalid, SELLER_ID, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.SALE_INVALID_AUCTION);
@@ -102,7 +113,7 @@ class SaleServiceTest {
         var invalid = new SaleDto.CreateRequest(
                 "작품", null, null, null, null, 300000, true,
                 200000, LocalDate.now(), null, null);
-        assertThatThrownBy(() -> saleService.create(invalid, "나"))
+        assertThatThrownBy(() -> saleService.create(invalid, SELLER_ID, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())
                 .isEqualTo(DomainResultCode.SALE_INVALID_AUCTION);

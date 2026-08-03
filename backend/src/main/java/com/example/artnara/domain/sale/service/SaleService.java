@@ -22,9 +22,11 @@ public class SaleService {
     private final SaleRepository saleRepository;
     private final ArtworkService artworkService;
 
-    public SaleDto.Response create(SaleDto.CreateRequest request, String sellerName) {
+    public SaleDto.Response create(SaleDto.CreateRequest request,
+                                   Long sellerId, String sellerName) {
         validate(request);
         Sale sale = saleRepository.save(Sale.builder()
+                .sellerId(sellerId)
                 .title(request.title().trim())
                 .description(request.description() == null ? "" : request.description().trim())
                 .medium(request.medium() == null ? "" : request.medium().trim())
@@ -52,9 +54,10 @@ public class SaleService {
     }
 
     @Transactional(readOnly = true)
-    public SaleDto.ListResponse list() {
+    /** '내 판매 작품' 목록 — 로그인한 판매자 본인 것만. */
+    public SaleDto.ListResponse list(Long sellerId) {
         return new SaleDto.ListResponse(
-                saleRepository.findAllByOrderByIdDesc().stream()
+                saleRepository.findBySellerIdOrderByIdDesc(sellerId).stream()
                         .map(this::toDto)
                         .toList());
     }

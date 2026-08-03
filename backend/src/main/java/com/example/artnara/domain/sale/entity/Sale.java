@@ -24,6 +24,10 @@ public class Sale extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 판매자(등록자) 사용자 id. 내 판매 목록은 이 값으로만 스코프한다. */
+    @Column(nullable = false)
+    private Long sellerId;
+
     @Column(nullable = false)
     private String title;
 
@@ -54,10 +58,11 @@ public class Sale extends BaseTimeEntity {
     private String status;
 
     @Builder
-    public Sale(String title, String description, String medium, String sizeInfo,
+    public Sale(Long sellerId, String title, String description, String medium, String sizeInfo,
                 Integer yearCreated, int buyNowPrice, boolean auctionEnabled,
                 Integer auctionStartPrice, LocalDate auctionEndDate,
                 String imageUrl, String category, String status) {
+        this.sellerId = sellerId;
         this.title = title;
         this.description = description;
         this.medium = medium;
