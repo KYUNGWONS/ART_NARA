@@ -29,7 +29,11 @@ class OrderApiService {
   }
 
   Future<List<Order>> fetchOrders() async {
-    final response = await http.get(Uri.parse('$apiBaseUrl/api/orders'));
+    // 내 주문 내역이라 서버가 JWT 신원으로 스코프한다 — 인증 헤더 필수.
+    final response = await http.get(
+      Uri.parse('$apiBaseUrl/api/orders'),
+      headers: authOnlyHeaders(),
+    );
     if (response.statusCode != 200) {
       throw StateError('주문 내역 조회 실패: ${response.statusCode}');
     }
