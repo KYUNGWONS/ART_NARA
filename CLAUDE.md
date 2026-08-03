@@ -100,6 +100,18 @@
 
 API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세·포트폴리오·리뷰·주변), 비로그인 쓰기 차단 4(결제·하트·리뷰·판매), 거래 3(결제·중복 409·QR 스캔 소유자/사양), 리뷰 5(작성·중복 409·미구매 403·별점 400·집계), 하트/알림/채팅 7(토글 ON/OFF·목록·알림·신원 스코프·참여 방·남의 방 403), 인증 2(재발급·만료 401). `flutter test`/`./gradlew test` 통과. 유일한 FAIL 은 시드 리뷰와 중복(409가 정답)이라 테스트 스크립트 문제였음 — 새 구매자(Emma)로 검증 시 200.
 
+## 에뮬레이터 QA (2026-08-03) — 실기기 플로우에서 찾은 결함
+
+앱을 실제로 띄워 카카오 로그인 → 역할 → 프로필 → 홈 피드 → 하트 → 작품 상세 → 결제 → 인증서까지 돌린 결과, **API 스위프에서 못 잡은 인가 결함 3건**을 발견해 고쳤다.
+
+- **내 디지털 소유권에 남의 소유권이 보였다** — `Ownership` 에 소유자 컬럼이 없어 `listOwnerships()` 가 전체를 반환. 갓 가입한 계정에 시드 소유권 2건이 표시됨. → `Ownership.ownerId` 추가(구매자 JWT 신원), `findByOwnerIdOrderByIdDesc`.
+- **주문 내역도 전체 반환** — `OrderService.list()` → `findByBuyerIdOrderByIdDesc(buyerId)`.
+- **'내 판매 작품' 이 전체 판매 등록 목록** — `Sale` 에 판매자 컬럼이 없었다. → `Sale.sellerId` 추가, `findBySellerIdOrderByIdDesc`.
+- 위 3개 경로(`/api/certificates`, `/api/orders`, `/api/sales`)는 `PUBLIC_READ_URLS` 에서 제외했다. **QR 검증(`/api/certificates/scan`)만 공개 유지** — 누구나 진품 확인이 가능해야 하므로.
+- **로그인 버튼 아이콘을 네트워크에서 받고 있었다**(google favicon / kakao CDN) — 받아오기 전까지 버튼이 빈 칸으로 렌더되는 걸 실측. 로컬 Material 글리프로 교체.
+- 교훈: **목록 API 는 "내 것"인지 "공개 마켓"인지 먼저 정하고, "내 것"이면 예외 없이 JWT 신원으로 스코프한다.** 공개가 맞는 목록은 `/api/artworks`(피드)와 `/api/commissions`(작가가 제안하려면 남의 의뢰를 봐야 함) 뿐이다.
+- 환경 메모: 에뮬레이터가 Impeller GLES 로 렌더링하다 가끔 검은 화면으로 멈춘다(앱 결함 아님, 재시작으로 해소). `adb shell input keyevent 111`(ESC)은 Flutter 에서 뒤로가기로 먹으니 키보드 닫기에 쓰지 말 것.
+
 ## 남은 작업 후보
 
 - 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
