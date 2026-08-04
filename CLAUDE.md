@@ -111,6 +111,7 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - **로그인 버튼 아이콘을 네트워크에서 받고 있었다**(google favicon / kakao CDN) — 받아오기 전까지 버튼이 빈 칸으로 렌더되는 걸 실측. 로컬 Material 글리프로 교체.
 - 교훈: **목록 API 는 "내 것"인지 "공개 마켓"인지 먼저 정하고, "내 것"이면 예외 없이 JWT 신원으로 스코프한다.** 공개가 맞는 목록은 `/api/artworks`(피드)와 `/api/commissions`(작가가 제안하려면 남의 의뢰를 봐야 함) 뿐이다.
 - 환경 메모: 에뮬레이터가 Impeller GLES 로 렌더링하다 가끔 검은 화면으로 멈춘다(앱 결함 아님, 재시작으로 해소). `adb shell input keyevent 111`(ESC)은 Flutter 에서 뒤로가기로 먹으니 키보드 닫기에 쓰지 말 것.
+- **AVD 이름은 `art_nara`** (2026-08-05 `knot_pixel` 에서 개명 — `avdmanager move avd -n <old> -r art_nara`, 에뮬레이터를 끈 상태에서 실행). 실행: `emulator -avd art_nara`. `knot_pixel2` 는 Knot 프로젝트 것이라 그대로 뒀다.
 
 ## 판매 완료 상태 (2026-08-04)
 
