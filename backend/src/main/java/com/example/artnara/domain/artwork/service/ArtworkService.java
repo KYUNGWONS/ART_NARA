@@ -67,6 +67,11 @@ public class ArtworkService {
         return toDto(find(artworkId), viewerNickname);
     }
 
+    /** 결제 완료 시 작품을 판매 완료로 잠근다(피드·상세의 '판매 완료' 표시 근거). */
+    public void markSold(Long artworkId) {
+        find(artworkId).markSold();
+    }
+
     /** '더보기' 화면용 페이지 조회. size 는 서버에서 1~50 으로 제한한다. */
     @Transactional(readOnly = true)
     public org.springframework.data.domain.Page<ArtworkDetailDto> listPage(
@@ -258,7 +263,7 @@ public class ArtworkService {
                 remainingTimeOf(artwork),
                 artwork.isAuctionClosed(), artwork.getWinnerName(),
                 viewerNickname != null && viewerNickname.equals(artwork.getWinnerName()),
-                true, artwork.getCategory(), bids);
+                true, artwork.isSold(), artwork.getCategory(), bids);
     }
 
     private String remainingTimeOf(Artwork artwork) {

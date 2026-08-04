@@ -22,6 +22,8 @@ public record ArtworkDetailDto(
         /** 이 응답을 보는 사용자가 낙찰자인지 (비로그인이면 false) */
         boolean wonByViewer,
         boolean certified,
+        /** 결제 완료로 판매된 작품인지 — 구매 버튼을 잠그는 근거 */
+        boolean sold,
         String category,
         List<Bid> bidHistory
 ) {

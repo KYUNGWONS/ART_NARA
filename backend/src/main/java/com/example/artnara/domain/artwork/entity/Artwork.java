@@ -62,6 +62,13 @@ public class Artwork extends BaseTimeEntity {
     /** 경매 마감 시각 — 스케줄러가 이 시각이 지나면 자동 마감한다. */
     private LocalDateTime auctionEndAt;
 
+    /**
+     * 결제 완료로 판매된 작품인지. 피드·상세가 '판매 완료' 를 표시하는 근거다.
+     * 주문 테이블을 매번 조회하면 목록에서 N+1 이 되므로 작품에 상태로 들고 있는다.
+     */
+    @Column(nullable = false)
+    private boolean sold;
+
     @Builder
     public Artwork(String title, String artistName, String artistIntroduction,
                    String description, String medium, String sizeInfo, int yearCreated,
@@ -90,5 +97,10 @@ public class Artwork extends BaseTimeEntity {
     public void closeAuction(String winnerName) {
         this.auctionClosed = true;
         this.winnerName = winnerName;
+    }
+
+    /** 결제가 완료되면 판매 완료로 잠근다. */
+    public void markSold() {
+        this.sold = true;
     }
 }

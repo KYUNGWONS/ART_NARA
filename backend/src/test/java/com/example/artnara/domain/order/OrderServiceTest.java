@@ -65,6 +65,16 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("결제가 끝나면 작품이 판매 완료로 잠긴다")
+    void createMarksArtworkSold() {
+        assertThat(artworkService.getDetail(1L).sold()).isFalse();
+
+        orderService.create(request(1L), 1L, "나");
+
+        assertThat(artworkService.getDetail(1L).sold()).isTrue();
+    }
+
+    @Test
     @DisplayName("이미 판매된 작품 재구매 시 409")
     void createAlreadySold() {
         orderService.create(request(1L), 1L, "나");

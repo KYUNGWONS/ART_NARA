@@ -52,9 +52,11 @@ public class OrderService {
             }
             amount = artwork.currentBid();
         }
-        if (artOrderRepository.existsByArtworkId(artwork.id())) {
+        if (artwork.sold() || artOrderRepository.existsByArtworkId(artwork.id())) {
             throw new GlobalException(DomainResultCode.ORDER_ALREADY_SOLD);
         }
+        // 결제가 확정되는 즉시 작품을 잠근다 — 피드·상세가 '판매 완료' 로 바뀐다.
+        artworkService.markSold(artwork.id());
 
         // mock PG 승인 → 결제 완료 처리
         String today = LocalDate.now().toString();

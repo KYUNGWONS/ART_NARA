@@ -18,7 +18,9 @@ public record HomeFeedDto(
             boolean liked,
             boolean auction,
             Integer currentBid,
-            String remainingTime
+            String remainingTime,
+            /** 결제 완료로 판매된 작품인지 */
+            boolean sold
     ) {}
 
     public record Artist(String name, String introduction) {}
