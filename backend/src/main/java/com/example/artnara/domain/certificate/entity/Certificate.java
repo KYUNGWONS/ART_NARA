@@ -12,7 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** QR 코드로 조회되는 디지털 정품 인증서. */
+/** QR 코드로 조회되는 디지털 소유권 인증서. */
 @Getter
 @Entity
 @Table(name = "certificates")

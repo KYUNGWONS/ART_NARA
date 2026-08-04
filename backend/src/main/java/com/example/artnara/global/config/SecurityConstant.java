@@ -36,7 +36,7 @@ public class SecurityConstant {
 
     /**
      * 메서드와 무관하게 공개해야 하는 예외.
-     * QR 정품 인증은 "누구나 진품 여부를 확인할 수 있어야" 의미가 있어 비로그인도 허용한다.
+     * QR 소유권 인증은 "누구나 소유권 이력을 확인할 수 있어야" 의미가 있어 비로그인도 허용한다.
      */
     public static final String[] PUBLIC_ANY_METHOD_URLS = {
             "/api/certificates/scan"

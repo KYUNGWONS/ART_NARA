@@ -158,7 +158,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 "박*현 작가가 '거실에 걸 바다 풍경화 의뢰' 의뢰에 400,000원을 제안했습니다.", 1L);
         notificationService.publish(NotificationType.ORDER_COMPLETED,
                 "결제가 완료되었어요",
-                "'봄의 정원' 결제가 완료되어 디지털 소유권과 정품 인증서(ARTNARA-2026-0001)가 발급되었습니다.", 1L);
+                "'봄의 정원' 결제가 완료되어 디지털 소유권과 소유권 인증서(ARTNARA-2026-0001)가 발급되었습니다.", 1L);
     }
 
     /** 시드 소유권은 컬렉터 Andrew(users.id=3) 의 것으로 둔다 — 소유자 없는 소유권은 없다. */
@@ -186,7 +186,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
                 .artistName(artistName).ownerName(SEED_OWNER_NAME).issuedDate(acquiredDate)
                 .yearCreated(yearCreated).sizeInfo(sizeInfo).medium(medium)
                 .verified(true)
-                .note("ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.")
+                .note("ART NARA 가 소유권 이력을 보증하는 작품입니다.")
                 .build());
     }
 

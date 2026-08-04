@@ -82,7 +82,7 @@ public class OrderService {
 
         notificationService.publish(NotificationType.ORDER_COMPLETED,
                 "결제가 완료되었어요",
-                "'" + artwork.title() + "' 결제가 완료되어 디지털 소유권과 정품 인증서("
+                "'" + artwork.title() + "' 결제가 완료되어 디지털 소유권과 소유권 인증서("
                         + certificateNo + ")가 발급되었습니다.",
                 order.getId());
 

@@ -7,7 +7,7 @@ public enum NotificationType {
     COMMISSION_OFFER,
     /** 경매가 마감됨(낙찰/유찰) */
     AUCTION_CLOSED,
-    /** 결제 완료 및 정품 인증서 발급 */
+    /** 결제 완료 및 소유권 인증서 발급 */
     ORDER_COMPLETED,
     /** 작품 문의 채팅에 새 메시지 도착 */
     CHAT_MESSAGE

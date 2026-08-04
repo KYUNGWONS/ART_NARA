@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
-@Tag(name = "Certificate", description = "ART NARA 정품 인증·디지털 소유권 API")
+@Tag(name = "Certificate", description = "ART NARA 소유권 인증·디지털 소유권 API")
 @RestController
 @RequestMapping("/api/certificates")
 @RequiredArgsConstructor
@@ -33,9 +33,9 @@ public class CertificateController {
     }
 
     @PostMapping("/scan")
-    @Operation(summary = "정품 인증 QR 스캔", description = "작품 뒤에 부착된 QR 코드를 스캔하면 디지털 인증서를 조회합니다.")
+    @Operation(summary = "소유권 인증 QR 스캔", description = "작품 뒤에 부착된 QR 코드를 스캔하면 디지털 인증서를 조회합니다.")
     public BaseResponse<CertificateDto.Certificate> scan(
             @RequestBody CertificateDto.ScanRequest request) {
-        return BaseResponse.success("정품 인증 조회", certificateService.scan(request));
+        return BaseResponse.success("소유권 인증 조회", certificateService.scan(request));
     }
 }

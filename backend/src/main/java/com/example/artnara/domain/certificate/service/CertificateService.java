@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CertificateService {
 
-    private static final String CERT_NOTE = "ART NARA 전문가 검수를 통과한 정품 인증 작품입니다.";
+    private static final String CERT_NOTE = "ART NARA 가 소유권 이력을 보증하는 작품입니다.";
 
     private final OwnershipRepository ownershipRepository;
     private final CertificateRepository certificateRepository;
@@ -35,7 +35,7 @@ public class CertificateService {
 
     /**
      * 거래 완료 시 디지털 소유권을 구매자 계정으로 자동 이전하고,
-     * 같은 인증 번호로 QR 정품 인증서도 발급한다.
+     * 같은 인증 번호로 QR 소유권 인증서도 발급한다.
      * QR 코드는 "ARTNARA-QR-{인증번호 끝자리}" 형식.
      */
     public void register(CertificateDto.IssueRequest request, Long ownerId, String ownerName) {
