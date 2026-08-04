@@ -7,6 +7,7 @@ import 'artwork_list_screen.dart';
 import '../models/home_feed.dart';
 import '../services/artwork_like_api_service.dart';
 import '../services/home_feed_api_service.dart';
+import '../widgets/auction_countdown.dart';
 import '../widgets/sold_overlay.dart';
 import 'artist_portfolio_screen.dart';
 import 'artwork_detail_screen.dart';
@@ -393,8 +394,11 @@ class _ArtworkCard extends StatelessWidget {
                   ),
                   if (artwork.remainingTime != null) ...[
                     const SizedBox(height: 2),
-                    Text(
-                      '남은 시간 ${artwork.remainingTime}',
+                    // 로컬에서 1초씩 줄어드는 카운트다운. 0이 되면 카드 쪽에서
+                    // 알 수 없으므로 아무것도 하지 않는다(당겨서 새로고침으로 갱신).
+                    AuctionCountdown(
+                      artwork.remainingTime,
+                      prefix: '남은 시간 ',
                       style: const TextStyle(
                           fontSize: 11, color: DustColors.brandPrimary),
                     ),

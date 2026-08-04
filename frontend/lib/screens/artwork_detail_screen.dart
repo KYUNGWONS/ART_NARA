@@ -6,6 +6,7 @@ import '../utils/artist_inquiry.dart';
 import 'package:flutter/services.dart';
 
 import '../models/artwork_detail.dart';
+import '../widgets/auction_countdown.dart';
 import '../services/artwork_api_service.dart';
 import 'artist_portfolio_screen.dart';
 import 'checkout_screen.dart';
@@ -109,7 +110,15 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
             return Column(
               children: [
                 _Header(title: detail.title),
-                Expanded(child: _DetailBody(detail: detail)),
+                Expanded(
+                  child: _DetailBody(
+                    detail: detail,
+                    // 카운트다운이 0이 되면 서버를 다시 조회해
+                    // 마감 상태(낙찰자·결제 버튼)를 반영한다.
+                    onAuctionExpired: () => setState(() =>
+                        _detailFuture = _api.fetchDetail(widget.artworkId)),
+                  ),
+                ),
                 if (detail.sold)
                   const _ClosedBar(message: '판매 완료된 작품입니다')
                 else if (detail.auction && !detail.auctionClosed)
@@ -178,9 +187,10 @@ class _Header extends StatelessWidget {
 }
 
 class _DetailBody extends StatelessWidget {
-  const _DetailBody({required this.detail});
+  const _DetailBody({required this.detail, this.onAuctionExpired});
 
   final ArtworkDetail detail;
+  final VoidCallback? onAuctionExpired;
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +205,7 @@ class _DetailBody extends StatelessWidget {
         Text('${detail.artistName} · ${detail.year}',
             style: const TextStyle(fontSize: 12, color: DustColors.textSecondary)),
         const SizedBox(height: 12),
-        _PriceSection(detail: detail),
+        _PriceSection(detail: detail, onAuctionExpired: onAuctionExpired),
         const SizedBox(height: 16),
         const Divider(height: 1, color: DustColors.borderSoft),
         const SizedBox(height: 16),
@@ -241,9 +251,10 @@ class _ArtworkImage extends StatelessWidget {
 }
 
 class _PriceSection extends StatelessWidget {
-  const _PriceSection({required this.detail});
+  const _PriceSection({required this.detail, this.onAuctionExpired});
 
   final ArtworkDetail detail;
+  final VoidCallback? onAuctionExpired;
 
   @override
   Widget build(BuildContext context) {
@@ -292,8 +303,12 @@ class _PriceSection extends StatelessWidget {
               children: [
                 const Text('남은 시간', style: TextStyle(fontSize: 11)),
                 const SizedBox(height: 4),
-                Text(detail.remainingTime!,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                AuctionCountdown(
+                  detail.remainingTime,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600),
+                  onExpired: onAuctionExpired,
+                ),
               ],
             ),
         ],
@@ -312,7 +327,7 @@ class _InfoTable extends StatelessWidget {
     final rows = <MapEntry<String, String>>[
       MapEntry('재료', detail.medium),
       MapEntry('크기', detail.size),
-      MapEntry('정품 인증', detail.certified ? 'QR 정품 인증 발급' : '미발급'),
+      MapEntry('소유권 인증', detail.certified ? 'QR 소유권 인증 발급' : '미발급'),
     ];
     return Container(
       padding: const EdgeInsets.all(13),

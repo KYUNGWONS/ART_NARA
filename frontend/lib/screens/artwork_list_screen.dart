@@ -4,6 +4,7 @@ import '../constants/dust_tokens.dart';
 import '../models/home_feed.dart';
 import '../services/artwork_api_service.dart';
 import '../utils/image_url.dart';
+import '../widgets/auction_countdown.dart';
 import '../widgets/sold_overlay.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import 'artwork_detail_screen.dart';
@@ -201,9 +202,12 @@ class _Card extends StatelessWidget {
                   ),
                   if (artwork.remainingTime != null) ...[
                     const SizedBox(height: 2),
-                    Text('남은 시간 ${artwork.remainingTime}',
-                        style: const TextStyle(
-                            fontSize: 11, color: DustColors.brandPrimary)),
+                    AuctionCountdown(
+                      artwork.remainingTime,
+                      prefix: '남은 시간 ',
+                      style: const TextStyle(
+                          fontSize: 11, color: DustColors.brandPrimary),
+                    ),
                   ],
                 ],
               ),
