@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-/// 정품 인증 QR 카메라 스캔 화면. 인식된 코드를 Navigator.pop 으로 반환한다.
+/// 소유권 인증 QR 카메라 스캔 화면. 인식된 코드를 Navigator.pop 으로 반환한다.
 class QrScanScreen extends StatefulWidget {
   const QrScanScreen({super.key});
 

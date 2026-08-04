@@ -87,7 +87,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
           icon: const Icon(Icons.chevron_left, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('정품 인증',
+        title: const Text('소유권 인증',
             style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
         centerTitle: true,
@@ -95,7 +95,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
         children: [
-          const Text('QR 정품 인증 스캔',
+          const Text('QR 소유권 인증 스캔',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           const Text('작품 뒤에 부착된 QR 코드를 스캔하면 디지털 인증서를 확인할 수 있어요.',
@@ -208,11 +208,11 @@ class _CertificateCard extends StatelessWidget {
                     letterSpacing: 6,
                     color: DustColors.textPrimary)),
             const SizedBox(height: 4),
-            const Text('─  정품 인증서  ─',
+            const Text('─  소유권 인증서  ─',
                 style: TextStyle(
                     fontSize: 13, color: DustColors.textSecondary)),
             const SizedBox(height: DustSpacing.lg),
-            // 디자인 정품 인증서1/2 항목 순서
+            // 디자인 소유권 인증서1/2 항목 순서
             _certRow('작품 제목', certificate.artworkTitle),
             _certRow('작가', certificate.artistName),
             if (certificate.yearCreated != null)
@@ -253,7 +253,7 @@ class _CertificateCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      certificate.verified ? '정품 인증 완료' : '인증 실패',
+                      certificate.verified ? '소유권 인증 완료' : '인증 실패',
                       style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

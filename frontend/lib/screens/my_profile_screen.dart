@@ -85,8 +85,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   const SizedBox(height: DustSpacing.md),
                   _buildMenuTile(
                     icon: Icons.qr_code_scanner,
-                    title: '정품 인증 · 디지털 소유권',
-                    subtitle: 'QR 스캔으로 정품 인증서를 확인하세요',
+                    title: '소유권 인증서 · 디지털 소유권',
+                    subtitle: 'QR 스캔으로 소유권 인증서를 확인하세요',
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                           builder: (_) => const CertificateScreen()),
