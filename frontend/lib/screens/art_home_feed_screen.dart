@@ -7,6 +7,7 @@ import 'artwork_list_screen.dart';
 import '../models/home_feed.dart';
 import '../services/artwork_like_api_service.dart';
 import '../services/home_feed_api_service.dart';
+import '../widgets/sold_overlay.dart';
 import 'artist_portfolio_screen.dart';
 import 'artwork_detail_screen.dart';
 
@@ -334,7 +335,10 @@ class _ArtworkCard extends StatelessWidget {
             Stack(
               children: [
                 _ArtworkThumb(imageUrl: artwork.imageUrl, height: 160),
-                Positioned(
+                if (artwork.sold)
+                  const Positioned.fill(child: SoldOverlay())
+                else
+                  Positioned(
                   top: 4,
                   right: 4,
                   child: Material(

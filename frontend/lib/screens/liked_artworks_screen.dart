@@ -106,7 +106,9 @@ class _LikedArtworksScreenState extends State<LikedArtworksScreen> {
       title: Text(artwork.title,
           style: DustText.body.copyWith(fontWeight: FontWeight.w700)),
       subtitle: Text(
-        '${artwork.artistName} · ₩${formatPrice(artwork.auction ? (artwork.currentBid ?? artwork.price) : artwork.price)}',
+        // 관심 작품이 그새 팔렸을 수 있으니 목록에서 바로 알려준다.
+        '${artwork.artistName} · ₩${formatPrice(artwork.auction ? (artwork.currentBid ?? artwork.price) : artwork.price)}'
+        '${artwork.sold ? ' · 판매 완료' : ''}',
         style: DustText.caption,
       ),
       trailing: const Icon(Icons.favorite,

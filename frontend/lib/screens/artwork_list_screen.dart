@@ -4,6 +4,7 @@ import '../constants/dust_tokens.dart';
 import '../models/home_feed.dart';
 import '../services/artwork_api_service.dart';
 import '../utils/image_url.dart';
+import '../widgets/sold_overlay.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import 'artwork_detail_screen.dart';
 
@@ -143,23 +144,35 @@ class _Card extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 160,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: DustColors.bgSubtle,
-                borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(DustRadius.md)),
-              ),
-              child: artwork.imageUrl.isEmpty
-                  ? const Icon(Icons.image_outlined,
-                      color: DustColors.textSecondary)
-                  : ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
+            Stack(
+              children: [
+                Container(
+                  height: 160,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: DustColors.bgSubtle,
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(DustRadius.md)),
+                  ),
+                  child: artwork.imageUrl.isEmpty
+                      ? const Icon(Icons.image_outlined,
+                          color: DustColors.textSecondary)
+                      : ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(DustRadius.md)),
+                          child: Image.network(
+                              resolveImageUrl(artwork.imageUrl),
+                              fit: BoxFit.cover),
+                        ),
+                ),
+                if (artwork.sold)
+                  const Positioned.fill(
+                    child: SoldOverlay(
+                      borderRadius: BorderRadius.vertical(
                           top: Radius.circular(DustRadius.md)),
-                      child: Image.network(resolveImageUrl(artwork.imageUrl),
-                          fit: BoxFit.cover),
                     ),
+                  ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(

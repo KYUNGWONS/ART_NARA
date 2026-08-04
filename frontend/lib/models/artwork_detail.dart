@@ -17,6 +17,7 @@ class ArtworkDetail {
     required this.auctionClosed,
     this.winnerName,
     this.wonByViewer = false,
+    this.sold = false,
     this.currentBid,
     this.remainingTime,
   });
@@ -41,6 +42,9 @@ class ArtworkDetail {
   /// 서버가 판단한 '내가 낙찰자인지' — 클라이언트에서 이름을 비교하지 않는다.
   final bool wonByViewer;
   final bool certified;
+
+  /// 결제 완료로 판매된 작품인지 — 구매 버튼을 잠그는 근거.
+  final bool sold;
   final List<ArtworkBid> bidHistory;
 
   factory ArtworkDetail.fromJson(Map<String, dynamic> json) {
@@ -66,6 +70,7 @@ class ArtworkDetail {
       minBidIncrement: json['minBidIncrement'] as int? ?? 0,
       remainingTime: json['remainingTime'] as String?,
       auctionClosed: json['auctionClosed'] as bool? ?? false,
+      sold: json['sold'] as bool? ?? false,
       winnerName: json['winnerName'] as String?,
       wonByViewer: json['wonByViewer'] as bool? ?? false,
       certified: json['certified'] as bool? ?? false,

@@ -51,6 +51,7 @@ class Artwork {
     required this.auction,
     this.currentBid,
     this.remainingTime,
+    this.sold = false,
   });
 
   final int id;
@@ -63,6 +64,9 @@ class Artwork {
   final int? currentBid;
   final String? remainingTime;
 
+  /// 결제 완료로 판매된 작품인지 — 카드에 '판매 완료' 를 덮어 씌운다.
+  final bool sold;
+
   factory Artwork.fromJson(Map<String, dynamic> json) {
     return Artwork(
       id: json['id'] as int? ?? 0,
@@ -74,6 +78,7 @@ class Artwork {
       auction: json['auction'] as bool? ?? false,
       currentBid: json['currentBid'] as int?,
       remainingTime: json['remainingTime'] as String?,
+      sold: json['sold'] as bool? ?? false,
     );
   }
 }

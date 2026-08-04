@@ -110,7 +110,9 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
               children: [
                 _Header(title: detail.title),
                 Expanded(child: _DetailBody(detail: detail)),
-                if (detail.auction && !detail.auctionClosed)
+                if (detail.sold)
+                  const _ClosedBar(message: '판매 완료된 작품입니다')
+                else if (detail.auction && !detail.auctionClosed)
                   _BidBar(
                     controller: _bidController,
                     bidding: _bidding,
@@ -489,7 +491,9 @@ class _BidBar extends StatelessWidget {
 }
 
 class _ClosedBar extends StatelessWidget {
-  const _ClosedBar();
+  const _ClosedBar({this.message = '경매가 종료되었습니다'});
+
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -499,10 +503,10 @@ class _ClosedBar extends StatelessWidget {
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: DustColors.borderSoft)),
       ),
-      child: const Text(
-        '경매가 종료되었습니다',
+      child: Text(
+        message,
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 13, color: DustColors.textSecondary),
+        style: const TextStyle(fontSize: 13, color: DustColors.textSecondary),
       ),
     );
   }
