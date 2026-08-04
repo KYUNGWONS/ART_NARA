@@ -34,6 +34,48 @@ class _LikedArtworksScreenState extends State<LikedArtworksScreen> {
     });
   }
 
+  /// 하트를 눌러 관심 해제. 목록에서 먼저 빼고(낙관적) 서버 응답으로 확정한다.
+  /// 팔린 작품은 피드에서 하트를 다시 누를 수 없으므로 여기서 되돌릴 수 있어야 한다.
+  Future<void> _unlike(ArtworkDetail artwork) async {
+    final index = _items.indexWhere((item) => item.id == artwork.id);
+    if (index < 0) return;
+    setState(() => _items = List.of(_items)..removeAt(index));
+
+    final liked = await ArtworkLikeApiService.toggle(artwork.id);
+    if (!mounted) return;
+    if (liked == null || liked) {
+      // 실패했거나 서버가 여전히 '관심'이면 되돌려 놓는다.
+      _insertBack(artwork, index);
+      _showSnack('관심 해제에 실패했어요');
+      return;
+    }
+    _showSnack('관심 작품에서 뺐어요', onUndo: () => _restore(artwork, index));
+  }
+
+  Future<void> _restore(ArtworkDetail artwork, int index) async {
+    final liked = await ArtworkLikeApiService.toggle(artwork.id);
+    if (!mounted) return;
+    if (liked == true) {
+      _insertBack(artwork, index);
+    } else {
+      _showSnack('다시 담지 못했어요');
+    }
+  }
+
+  void _insertBack(ArtworkDetail artwork, int index) {
+    setState(() => _items = List.of(_items)
+      ..insert(index.clamp(0, _items.length), artwork));
+  }
+
+  void _showSnack(String message, {VoidCallback? onUndo}) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      action: onUndo == null
+          ? null
+          : SnackBarAction(label: '되돌리기', onPressed: onUndo),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,8 +153,12 @@ class _LikedArtworksScreenState extends State<LikedArtworksScreen> {
         '${artwork.sold ? ' · 판매 완료' : ''}',
         style: DustText.caption,
       ),
-      trailing: const Icon(Icons.favorite,
-          size: 20, color: DustColors.brandPrimary),
+      trailing: IconButton(
+        icon: const Icon(Icons.favorite,
+            size: 20, color: DustColors.brandPrimary),
+        tooltip: '관심 해제',
+        onPressed: () => _unlike(artwork),
+      ),
       onTap: () => Navigator.of(context)
           .push(MaterialPageRoute<void>(
             builder: (_) => ArtworkDetailScreen(artworkId: artwork.id),
