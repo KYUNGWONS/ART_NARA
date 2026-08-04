@@ -69,7 +69,6 @@ flutter test test/widget_test.dart
   ```bash
   flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080 \
     --dart-define=KAKAO_NATIVE_APP_KEY=... \
-    --dart-define=NAVER_MAP_CLIENT_ID=... \
     --dart-define=GOOGLE_SERVER_CLIENT_ID=...apps.googleusercontent.com
   ```
 
