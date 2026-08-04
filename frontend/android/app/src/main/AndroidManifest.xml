@@ -47,11 +47,9 @@
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
-        <!-- 네이버 지도 Client ID — 카카오 키와 같이 android/local.properties 에서 주입한다.
-             (Knot 프로젝트 키가 하드코딩돼 있던 것을 2026-08-02 제거) -->
-        <meta-data
-            android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="${naverMapClientId}" />
+        <!-- 지도는 카카오맵 SDK — 로그인과 같은 네이티브 앱 키를 Dart 쪽에서
+             KakaoMapSdk.initialize 로 넘기므로 매니페스트 항목이 필요 없다.
+             (네이버 지도 CLIENT_ID 는 2026-08-05 카카오맵 전환으로 제거) -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

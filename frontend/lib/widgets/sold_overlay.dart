@@ -14,25 +14,28 @@ class SoldOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.45),
-        borderRadius: borderRadius,
-      ),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: DustSpacing.md, vertical: 6),
-          decoration: BoxDecoration(
-            color: DustColors.bgSurface,
-            borderRadius: BorderRadius.circular(DustRadius.full),
-          ),
-          child: const Text(
-            '판매 완료',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: DustColors.textPrimary,
+    // 순수 장식이다. 포인터를 먹으면 카드 탭(작품 상세)과 위에 얹은 하트가 죽는다.
+    return IgnorePointer(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.45),
+          borderRadius: borderRadius,
+        ),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: DustSpacing.md, vertical: 6),
+            decoration: BoxDecoration(
+              color: DustColors.bgSurface,
+              borderRadius: BorderRadius.circular(DustRadius.full),
+            ),
+            child: const Text(
+              '판매 완료',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: DustColors.textPrimary,
+              ),
             ),
           ),
         ),

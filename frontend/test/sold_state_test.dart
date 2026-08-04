@@ -59,6 +59,36 @@ void main() {
     });
   });
 
+  testWidgets('판매 완료 오버레이는 아래 탭을 가로막지 않는다', (tester) async {
+    // 카드 전체 탭(작품 상세 열기)이 딤 때문에 죽으면 안 된다.
+    var tapped = 0;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 200,
+            height: 160,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () => tapped++,
+                    child: const ColoredBox(color: Colors.grey),
+                  ),
+                ),
+                const Positioned.fill(child: SoldOverlay()),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ));
+
+    // 칩 한가운데를 눌러도 아래 카드가 받아야 한다.
+    await tester.tapAt(tester.getCenter(find.byType(SoldOverlay)));
+    expect(tapped, 1);
+  });
+
   testWidgets('판매 완료 오버레이는 배지를 그린다', (tester) async {
     await tester.pumpWidget(const MaterialApp(
       home: Scaffold(

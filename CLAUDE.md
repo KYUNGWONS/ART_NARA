@@ -84,7 +84,7 @@
 - **관심 작품(하트)**: `ArtworkLike` + `POST /api/artworks/{id}/like`(토글) + `GET /api/artworks/liked`. 홈 피드는 로그인 사용자의 하트 상태를 채워 내려주고, 마이페이지 > 관심 작품에서 모아 본다.
 - **작품 문의 채팅**: `POST /api/chat/rooms/direct {opponentNickname}` 로 작가와 1:1 방을 열고(있으면 재사용) 채팅으로 진입. 작품 상세·홈 피드 작가 리스트·작가 포트폴리오의 '문의하기'가 모두 이 경로(`utils/artist_inquiry.dart`).
 - **역경매 제안 UI**: 의뢰 카드의 '제안하기' → 금액·메시지 시트 → `POST /api/commissions/{id}/offers`.
-- **지도 폴백**: `NAVER_MAP_CLIENT_ID` 가 없으면 같은 `/api/artworks/nearby` 결과를 거리순 목록으로 보여준다(지도 탭이 죽지 않는다).
+- **지도 폴백**: 지도 SDK 초기화가 실패하면 같은 `/api/artworks/nearby` 결과를 거리순 목록으로 보여준다(지도 탭이 죽지 않는다).
 - 인증서에 제작 연도·크기·재료가 새겨진다(결제 시 작품 사양을 그대로 복사).
 - **리뷰 도메인**(2026-08-02): `POST /api/artworks/{id}/reviews`(구매자만·작품당 1회·별점 1~5), `GET /api/artists/{name}/reviews`(최신 100건+평균). 포트폴리오 평점/리뷰 수는 실제 집계. 주문에 buyerId/buyerName 저장(자격 확인용). 프론트: 포트폴리오 리뷰 탭 + 주문 내역 '리뷰 쓰기' 시트.
 - **토큰 재발급·자동 로그인**(2026-08-02): `POST /auth/refresh`(회전 발급, 만료·위조·탈퇴 401). 프론트는 flutter_secure_storage 에 JWT 쌍을 저장하고 스플래시에서 자동 로그인(완료→메인, 미완료→역할 선택). 401 이면 저장 토큰 폐기, 네트워크 오류면 유지.
@@ -136,10 +136,11 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 cd backend && ./gradlew bootRun          # http://localhost:8080
 
 # 2) 앱 — 에뮬레이터에서 host 백엔드는 10.0.2.2 로 접근해야 한다
-cd frontend && flutter run -d emulator-5554   --dart-define=API_BASE_URL=http://10.0.2.2:8080   --dart-define=KAKAO_NATIVE_APP_KEY=... --dart-define=NAVER_MAP_CLIENT_ID=...
+cd frontend && flutter run -d emulator-5554   --dart-define=API_BASE_URL=http://10.0.2.2:8080   --dart-define=KAKAO_NATIVE_APP_KEY=...
 ```
 
-- 카카오/네이버/구글 키는 `String.fromEnvironment`라 **--dart-define 없이는 로그인·지도가 동작하지 않는다.** 패키지명이 `com.artnara.artnara`로 바뀌었으므로 **Knot용 키는 사용 불가 — 아트나라 전용으로 새로 발급**해야 하고, AndroidManifest 의 `kakao{네이티브키}` scheme 도 함께 교체해야 한다.
+- **지도는 카카오맵 SDK(`kakao_map_sdk`)로 2026-08-05 전환** — 로그인과 같은 `KAKAO_NATIVE_APP_KEY` 하나로 로그인+지도를 다 처리한다(네이버 지도·NAVER_MAP_CLIENT_ID 제거, 키 두 벌 관리 종료). **주의: 카카오맵 네이티브(libK3fAndroid.so)는 arm 전용이라 x86_64 에뮬레이터에서 dlopen FATAL** — main.dart 가 `getprop ro.product.cpu.abi` 로 x86 이면 초기화를 건너뛰어 지도 탭이 목록 폴백으로 뜬다. 지도 렌더링 확인은 실기기(arm64)에서만 가능. Knot 의 네이버 키는 패키지명 불일치+계정 격리 규칙 때문에 재사용하지 않았다.
+- 카카오/구글 키는 `String.fromEnvironment`라 **--dart-define 없이는 로그인·지도가 동작하지 않는다.** 패키지명이 `com.artnara.artnara`로 바뀌었으므로 **Knot용 키는 사용 불가 — 아트나라 전용으로 새로 발급**해야 하고, AndroidManifest 의 `kakao{네이티브키}` scheme 도 함께 교체해야 한다.
 - 한글 경로(`문서`) 때문에 두 가지 우회가 필요하다: `android/gradle.properties`의 `android.overridePathCheck=true`(적용됨), 그리고 `flutter run`은 aapt 가 APK 경로를 못 읽어 실패하므로 **`flutter build apk --debug` → APK를 영문 경로로 복사 → `adb install -r`** 로 띄운다.
 
 ## OAuth 앱 등록 (카카오 / 구글)

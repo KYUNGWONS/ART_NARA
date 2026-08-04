@@ -29,7 +29,7 @@ flutter test test/widget_test.dart
 
 ### 진입점과 앱 셸
 
-- [lib/main.dart](lib/main.dart)는 `runApp` **이전에** Kakao SDK(`KakaoSdk.init`)와 Naver Map SDK(`FlutterNaverMap().init`)를 초기화합니다. Naver 초기화 결과는 전역 `isNaverMapInitialized` 플래그로 노출되므로, 지도 화면은 SDK가 준비되었다고 가정하지 말고 이 플래그를 분기 조건으로 사용해야 합니다.
+- [lib/main.dart](lib/main.dart)는 `runApp` **이전에** Kakao SDK(`KakaoSdk.init`)와 카카오맵 SDK(`KakaoMapSdk.instance.initialize` — 같은 네이티브 앱 키)를 초기화합니다. 지도 초기화 결과는 전역 `isKakaoMapInitialized` 플래그로 노출되므로, 지도 화면은 SDK가 준비되었다고 가정하지 말고 이 플래그를 분기 조건으로 사용해야 합니다. x86 에뮬레이터에서는 카카오맵 네이티브가 없어 항상 false(목록 폴백)입니다.
 - 루트 위젯은 `MaterialApp`을 `ChangeNotifierProvider<LocaleProvider>`로 감싸고, `DustColors.brandPrimary` 시드 컬러와 `GoogleFonts.notoSansKrTextTheme()`을 적용합니다. 색·간격은 `dust_tokens.dart` 토큰을 사용하세요(레거시 `app_colors.dart`는 점진 대체 중).
 - 초기 라우트는 `SplashOnboardingScreen`(DUST-ART 스플래시/온보딩) → `LoginScreen`(카카오/구글) → 신규회원이면 `RoleSelectionScreen`(작가/컬렉터) → `ProfileSetupScreen` → `MainScreen`(하단 탭: 홈/판매/지도/제작의뢰/채팅) 순서입니다. 역할 enum `UserRole.koreanStudent`=작가, `UserRole.foreigner`=컬렉터로 백엔드 userType(KOREAN_STUDENT/FOREIGN_TOURIST)과 매핑됩니다.
 
@@ -64,7 +64,7 @@ flutter test test/widget_test.dart
 
 ### 네이티브 SDK 키
 
-- Kakao 네이티브 앱 키·Naver Map 클라이언트 ID·Google 웹 클라이언트 ID는 모두 `String.fromEnvironment`로 읽습니다. **`--dart-define` 없이 실행하면 로그인·지도가 동작하지 않습니다.**
+- Kakao 네이티브 앱 키(로그인+지도 겸용)·Google 웹 클라이언트 ID는 `String.fromEnvironment`로 읽습니다. **`--dart-define` 없이 실행하면 로그인·지도가 동작하지 않습니다.**
 
   ```bash
   flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080 \

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 
 import '../constants/dust_tokens.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
-import '../main.dart' show isNaverMapInitialized;
+import '../main.dart' show isKakaoMapInitialized;
 import '../models/nearby_artwork.dart';
 import '../services/artwork_api_service.dart';
 import '../widgets/nearby_artworks_sheet.dart';
@@ -19,10 +19,11 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  static const _defaultCenter = NLatLng(37.5563, 126.9220); // 홍대입구
+  static const _defaultCenter = LatLng(37.5563, 126.9220); // 홍대입구
 
   final _api = const ArtworkApiService();
-  NaverMapController? _mapController;
+  KakaoMapController? _mapController;
+  final List<Poi> _pois = [];
   List<NearbyArtwork> _artworks = const [];
   NearbyArtwork? _selected;
   bool _loading = false;
@@ -46,25 +47,34 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _renderMarkers() {
+  /// 작품 마커(POI) 공용 스타일 — 브랜드 teal 라벨 텍스트.
+  static final _poiStyle = PoiStyle(
+    textStyle: const [
+      PoiTextStyle(
+        size: 26,
+        color: DustColors.brandPrimary,
+        stroke: 2,
+        strokeColor: Colors.white,
+      ),
+    ],
+  );
+
+  Future<void> _renderMarkers() async {
     final controller = _mapController;
     if (controller == null) return;
-    controller.clearOverlays();
+    // 이전 마커를 지우고 새 결과로 다시 그린다.
+    for (final poi in _pois) {
+      await controller.labelLayer.removePoi(poi);
+    }
+    _pois.clear();
     for (final artwork in _artworks) {
-      final marker = NMarker(
-        id: 'artwork-${artwork.id}',
-        position: NLatLng(artwork.latitude, artwork.longitude),
-        iconTintColor: DustColors.brandPrimary,
-        caption: NOverlayCaption(
-          text: artwork.title,
-          textSize: 11,
-          color: DustColors.textPrimary,
-        ),
+      final poi = await controller.labelLayer.addPoi(
+        LatLng(artwork.latitude, artwork.longitude),
+        style: _poiStyle,
+        text: artwork.title,
+        onClick: () => setState(() => _selected = artwork),
       );
-      marker.setOnTapListener((overlay) {
-        setState(() => _selected = artwork);
-      });
-      controller.addOverlay(marker);
+      _pois.add(poi);
     }
   }
 
@@ -73,7 +83,8 @@ class _MapScreenState extends State<MapScreen> {
     if (controller == null) return;
     try {
       final position = await controller.getCameraPosition();
-      await _loadArtworks(position.target.latitude, position.target.longitude);
+      await _loadArtworks(
+          position.position.latitude, position.position.longitude);
     } catch (_) {
       await _loadArtworks(_defaultCenter.latitude, _defaultCenter.longitude);
     }
@@ -85,8 +96,8 @@ class _MapScreenState extends State<MapScreen> {
     try {
       final position = await _mapController?.getCameraPosition();
       if (position != null) {
-        latitude = position.target.latitude;
-        longitude = position.target.longitude;
+        latitude = position.position.latitude;
+        longitude = position.position.longitude;
       }
     } catch (_) {
       // 카메라 조회 실패 시 기본 좌표 사용
@@ -104,37 +115,33 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    // 지도 SDK 를 못 쓰는 환경(NAVER_MAP_CLIENT_ID 미설정)에서는 목록 폴백을 위해 바로 조회한다.
-    if (!isNaverMapInitialized) {
+    // 지도 SDK 를 못 쓰는 환경(카카오 키 미설정)에서는 목록 폴백을 위해 바로 조회한다.
+    if (!isKakaoMapInitialized) {
       _loadArtworks(_defaultCenter.latitude, _defaultCenter.longitude);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!isNaverMapInitialized) {
+    if (!isKakaoMapInitialized) {
       return _buildListFallback();
     }
 
     return Stack(
       children: [
-        NaverMap(
-          options: const NaverMapViewOptions(
-            initialCameraPosition: NCameraPosition(
-              target: _defaultCenter,
-              zoom: 13,
-            ),
-            mapType: NMapType.basic,
-            locationButtonEnable: true,
+        KakaoMap(
+          option: const KakaoMapOption(
+            position: _defaultCenter,
+            zoomLevel: 15,
           ),
           onMapReady: (controller) {
             _mapController = controller;
             _loadArtworks(_defaultCenter.latitude, _defaultCenter.longitude);
           },
-          onMapTapped: (point, latLng) {
+          onMapClick: (point, latLng) {
             if (_selected != null) setState(() => _selected = null);
           },
-          onCameraIdle: () {
+          onCameraMoveEnd: (position, gestureType) {
             if (!_cameraMoved && !_loading) {
               setState(() => _cameraMoved = true);
             }

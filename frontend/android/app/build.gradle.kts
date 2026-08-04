@@ -20,11 +20,6 @@ val kakaoNativeAppKey: String = localProperties.getProperty("kakaoNativeAppKey")
     ?: System.getenv("KAKAO_NATIVE_APP_KEY")
     ?: ""
 
-// 네이버 지도 SDK 는 매니페스트 meta-data 의 클라이언트 ID 도 읽는다.
-val naverMapClientId: String = localProperties.getProperty("naverMapClientId")
-    ?: System.getenv("NAVER_MAP_CLIENT_ID")
-    ?: ""
-
 android {
     namespace = "com.artnara.artnara"
     compileSdk = flutter.compileSdkVersion
@@ -51,7 +46,6 @@ android {
 
         // AndroidManifest 의 카카오 로그인 리다이렉트 스킴에 주입된다.
         manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
-        manifestPlaceholders["naverMapClientId"] = naverMapClientId
     }
 
     buildTypes {
