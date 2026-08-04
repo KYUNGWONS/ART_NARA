@@ -12,7 +12,7 @@ import 'artist_portfolio_screen.dart';
 import 'artwork_detail_screen.dart';
 
 /// 카테고리 필터 칩 (Figma 홈 피드 1:437).
-/// TODO(서버 연동): 작품에 카테고리 필드가 생기면 실제 필터링으로 교체.
+/// 선택 값은 GET /api/feed/home?category= 로 넘어가 서버가 필터링한다.
 const _categories = ['추천', '회화', '조각', '디지털', '사진', '일러스트'];
 
 class ArtHomeFeedScreen extends StatefulWidget {

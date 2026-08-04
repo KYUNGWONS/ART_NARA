@@ -13,8 +13,8 @@ const _genres = ['회화', '조각', '디지털', '사진', '일러스트', '공
 
 /// 프로필 설정 (작가/컬렉터 공용)
 ///
-/// 백엔드 `POST /api/users` 계약은 여행 시절 필드(languages, travelStyle 점수)를
-/// 아직 요구하므로 기본값으로 채워 보낸다. TODO(서버 정리): 아트나라 전용 계약으로 축소.
+/// `POST /api/users` 로 닉네임·나이·지역·관심 장르·소개를 보낸다.
+/// (여행 시절 필드는 2026-08-02 백엔드 계약에서 제거 완료 — 기본값 채움 없음)
 class ProfileSetupScreen extends StatefulWidget {
   final UserRole role;
   final String? kakaoProfileImageUrl;
