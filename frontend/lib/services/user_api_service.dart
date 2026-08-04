@@ -13,14 +13,13 @@ enum SignupResult { success, emailConflict, failure }
 /// 유저 타입 선택 및 프로필 저장/조회 API
 class UserApiService {
   /// GET /api/users/me
-  /// 내 프로필 조회. 서버 미연결 시 mock 응답 반환.
-  ///
-  /// TODO(서버 연동): 서버 미연결 시 mock 반환 로직 제거하고, 실패 시 null 반환
+  /// 내 프로필 조회. 실패하면 null — mock 프로필로 장애를 가리지 않는다
+  /// (가짜 userId 가 캐시되면 채팅 senderId 까지 오염된다).
   static Future<UserProfileResponse?> getMe() async {
     final token = AuthApiService.accessToken;
     if (token == null || token.isEmpty) {
       debugPrint('[UserAPI] GET /api/users/me 실패: accessToken 없음');
-      return _mockUserProfileForOffline();
+      return null;
     }
     try {
       final uri = Uri.parse('$apiBaseUrl/api/users/me');
@@ -42,33 +41,11 @@ class UserApiService {
         }
       }
       debugPrint('[UserAPI] GET /api/users/me 실패: ${response.statusCode}');
-      return _mockUserProfileForOffline();
+      return null;
     } catch (e) {
-      debugPrint('[UserAPI] GET /api/users/me 요청 실패 (서버 미연결 시 mock 사용): $e');
-      return _mockUserProfileForOffline();
+      debugPrint('[UserAPI] GET /api/users/me 요청 실패: $e');
+      return null;
     }
-  }
-
-  /// 서버 미연결 시 내 프로필 화면 테스트용 mock 응답
-  /// TODO(서버 연동): 실제 서버 연동 후 이 메서드 삭제
-  static UserProfileResponse _mockUserProfileForOffline() {
-    debugPrint('[UserAPI] 서버 미연결 - mock 내 프로필 응답 사용');
-    return UserProfileResponse(
-      code: 'SUCCESS',
-      message: null,
-      data: const UserProfileData(
-        userId: 9007199254740991,
-        nickname: '예진',
-        age: 24,
-        userType: 'KOREAN_STUDENT',
-        profileImageUrl:
-            'https://k.kakaocdn.net/dn/cpObSK/dJMcabirNp2/6k8AYPwXmaMXKlGBRmWja0/img_640x640.jpg',
-        region: '서울특별시',
-        interests: ['회화', '일러스트'],
-        bio: '빛과 계절을 그리는 미대생입니다.',
-        profileCompleted: true,
-      ),
-    );
   }
 
   /// PATCH /api/users/me

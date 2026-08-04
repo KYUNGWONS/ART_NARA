@@ -59,9 +59,9 @@ class _CommissionScreenState extends State<CommissionScreen> {
   void dispose() {
     _descriptionController.dispose();
     _budgetController.dispose();
-    super.dispose();
     _offerAmountController.dispose();
     _offerMessageController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadMyNickname() async {
