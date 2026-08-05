@@ -60,8 +60,9 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                       style: DustText.caption),
                   const SizedBox(height: DustSpacing.sm),
                   OutlinedButton(
-                    onPressed: () => setState(() => _profileFuture =
-                        _api.fetchPortfolio(widget.artistName)),
+                    onPressed: () => setState(() {
+                      _profileFuture = _api.fetchPortfolio(widget.artistName);
+                    }),
                     child: const Text('다시 시도'),
                   ),
                 ],

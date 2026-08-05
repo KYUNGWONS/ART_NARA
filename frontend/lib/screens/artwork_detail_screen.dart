@@ -42,7 +42,11 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
     try {
       final updated = await _api.closeAuction(widget.artworkId);
       if (!mounted) return;
-      setState(() => _detailFuture = Future.value(updated));
+      // 블록 바디로 감싼다 — 화살표로 대입하면 setState 콜백이 Future 를 반환해
+      // '비동기 작업' 으로 오인되어 예외가 난다(상태는 이미 바뀐 뒤라 화면만 갱신되고 실패로 보였다).
+      setState(() {
+        _detailFuture = Future.value(updated);
+      });
       _showMessage(updated.winnerName == null
           ? '경매가 유찰로 종료되었습니다'
           : '경매 마감! 낙찰자: ${updated.winnerName}');
@@ -70,10 +74,13 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
     try {
       final updated = await _api.placeBid(widget.artworkId, amount);
       if (!mounted) return;
-      setState(() => _detailFuture = Future.value(updated));
+      setState(() {
+        _detailFuture = Future.value(updated);
+      });
       _bidController.clear();
       _showMessage('입찰이 완료되었습니다');
     } catch (error) {
+      debugPrint('[Bid] 입찰 처리 실패: $error');
       _showMessage(error is StateError ? error.message : '입찰에 실패했습니다');
     } finally {
       if (mounted) setState(() => _bidding = false);
@@ -100,8 +107,9 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
             if (snapshot.hasError) {
               return Center(
                 child: OutlinedButton(
-                  onPressed: () => setState(
-                      () => _detailFuture = _api.fetchDetail(widget.artworkId)),
+                  onPressed: () => setState(() {
+                    _detailFuture = _api.fetchDetail(widget.artworkId);
+                  }),
                   child: const Text('다시 시도'),
                 ),
               );
@@ -115,8 +123,9 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                     detail: detail,
                     // 카운트다운이 0이 되면 서버를 다시 조회해
                     // 마감 상태(낙찰자·결제 버튼)를 반영한다.
-                    onAuctionExpired: () => setState(() =>
-                        _detailFuture = _api.fetchDetail(widget.artworkId)),
+                    onAuctionExpired: () => setState(() {
+                      _detailFuture = _api.fetchDetail(widget.artworkId);
+                    }),
                   ),
                 ),
                 if (detail.sold)

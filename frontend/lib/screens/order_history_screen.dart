@@ -50,7 +50,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             return Center(
               child: OutlinedButton(
                 onPressed: () =>
-                    setState(() => _ordersFuture = _api.fetchOrders()),
+                    setState(() {
+                      _ordersFuture = _api.fetchOrders();
+                    }),
                 child: const Text('다시 시도'),
               ),
             );
