@@ -31,11 +31,26 @@ class EntityUnitTest {
                     .email("a@test.com").nickname("old").userType(UserType.KOREAN_STUDENT)
                     .region(Sido.SEOUL).aboutMe("hi").build();
 
-            user.updateProfile("new", null, null, null, null);
+            user.updateProfile("new", null, null, null, null, null);
 
             assertThat(user.getNickname()).isEqualTo("new");
             assertThat(user.getRegion()).isEqualTo(Sido.SEOUL);
             assertThat(user.getAboutMe()).isEqualTo("hi");
+            // 역할을 안 보내면 기존 역할이 유지된다
+            assertThat(user.getUserType()).isEqualTo(UserType.KOREAN_STUDENT);
+        }
+
+        @Test
+        @DisplayName("역할 전환 - 작가에서 컬렉터로")
+        void updateProfileSwitchesRole() {
+            User user = User.builder()
+                    .email("a@test.com").nickname("경원").userType(UserType.KOREAN_STUDENT)
+                    .build();
+
+            user.updateProfile(null, null, null, null, null, UserType.FOREIGN_TOURIST);
+
+            assertThat(user.getUserType()).isEqualTo(UserType.FOREIGN_TOURIST);
+            assertThat(user.getNickname()).isEqualTo("경원");
         }
 
         @Test
@@ -44,7 +59,7 @@ class EntityUnitTest {
             User user = User.builder()
                     .email("a@test.com").nickname("old").userType(UserType.KOREAN_STUDENT).build();
 
-            user.updateProfile("new", "재하정", Sido.BUSAN, "bye", List.of("회화"));
+            user.updateProfile("new", "재하정", Sido.BUSAN, "bye", List.of("회화"), null);
 
             assertThat(user.getNickname()).isEqualTo("new");
             assertThat(user.getDisplayName()).isEqualTo("재하정");

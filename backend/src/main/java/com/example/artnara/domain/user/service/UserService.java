@@ -40,7 +40,7 @@ public class UserService {
     public UserDto.Response update(Long id, UserDto.UpdateRequest req) {
         User user = find(id);
         user.updateProfile(req.nickname(), req.displayName(), req.region(), req.aboutMe(),
-                req.interests());
+                req.interests(), req.userType());
         return UserDto.Response.from(user, isUniversityVerified(user.getId()));
     }
 

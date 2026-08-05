@@ -124,10 +124,23 @@ class UserServiceTest {
         User user = createUser();
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
 
-        var req = new UserDto.UpdateRequest("newNick", null, null, null, null);
+        var req = new UserDto.UpdateRequest("newNick", null, null, null, null, null);
         UserDto.Response res = userService.update(1L, req);
 
         assertThat(res.nickname()).isEqualTo("newNick");
+    }
+
+    @Test
+    @DisplayName("사용자 역할 전환")
+    void updateUserType() {
+        User user = createUser();
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+        var req = new UserDto.UpdateRequest(null, null, null, null, null,
+                UserType.FOREIGN_TOURIST);
+        UserDto.Response res = userService.update(1L, req);
+
+        assertThat(res.userType()).isEqualTo(UserType.FOREIGN_TOURIST);
     }
 
     @Test

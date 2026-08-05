@@ -49,19 +49,21 @@ class UserApiService {
   }
 
   /// PATCH /api/users/me
-  /// 부분 프로필 수정. 백엔드 UpdateRequest 스키마에 맞춰
-  /// {nickname, displayName, region, aboutMe, interests}만 전송한다.
-  /// (age·userType은 이 엔드포인트에서 수정하지 않는다.)
+  /// 부분 프로필 수정. 보내지 않은 필드는 서버가 기존 값을 유지한다.
+  /// (age 는 이 엔드포인트에서 수정하지 않는다.)
   static Future<bool> updateMe({
     required String nickname,
     String? displayName,
     String? region,
     String? introduction,
     required List<String> interests,
+    /// 작가↔컬렉터 전환. null 이면 기존 역할 유지.
+    String? userType,
   }) async {
     final bodyMap = <String, dynamic>{
       'nickname': nickname,
       'interests': interests,
+      if (userType != null) 'userType': userType,
     };
     if (displayName != null && displayName.isNotEmpty) {
       bodyMap['displayName'] = displayName;
@@ -106,6 +108,14 @@ class UserApiService {
       return false;
     }
   }
+
+  /// 역할만 전환한다(작가 ↔ 컬렉터). 다른 프로필 값은 건드리지 않는다.
+  static Future<bool> changeRole({
+    required String nickname,
+    required List<String> interests,
+    required String userType,
+  }) =>
+      updateMe(nickname: nickname, interests: interests, userType: userType);
 
   /// POST /api/users
   /// 회원가입(프로필 설정). 로그인으로 발급받은 JWT(Authorization)와 함께

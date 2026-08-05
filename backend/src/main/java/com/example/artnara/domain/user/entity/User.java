@@ -99,13 +99,15 @@ public class User extends BaseTimeEntity {
         return "user";
     }
 
+    /** 부분 수정. null 인 항목은 기존 값을 유지한다(역할 포함). */
     public void updateProfile(String nickname, String displayName, Sido region, String aboutMe,
-                              List<String> interests) {
+                              List<String> interests, UserType userType) {
         if (nickname != null) this.nickname = nickname;
         if (displayName != null) this.displayName = displayName;
         if (region != null) this.region = region;
         if (aboutMe != null) this.aboutMe = aboutMe;
         if (interests != null) this.interests = interests;
+        if (userType != null) this.userType = userType;
     }
 
     /**

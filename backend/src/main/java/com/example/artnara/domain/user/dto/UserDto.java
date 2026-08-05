@@ -28,7 +28,9 @@ public class UserDto {
             String displayName,
             Sido region,
             String aboutMe,
-            List<String> interests
+            List<String> interests,
+            /** 작가↔컬렉터 역할 전환. 보내지 않으면 기존 역할을 유지한다. */
+            UserType userType
     ) {}
 
     @Schema(name = "UserResponse")
