@@ -1,7 +1,7 @@
 # CLAUDE.md — ART NARA
 
 미대생 미술품 거래 플랫폼. 원격: https://github.com/KYUNGWONS/ART_NARA (master에 직접 커밋·푸시).
-기능 명세 원천은 레포 루트의 사업계획서 PDF(DUST-ART_...pdf): 3탭(구매/판매/제작의뢰) + 경매, 지도 집 주변 매칭, QR 소유권 인증, 디지털 소유권. **블록체인 없음, 배송 없음** (사용자 확정).
+기능 명세 원천은 레포 루트의 사업계획서 PDF(ART NARA_...pdf): 3탭(구매/판매/제작의뢰) + 경매, 지도 집 주변 매칭, QR 소유권 인증, 디지털 소유권. **블록체인 없음, 배송 없음** (사용자 확정).
 
 ## 역할·품질 기준 (이 프로젝트 ART_NARA 에서만 적용)
 
@@ -12,8 +12,8 @@
   - 정확성: 테스트(`flutter test`/`./gradlew test`) 통과 + 경계/실패 케이스 처리
   - 보안: 인증·인가 확인(대상은 JWT 신원에서, 남의 리소스 접근 차단), 입력 검증, 비밀키·토큰 하드코딩 금지(local.properties/환경변수), 민감정보 로그 금지
   - 성능/부하: 불필요한 N+1·전체 로드 금지, 목록은 필요한 필드만 내려주기, 무거운 작업은 비동기/스케줄러로, 클라이언트는 불필요한 리빌드·중복 요청 방지 — **가벼우면서 퀄리티 높게**. 트래픽 분산이 필요한 지점(이미지 서빙, 조회 API)은 캐시 헤더·페이징 등 확장 가능한 구조를 우선한다.
-  - 가독성: 기존 코드 스타일·토큰(DustColors 등) 준수, 의도가 드러나는 주석
-- **디자인 기준**: 새 화면/와이어프레임은 **Figma 파일 `ZqY7Mo7424n3gMp5kZJ4AZ`("26.07.29 1-6")의 색감·형태를 기준**으로 구성한다. 색은 `dust_tokens.dart` 토큰만 사용하고, 새 와이어프레임을 그릴 때도 이 파일의 레이아웃 문법(헤더 한 줄, 6탭 내비, 카드/칩 형태)을 따른다.
+  - 가독성: 기존 코드 스타일·토큰(ArtColors 등) 준수, 의도가 드러나는 주석
+- **디자인 기준**: 새 화면/와이어프레임은 **Figma 파일 `ZqY7Mo7424n3gMp5kZJ4AZ`("26.07.29 1-6")의 색감·형태를 기준**으로 구성한다. 색은 `art_tokens.dart` 토큰만 사용하고, 새 와이어프레임을 그릴 때도 이 파일의 레이아웃 문법(헤더 한 줄, 6탭 내비, 카드/칩 형태)을 따른다.
 - **자율 진행**: 사용자가 멈추라고 하기 전까지 **묻지 말고 알아서 끝까지 진행**한다. 애매한 지점은 합리적으로 판단해 구현하고 멈추지 않는다. 단, **작업이 끝나면 채팅 보고에 "헷갈렸지만 이렇게 판단해서 구현했다" 항목을 반드시 명시**한다(판단 근거 1줄씩). 사용자가 보고를 보고 뒤집으면 그때 수정한다.
 
 ## 구조
@@ -21,35 +21,35 @@
 - `frontend/` — Flutter 앱 (상세 규칙은 frontend/CLAUDE.md). 하단 탭: 홈/판매/지도/제작의뢰/채팅.
 - `backend/` — Spring Boot 3, 패키지 `com.example.artnara`, H2(dev)/JPA.
 
-## 디자인 시스템 (Figma "DUST-ART" 파일 기준)
+## 디자인 시스템
 
-- Figma "DUST-ART Foundations"(파일 `LghoZTZPejVsF7jndmqJEm`, node `25:210`)에서 추출한 토큰을 `frontend/lib/constants/dust_tokens.dart`에 정의해 둠. **새 화면은 하드코딩 대신 이 토큰 사용.**
+- Figma Foundations 파일( `LghoZTZPejVsF7jndmqJEm`, node `25:210`)에서 추출한 토큰을 `frontend/lib/constants/art_tokens.dart`에 정의해 둠. **새 화면은 하드코딩 대신 이 토큰 사용.**
   - 브랜드: teal `#07524E` / deep `#084742` (네이비 아님)
   - 배경: canvas ivory `#F8F3E8`, surface `#FEFCF7`, subtle `#F0EBE3`
   - 텍스트: primary `#141413`, secondary `#6B665E`, on-brand `#FFFFFF`, 테두리 `#E0DBD1`
   - 타이포: Noto Sans KR — Heading 28 Bold / Section 22 Bold / Body 16 Regular / Caption 12 Regular
   - Spacing 8·12·16·24, Radius 8·14·22·Full
-- 워드마크는 `widgets/artnara_wordmark.dart`(ART·NARA 텍스트 + 오렌지 점)로 그린다. Figma 워드마크 PNG 는 옛 브랜드명이라 삭제했다. 배경은 `assets/images/dust_splash_bg.jpg` 유지.
-- 브랜드 표기는 **ART NARA 로 통일**(2026-08-02, 사용자 확정). 앱 이름·화면 문구·서버 문구 모두 ART NARA. 디자인 파일명/토큰 클래스명(DUST-ART, `DustColors`)은 Figma 파일에서 온 **내부 식별자**라 그대로 둔다.
+- 워드마크는 `widgets/artnara_wordmark.dart`(ART·NARA 텍스트 + 오렌지 점)로 그린다. Figma 워드마크 PNG 는 옛 브랜드명이라 삭제했다. 배경은 `assets/images/splash_bg.jpg` 유지.
+- 브랜드 표기는 **ART NARA 로 통일**(2026-08-02 확정). **2026-08-06 사용자 지시로 내부 식별자까지 전부 개명**: `dust_tokens.dart`→`art_tokens.dart`, `DustColors/DustText/DustSpacing/DustRadius`→`ArtColors/ArtText/ArtSpacing/ArtRadius`, `dust_splash_bg.jpg`→`splash_bg.jpg`, 인증서 씰 `DA`→`AN`, MCP 서버 `figma-dustart`→`figma`, 토큰 env `FIGMA_DUSTART_TOKEN`→`FIGMA_TOKEN`. **레포에 DUST 문자열은 남아 있지 않다** — 새 코드에도 쓰지 말 것.
 - 주요 화면 node id: 스플래시/온보딩 `1:309`, 홈 피드 `1:325`·`1:437`, 작품 판매 등록 `1:274`, 제작 의뢰 신청 `23:67`, 작가 포트폴리오 `41:850`, 소유권 인증서(구 정품 인증서) `50:1034`·`60:302`.
 - **최신 디자인 리비전: 파일 `ZqY7Mo7424n3gMp5kZJ4AZ`("26.07.29 1-6")** — 프레임 8개(작가 포트폴리오 `1:278`, 제작 의뢰 신청 `1:349`, 홈 피드2 `1:443`, 홈 피드1 `1:549`, 작품 판매 등록 `1:654`, 스플래시/온보딩 `1:722`, 정품 인증서1 `1:737`, 정품 인증서2 `1:806`). 이 리비전에서 바뀐 점:
   - **하단 내비가 6탭**(홈·판매·지도·제작의뢰·**알림**·**마이페이지**)이고 채팅 탭이 없다 → 채팅(작품 문의)은 홈 헤더 좌측 햄버거 서랍으로 이동.
   - 헤더는 `메뉴(햄버거) · 화면 제목 · 알림 벨` 한 줄. 화면 제목은 헤더에서만 그린다(본문 중복 금지).
   - 인증서 항목: 작품 제목·작가·**제작 연도·크기·재료**·고유 인증 ID.
   - 판매 등록 스텝은 디자인상 5개(…·배송 정보·등록 완료)지만 **배송이 없으므로 4스텝**(작품 정보·상세 정보·가격 설정·등록 완료)으로 운영.
-  - 색은 Foundations 토큰과 사실상 동일(브랜드 teal 미세 차이 `#0A3C36`) — `DustColors` 유지.
-- 디자인 반영 현황(2026-07-31): 스플래시·로그인·홈 피드(칩 필터=백엔드 category 연동)·하단 내비(홈/판매/지도/제작의뢰/채팅)·판매 등록(4스텝 위저드) 완료. 전 화면 색상은 DustColors 토큰으로 통일됨. 제작 의뢰(23:67 멀티칩+안내박스)·정품 인증서(50:1034 골드 프레임 카드)도 완료. 작가 포트폴리오(41:850)도 완료(`GET /api/artists/{작가명}` + artist_portfolio_screen, 홈 피드 작가 리스트·작품 상세 작가 카드에서 진입). **디자인 6화면 전부 반영 완료.** 렌더 이미지는 Figma REST `/v1/images`로 받는다(MCP는 호출 제한 있음).
-- 코드베이스는 Knot/UniTrip(여행 매칭 앱)에서 가져와 리네임한 것. 프론트 화면 잔재는 2026-07-31 정리 완료(랜딩/여행 온보딩/브랜드 화면 삭제, 역할=작가·컬렉터, 프로필 설정 아트나라화, 마이페이지 여행 필드 제거). 백엔드 여행 도메인도 2026-07-31 정리: booking/festival/magazine/notification/wishlist/brand 삭제 완료. 2026-08-01 지도 탭을 아트나라 전용(작품 마커 + /api/artworks/nearby)으로 재편하면서 content·recommendation·map 도메인, 프론트 여행 화면·서비스(tour_api, content_api, mate_match 등)도 삭제 완료. 2026-08-02 여행 잔재 정리 마무리: User 의 travelStyle·languages·district·matchingEnabled 및 TravelStyle/District 엔티티 삭제, 시드(test.sql)를 작가/컬렉터·장르·작품 문의 대화로 교체, 채팅 목록·상세를 실제 API + DUST-ART 로 재작성(프론트의 임시 Node WebSocket 서버 `frontend/server/` 삭제). 2026-08-02 2차: VerificationType 을 UNIVERSITY 만 남기고, 프론트의 참조 없는 여행 트리(커뮤니티 게시판·약속 달력·메이트 스토리·관광공사 모델·여행 콘텐츠 옵션)와 미사용 i18n 문자열 138개를 삭제. **여행 잔재 정리 완료.**
+  - 색은 Foundations 토큰과 사실상 동일(브랜드 teal 미세 차이 `#0A3C36`) — `ArtColors` 유지.
+- 디자인 반영 현황(2026-07-31): 스플래시·로그인·홈 피드(칩 필터=백엔드 category 연동)·하단 내비(홈/판매/지도/제작의뢰/채팅)·판매 등록(4스텝 위저드) 완료. 전 화면 색상은 ArtColors 토큰으로 통일됨. 제작 의뢰(23:67 멀티칩+안내박스)·정품 인증서(50:1034 골드 프레임 카드)도 완료. 작가 포트폴리오(41:850)도 완료(`GET /api/artists/{작가명}` + artist_portfolio_screen, 홈 피드 작가 리스트·작품 상세 작가 카드에서 진입). **디자인 6화면 전부 반영 완료.** 렌더 이미지는 Figma REST `/v1/images`로 받는다(MCP는 호출 제한 있음).
+- 코드베이스는 Knot/UniTrip(여행 매칭 앱)에서 가져와 리네임한 것. 프론트 화면 잔재는 2026-07-31 정리 완료(랜딩/여행 온보딩/브랜드 화면 삭제, 역할=작가·컬렉터, 프로필 설정 아트나라화, 마이페이지 여행 필드 제거). 백엔드 여행 도메인도 2026-07-31 정리: booking/festival/magazine/notification/wishlist/brand 삭제 완료. 2026-08-01 지도 탭을 아트나라 전용(작품 마커 + /api/artworks/nearby)으로 재편하면서 content·recommendation·map 도메인, 프론트 여행 화면·서비스(tour_api, content_api, mate_match 등)도 삭제 완료. 2026-08-02 여행 잔재 정리 마무리: User 의 travelStyle·languages·district·matchingEnabled 및 TravelStyle/District 엔티티 삭제, 시드(test.sql)를 작가/컬렉터·장르·작품 문의 대화로 교체, 채팅 목록·상세를 실제 API + ART NARA 로 재작성(프론트의 임시 Node WebSocket 서버 `frontend/server/` 삭제). 2026-08-02 2차: VerificationType 을 UNIVERSITY 만 남기고, 프론트의 참조 없는 여행 트리(커뮤니티 게시판·약속 달력·메이트 스토리·관광공사 모델·여행 콘텐츠 옵션)와 미사용 i18n 문자열 138개를 삭제. **여행 잔재 정리 완료.**
 
 ## 작업 규칙 (사용자 요구)
 
 - 기능 하나마다 **frontend / backend 커밋을 분리**해서 만들고 origin/master로 푸시. 커밋 메시지는 `feat(backend): ...` / `feat(frontend): ...` 형식.
 - 커밋 전 검증: 프론트 `flutter test`(flutter는 `C:\Users\worms\dev\flutter\bin\flutter.bat`), 백엔드 `./gradlew test`(JDK 17 — Java 21 API 금지).
 - **새 화면 디자인이 필요하면 Figma "Manyfast Wireframe to Figma (커뮤니티)" 파일에 먼저 그린 뒤 구현할 것.**
-- Figma 계정은 **lcm97@jnu.ac.kr**(아트나라 전용). 토큰은 git 미추적 파일 `.claude/settings.local.json`의 `env.FIGMA_DUSTART_TOKEN`에 보관 — **절대 커밋 금지**.
+- Figma 계정은 **lcm97@jnu.ac.kr**(아트나라 전용). 토큰은 git 미추적 파일 `.claude/settings.local.json`의 `env.FIGMA_TOKEN`에 보관 — **절대 커밋 금지**.
 - **디자인 읽기는 Figma REST API로** 한다 (PAT 사용, 검증됨): `curl -H "X-Figma-Token: $TOKEN" https://api.figma.com/v1/files/{fileKey}` / 렌더 이미지는 `/v1/images/{fileKey}?ids=`. PAT는 REST 전용이고 **원격 MCP 엔드포인트는 OAuth(scope mcp:connect)만 받으므로 PAT로는 연결 불가**.
-- 디자인 *생성/수정*(Manyfast 파일에 새 화면 그리기)이 필요하면 대화형 터미널에서 `/mcp`로 `figma-dustart` OAuth 인증 필요. 이 인증은 로컬에 저장되며 claude.ai 계정 커넥터와 무관.
-- 파일 키: DUST-ART 디자인 `LghoZTZPejVsF7jndmqJEm`, Manyfast 와이어프레임 `PEgRT86N0VTa1bXgTruP4S`.
+- 디자인 *생성/수정*(Manyfast 파일에 새 화면 그리기)이 필요하면 대화형 터미널에서 `/mcp`로 `figma` OAuth 인증 필요. 이 인증은 로컬에 저장되며 claude.ai 계정 커넥터와 무관.
+- 파일 키: 디자인 원본 `LghoZTZPejVsF7jndmqJEm`, Manyfast 와이어프레임 `PEgRT86N0VTa1bXgTruP4S`.
 - **계정 연동형 Figma 커넥터는 다른 프로젝트(Knot) 소속이므로 이 레포에서 사용 금지** — 아트나라 정보가 그 계정에 남으면 안 됨.
 - 같은 이유로 아트나라 컨텍스트는 계정 메모리에 저장하지 말고 이 파일(CLAUDE.md)에 기록할 것.
 
@@ -93,7 +93,7 @@
 ## 디자인 커버리지 (2026-08-02 점검)
 
 - **디자인 파일(26.07.29) 8프레임은 전부 구현 완료.** 차이 나는 부분은 의도된 결정: 배송 스텝 제외(4스텝), 채팅은 서랍으로, 시드 검색어·카테고리 칩은 백엔드 연동.
-- **디자인 없이 구현했던 화면들의 와이어프레임을 Manyfast 파일(`PEgRT86N0VTa1bXgTruP4S`) > "추가 화면 와이어프레임 (2026-08-02)" 페이지에 사후 작성**: 작품 상세(`22:3`)·주문/결제(`22:4`)·알림(`25:2`)·마이페이지(`25:32`)·작품 문의 목록(`26:2`)·채팅 상세(`26:26`). 구현과 동일 구성, DUST 토큰 색.
+- **디자인 없이 구현했던 화면들의 와이어프레임을 Manyfast 파일(`PEgRT86N0VTa1bXgTruP4S`) > "추가 화면 와이어프레임 (2026-08-02)" 페이지에 사후 작성**: 작품 상세(`22:3`)·주문/결제(`22:4`)·알림(`25:2`)·마이페이지(`25:32`)·작품 문의 목록(`26:2`)·채팅 상세(`26:26`). 구현과 동일 구성, ART 토큰 색.
 - 2026-08-03 나머지 7화면도 같은 페이지에 추가: 역할 선택(`27:2`)·프로필 설정(`27:17`)·지도(`27:41`)·관심 작품(`28:2`)·주문 내역(`28:42`)·정품 인증 스캔(`28:78`)·더보기 작품 목록(`28:94`). **이제 구현된 전 화면(13개)이 와이어프레임을 갖는다.**
 
 ## QA 스위프 (2026-08-02)

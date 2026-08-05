@@ -4,7 +4,7 @@
 
 ## 프로젝트 개요
 
-DUST-ART(아트나라)는 미대생 미술품 거래 플랫폼 Flutter 앱입니다(다국어 KO/EN/JA/ZH, iOS/Android). 디자인 토큰은 `lib/constants/dust_tokens.dart`(DustColors/DustText/DustSpacing/DustRadius) — **새 화면은 하드코딩 대신 이 토큰 사용**.
+ART NARA(아트나라)는 미대생 미술품 거래 플랫폼 Flutter 앱입니다(다국어 KO/EN/JA/ZH, iOS/Android). 디자인 토큰은 `lib/constants/art_tokens.dart`(ArtColors/ArtText/ArtSpacing/ArtRadius) — **새 화면은 하드코딩 대신 이 토큰 사용**.
 
 ## 자주 쓰는 명령어
 
@@ -30,8 +30,8 @@ flutter test test/widget_test.dart
 ### 진입점과 앱 셸
 
 - [lib/main.dart](lib/main.dart)는 `runApp` **이전에** Kakao SDK(`KakaoSdk.init`)와 카카오맵 SDK(`KakaoMapSdk.instance.initialize` — 같은 네이티브 앱 키)를 초기화합니다. 지도 초기화 결과는 전역 `isKakaoMapInitialized` 플래그로 노출되므로, 지도 화면은 SDK가 준비되었다고 가정하지 말고 이 플래그를 분기 조건으로 사용해야 합니다. x86 에뮬레이터에서는 카카오맵 네이티브가 없어 항상 false(목록 폴백)입니다.
-- 루트 위젯은 `MaterialApp`을 `ChangeNotifierProvider<LocaleProvider>`로 감싸고, `DustColors.brandPrimary` 시드 컬러와 `GoogleFonts.notoSansKrTextTheme()`을 적용합니다. 색·간격은 `dust_tokens.dart` 토큰을 사용하세요(레거시 `app_colors.dart`는 점진 대체 중).
-- 초기 라우트는 `SplashOnboardingScreen`(DUST-ART 스플래시/온보딩) → `LoginScreen`(카카오/구글) → 신규회원이면 `RoleSelectionScreen`(작가/컬렉터) → `ProfileSetupScreen` → `MainScreen`(하단 탭: 홈/판매/지도/제작의뢰/채팅) 순서입니다. 역할 enum `UserRole.koreanStudent`=작가, `UserRole.foreigner`=컬렉터로 백엔드 userType(KOREAN_STUDENT/FOREIGN_TOURIST)과 매핑됩니다.
+- 루트 위젯은 `MaterialApp`을 `ChangeNotifierProvider<LocaleProvider>`로 감싸고, `ArtColors.brandPrimary` 시드 컬러와 `GoogleFonts.notoSansKrTextTheme()`을 적용합니다. 색·간격은 `art_tokens.dart` 토큰을 사용하세요(레거시 `app_colors.dart`는 점진 대체 중).
+- 초기 라우트는 `SplashOnboardingScreen`(스플래시/온보딩) → `LoginScreen`(카카오/구글) → 신규회원이면 `RoleSelectionScreen`(작가/컬렉터) → `ProfileSetupScreen` → `MainScreen`(하단 탭: 홈/판매/지도/제작의뢰/채팅) 순서입니다. 역할 enum `UserRole.koreanStudent`=작가, `UserRole.foreigner`=컬렉터로 백엔드 userType(KOREAN_STUDENT/FOREIGN_TOURIST)과 매핑됩니다.
 
 ### `lib/` 계층 구조
 

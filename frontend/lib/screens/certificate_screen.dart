@@ -302,7 +302,7 @@ class _CertificateCard extends StatelessWidget {
                       colors: [Color(0xFFD9AC4C), _gold],
                     ),
                   ),
-                  // ART NARA 이니셜. 예전 브랜드(DUST ART) 의 'DA' 를 걷어냈다.
+                  // ART NARA 이니셜 씰.
                   child: const Text('AN',
                       style: TextStyle(
                           fontSize: 12,
