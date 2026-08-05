@@ -50,7 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(SecurityConstant.ADMIN_URLS).hasRole("ADMIN")
                         // 조회는 공개, 나머지(POST/PATCH/DELETE)는 로그인 필요
                         .requestMatchers(HttpMethod.GET, SecurityConstant.PUBLIC_READ_URLS).permitAll()
-                        .anyRequest().authenticated()
+                        // 앱 API 는 USER 토큰만 — 관리자 토큰이 회원 신원으로 둔갑하지 못하게 한다.
+                        .anyRequest().hasRole("USER")
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((req, res, e) ->

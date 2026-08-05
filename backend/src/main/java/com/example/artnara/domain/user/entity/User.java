@@ -60,8 +60,11 @@ public class User extends BaseTimeEntity {
     @Column(name = "interest")
     private List<String> interests = new ArrayList<>();
 
-    /** 관리자 차단(블랙) 여부. 차단되면 로그인 시 401 로 막힌다. */
-    @Column(nullable = false)
+    /**
+     * 관리자 차단(블랙) 여부. 차단되면 로그인·토큰 재발급이 막힌다.
+     * 기본값을 DB 에도 남긴다(기존 행이 있는 테이블에 NOT NULL 컬럼을 추가하려면 필요).
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean blocked = false;
 
     /** 차단 사유 — 관리자 화면에 표시한다. */

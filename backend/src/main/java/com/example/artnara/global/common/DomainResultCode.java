@@ -52,7 +52,9 @@ public enum DomainResultCode implements ResultCode {
     ORDER_ALREADY_REFUNDED("ORDER_409_REFUND", "이미 환불된 주문입니다.", HttpStatus.CONFLICT),
     USER_BLOCKED("USER_403_BLOCKED", "이용이 제한된 계정입니다. 고객센터에 문의해주세요.", HttpStatus.FORBIDDEN),
     AUTH_REQUIRED("COMMON_401", "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
-    REQUEST_BODY_INVALID("COMMON_400_BODY", "요청 본문을 해석할 수 없습니다.", HttpStatus.BAD_REQUEST);
+    REQUEST_BODY_INVALID("COMMON_400_BODY", "요청 본문을 해석할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    INTERNAL_ERROR("COMMON_500", "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.",
+            HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;
     private final String message;

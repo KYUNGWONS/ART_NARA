@@ -34,5 +34,18 @@ public class GlobalExceptionHandler {
                 .body(BaseResponse.error(DomainResultCode.REQUEST_BODY_INVALID, cause.getMessage()));
     }
 
-    //추후 잡아야 할 예외 추가
+    /**
+     * 예상 못 한 예외. 잡지 않으면 서블릿 기본 500 이 나가면서 스택이 어디에도 남지 않아
+     * 원인 추적이 불가능하다. 여기서 로그로 남기고 공통 응답 형식으로 돌려준다.
+     * (클라이언트에는 내부 메시지를 노출하지 않는다.)
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse<Void>> handleUnexpected(Exception ex) {
+        log.error("Unexpected exception", ex);
+
+        return ResponseEntity
+                .status(DomainResultCode.INTERNAL_ERROR.getStatus())
+                .body(BaseResponse.error(DomainResultCode.INTERNAL_ERROR,
+                        DomainResultCode.INTERNAL_ERROR.getMessage()));
+    }
 }

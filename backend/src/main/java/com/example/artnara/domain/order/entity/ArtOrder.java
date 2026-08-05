@@ -52,8 +52,12 @@ public class ArtOrder extends BaseTimeEntity {
 
     private String buyerName;
 
-    /** 관리자 환불 처리 여부 — 환불하면 작품 판매 잠금도 함께 풀린다. */
-    @Column(nullable = false)
+    /**
+     * 관리자 환불 처리 여부 — 환불하면 작품 판매 잠금도 함께 풀린다.
+     * 기본값을 DB 에도 남긴다: ddl-auto=update 는 기존 행이 있는 테이블에
+     * 기본값 없는 NOT NULL 컬럼을 추가하지 못해 스키마 갱신이 실패한다.
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean refunded = false;
 
     private String refundReason;
