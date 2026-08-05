@@ -8,7 +8,13 @@ spring:
       max-request-size: 12MB
 
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:artnaradb;MODE=MYSQL;DB_CLOSE_DELAY=-1}
+    # 기본값: H2 파일 모드 — 서버를 재시작해도 데이터(계정·거래·소유권)가 유지된다.
+    # DB 파일은 사용자 홈(~/artnara-db)에 둔다. 레포(OneDrive 동기화 경로)에 두면
+    # 동기화가 파일을 잠가 DB가 깨질 수 있다.
+    # 운영/MySQL 전환은 코드 수정 없이 환경변수로:
+    #   DB_URL=jdbc:mysql://localhost:3306/artnara DB_DRIVER=com.mysql.cj.jdbc.Driver
+    #   DB_USERNAME=... DB_PASSWORD=... DDL_AUTO=update
+    url: ${DB_URL:jdbc:h2:file:~/artnara-db/artnara;MODE=MYSQL;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}
@@ -20,7 +26,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:create-drop}
+      # update: 기존 데이터를 지우지 않고 스키마 변경분만 반영 (영구 DB 전제)
+      ddl-auto: ${DDL_AUTO:update}
     show-sql: true
     defer-datasource-initialization: true
     properties:
