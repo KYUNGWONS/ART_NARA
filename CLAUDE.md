@@ -167,6 +167,16 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - 전환해도 **등록한 작품·주문·소유권은 그대로** 유지된다(역할은 화면 구성만 바꾼다).
 - 테스트: 엔티티 2건(역할 미전송 시 유지 / 전환), 서비스 1건(updateUserType).
 
+## 관리자 콘솔 (2026-08-06)
+
+- **별도 레포**: https://github.com/KYUNGWONS/ART_NARA_ADMIN — 빌드 도구 없는 정적 웹(HTML + ES 모듈). `python -m http.server 5500` 로 띄우고 로그인 화면에서 백엔드 주소를 지정한다(`localStorage: artnara.apiBase`).
+- **계정**: `ADMIN` / 초기 비밀번호 `ADMIN`. `admin_accounts` 테이블(앱 `users` 와 분리), BCrypt 해시 저장, 첫 로그인 시 변경 유도(`mustChangePassword`). 부팅 때 `AdminAuthService.ensureDefaultAdmin` 이 없으면 만든다.
+- **권한 격리**: 관리자 토큰은 `ROLE_ADMIN`, 앱 토큰은 `ROLE_USER`. `/api/admin/**` 는 `hasRole("ADMIN")`, 그 외 인증 경로는 `hasRole("USER")` — **서로의 API 를 호출할 수 없다**(예전엔 `authenticated()` 라 관리자 토큰이 회원 id 1 로 동작했다).
+- **기능**: 대시보드(총/오늘/이번달 매출·환불액·주문/회원/작품 수·14일 매출 그래프·상위 작가), 회원 관리(검색·차단/해제), 주문·환불(검색·환불).
+- **연동 규칙**: 매출은 **환불 건 제외**. 회원 차단 시 앱 로그인·토큰 재발급이 `USER_403_BLOCKED` 로 막힌다. 환불하면 `Artwork.sold` 잠금이 풀려 다시 판매된다.
+- **함정(해결됨)**: `ddl-auto: update` 는 **기존 행이 있는 테이블에 기본값 없는 NOT NULL 컬럼을 추가하지 못한다** — sold/refunded/blocked 가 조용히 누락돼 관리자 조회가 전부 500 이었다. `@Column(columnDefinition = "boolean default false")` 로 해결. 새 boolean 컬럼을 추가할 땐 항상 DB 기본값을 함께 줄 것.
+- 예상 못 한 예외는 이제 `GlobalExceptionHandler.handleUnexpected` 가 스택을 로그로 남긴다(예전엔 빈 500 이라 원인 추적 불가).
+
 ## 남은 작업 후보
 
 - 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
