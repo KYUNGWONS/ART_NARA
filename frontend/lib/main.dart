@@ -14,6 +14,9 @@ import 'screens/splash_onboarding_screen.dart';
 /// 로그인과 같은 네이티브 앱 키를 쓰므로 별도의 지도 키가 필요 없다.
 bool isKakaoMapInitialized = false;
 
+/// 지도를 못 그리는 이유(목록 폴백 배너에 표시). 초기화 성공 시 null.
+String? kakaoMapUnavailableReason;
+
 /// x86/x86_64 안드로이드(에뮬레이터)인지 — 카카오맵 네이티브 미지원 환경 판별용.
 Future<bool> _isX86Android() async {
   if (!Platform.isAndroid) return false;
@@ -48,12 +51,15 @@ void main() async {
       // 카카오맵 네이티브 라이브러리(libK3fAndroid.so)는 arm 전용이라
       // x86_64 에뮬레이터에서는 dlopen 이 FATAL 로 죽는다(Dart 에서 못 잡음).
       // 초기화를 건너뛰면 지도 탭이 거리순 목록 폴백으로 동작한다.
+      kakaoMapUnavailableReason =
+          '에뮬레이터는 카카오맵을 지원하지 않아 목록으로 보여드려요. 실제 기기에서는 지도가 표시됩니다.';
       throw StateError('x86 에뮬레이터 — 카카오맵 네이티브 미지원');
     }
     await KakaoMapSdk.instance.initialize(kakaoAppKey);
     isKakaoMapInitialized = true;
     debugPrint('카카오 지도 SDK 초기화 성공');
   } catch (e) {
+    kakaoMapUnavailableReason ??= '지도를 불러오지 못해 목록으로 보여드려요.';
     debugPrint('카카오 지도 SDK 초기화 실패: $e');
   }
 

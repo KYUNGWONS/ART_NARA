@@ -3,7 +3,7 @@ import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 
 import '../constants/dust_tokens.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
-import '../main.dart' show isKakaoMapInitialized;
+import '../main.dart' show isKakaoMapInitialized, kakaoMapUnavailableReason;
 import '../models/nearby_artwork.dart';
 import '../services/artwork_api_service.dart';
 import '../widgets/nearby_artworks_sheet.dart';
@@ -257,8 +257,10 @@ extension _MapFallback on _MapScreenState {
               color: DustColors.bgInfo,
               borderRadius: BorderRadius.circular(DustRadius.sm),
             ),
-            child: const Text(
-              '지도 키가 없어 목록으로 보여드려요. 기준 위치에서 가까운 순입니다.',
+            child: Text(
+              // 실제 사유를 보여준다 — 키 문제가 아니라 에뮬레이터 미지원일 수 있다.
+              '${kakaoMapUnavailableReason ?? '지도를 불러오지 못해 목록으로 보여드려요.'}'
+              ' 기준 위치에서 가까운 순입니다.',
               style: DustText.caption,
             ),
           ),
