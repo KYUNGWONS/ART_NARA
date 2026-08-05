@@ -103,4 +103,9 @@ public class Artwork extends BaseTimeEntity {
     public void markSold() {
         this.sold = true;
     }
+
+    /** 환불되면 잠금을 풀어 다시 판매 가능하게 한다. */
+    public void markUnsold() {
+        this.sold = false;
+    }
 }

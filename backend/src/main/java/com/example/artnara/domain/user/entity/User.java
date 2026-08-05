@@ -60,6 +60,13 @@ public class User extends BaseTimeEntity {
     @Column(name = "interest")
     private List<String> interests = new ArrayList<>();
 
+    /** 관리자 차단(블랙) 여부. 차단되면 로그인 시 401 로 막힌다. */
+    @Column(nullable = false)
+    private boolean blocked = false;
+
+    /** 차단 사유 — 관리자 화면에 표시한다. */
+    private String blockedReason;
+
     @Builder
     public User(OAuthProvider provider, String providerId,
                 String email, String nickname, String displayName, Integer age, UserType userType,
@@ -100,6 +107,17 @@ public class User extends BaseTimeEntity {
     }
 
     /** 부분 수정. null 인 항목은 기존 값을 유지한다(역할 포함). */
+    /** 관리자 차단/해제. 사유는 해제 시 비운다. */
+    public void block(String reason) {
+        this.blocked = true;
+        this.blockedReason = reason;
+    }
+
+    public void unblock() {
+        this.blocked = false;
+        this.blockedReason = null;
+    }
+
     public void updateProfile(String nickname, String displayName, Sido region, String aboutMe,
                               List<String> interests, UserType userType) {
         if (nickname != null) this.nickname = nickname;

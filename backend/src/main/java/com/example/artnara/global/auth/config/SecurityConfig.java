@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인프라·인증·QR 검증은 메서드 무관 공개
                         .requestMatchers(SecurityConstant.PUBLIC_URLS).permitAll()
+                        // 관리자 API 는 ADMIN 토큰 전용 — 앱 사용자 토큰으로는 접근 불가
+                        .requestMatchers(SecurityConstant.ADMIN_URLS).hasRole("ADMIN")
                         // 조회는 공개, 나머지(POST/PATCH/DELETE)는 로그인 필요
                         .requestMatchers(HttpMethod.GET, SecurityConstant.PUBLIC_READ_URLS).permitAll()
                         .anyRequest().authenticated()

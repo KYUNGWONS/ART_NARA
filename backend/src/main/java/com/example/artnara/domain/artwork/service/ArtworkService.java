@@ -72,6 +72,11 @@ public class ArtworkService {
         find(artworkId).markSold();
     }
 
+    /** 관리자 환불 시 판매 잠금을 푼다. */
+    public void markUnsold(Long artworkId) {
+        find(artworkId).markUnsold();
+    }
+
     /** '더보기' 화면용 페이지 조회. size 는 서버에서 1~50 으로 제한한다. */
     @Transactional(readOnly = true)
     public org.springframework.data.domain.Page<ArtworkDetailDto> listPage(

@@ -17,7 +17,14 @@ public class SecurityConstant {
 
     /** 로그인/토큰 재발급 — 메서드 무관 공개 */
     public static final String[] PUBLIC_AUTH_URLS = {
-            "/auth/**"
+            "/auth/**",
+            // 관리자 로그인은 토큰 없이 호출해야 하므로 공개(그 외 관리자 경로는 ADMIN_URLS)
+            "/api/admin/login"
+    };
+
+    /** 관리자 전용 — ROLE_ADMIN 토큰이 있어야 한다. */
+    public static final String[] ADMIN_URLS = {
+            "/api/admin/**"
     };
 
     /** 조회(GET)만 공개하는 경로 */

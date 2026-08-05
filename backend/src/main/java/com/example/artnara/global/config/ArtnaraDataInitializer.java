@@ -1,5 +1,6 @@
 package com.example.artnara.global.config;
 
+import com.example.artnara.domain.admin.service.AdminAuthService;
 import com.example.artnara.domain.artwork.entity.Artwork;
 import com.example.artnara.domain.artwork.entity.ArtworkBid;
 import com.example.artnara.domain.artwork.repository.ArtworkBidRepository;
@@ -45,10 +46,14 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
     private final CertificateRepository certificateRepository;
     private final NotificationService notificationService;
     private final ReviewRepository reviewRepository;
+    private final AdminAuthService adminAuthService;
 
     @Override
     @Transactional
     public void run(String... args) {
+        // 관리자 계정은 작품 시드와 무관하게 항상 보장한다(초기 ADMIN/ADMIN, 첫 로그인 후 변경 유도).
+        adminAuthService.ensureDefaultAdmin("ADMIN", "ADMIN");
+
         if (artworkRepository.count() > 0) {
             return;
         }

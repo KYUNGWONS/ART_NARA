@@ -42,6 +42,15 @@ public enum DomainResultCode implements ResultCode {
     REVIEW_CONTENT_REQUIRED("REVIEW_400_CONTENT", "리뷰 내용을 입력해주세요.", HttpStatus.BAD_REQUEST),
     REVIEW_NOT_PURCHASED("REVIEW_403", "구매한 작품에만 리뷰를 쓸 수 있습니다.", HttpStatus.FORBIDDEN),
     REVIEW_ALREADY_WRITTEN("REVIEW_409", "이미 리뷰를 작성한 작품입니다.", HttpStatus.CONFLICT),
+    ADMIN_LOGIN_FAILED("ADMIN_401", "아이디 또는 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
+    ADMIN_NOT_FOUND("ADMIN_404", "관리자 계정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ADMIN_PASSWORD_MISMATCH("ADMIN_400_PW", "현재 비밀번호가 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+    ADMIN_PASSWORD_TOO_SHORT("ADMIN_400_LEN", "비밀번호는 4자 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
+    ADMIN_PASSWORD_SAME("ADMIN_400_SAME", "현재 비밀번호와 다른 값을 입력해주세요.", HttpStatus.BAD_REQUEST),
+    ADMIN_FORBIDDEN("ADMIN_403", "관리자 권한이 필요합니다.", HttpStatus.FORBIDDEN),
+    ORDER_NOT_FOUND("ORDER_404", "주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ORDER_ALREADY_REFUNDED("ORDER_409_REFUND", "이미 환불된 주문입니다.", HttpStatus.CONFLICT),
+    USER_BLOCKED("USER_403_BLOCKED", "이용이 제한된 계정입니다. 고객센터에 문의해주세요.", HttpStatus.FORBIDDEN),
     AUTH_REQUIRED("COMMON_401", "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
     REQUEST_BODY_INVALID("COMMON_400_BODY", "요청 본문을 해석할 수 없습니다.", HttpStatus.BAD_REQUEST);
 

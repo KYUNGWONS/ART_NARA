@@ -52,6 +52,14 @@ public class ArtOrder extends BaseTimeEntity {
 
     private String buyerName;
 
+    /** 관리자 환불 처리 여부 — 환불하면 작품 판매 잠금도 함께 풀린다. */
+    @Column(nullable = false)
+    private boolean refunded = false;
+
+    private String refundReason;
+
+    private String refundedAt;
+
     @Builder
     public ArtOrder(Long artworkId, String artworkTitle, String artistName,
                     int amount, String paymentMethod, String status,
@@ -67,6 +75,14 @@ public class ArtOrder extends BaseTimeEntity {
         this.status = status;
         this.certificateNo = certificateNo;
         this.orderedDate = orderedDate;
+    }
+
+    /** 관리자 환불 처리. 이미 환불된 주문은 다시 처리하지 않는다(서비스에서 검사). */
+    public void refund(String reason, String at) {
+        this.refunded = true;
+        this.refundReason = reason;
+        this.refundedAt = at;
+        this.status = "환불 완료";
     }
 
     public void issueCertificate(String certificateNo) {

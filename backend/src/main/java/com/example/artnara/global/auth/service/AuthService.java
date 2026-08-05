@@ -8,6 +8,7 @@ import com.example.artnara.global.auth.jwt.JwtProvider;
 import com.example.artnara.global.auth.oauth.OAuthProvider;
 import com.example.artnara.global.auth.oauth.OAuthTokenVerifier;
 import com.example.artnara.global.auth.oauth.OAuthUserInfo;
+import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,11 @@ public class AuthService {
                 info.provider(), info.providerId(),
                 info.email(), info.nickname(), info.profileImageUrl())));
 
+        // 관리자가 차단한 회원은 토큰을 발급하지 않는다.
+        if (user.isBlocked()) {
+            throw new GlobalException(DomainResultCode.USER_BLOCKED);
+        }
+
         String subject = String.valueOf(user.getId());
         String accessToken = jwtProvider.generateAccessToken(subject, DEFAULT_ROLE);
         String refreshToken = jwtProvider.generateRefreshToken(subject, DEFAULT_ROLE);
@@ -96,6 +102,10 @@ public class AuthService {
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.INVALID_REFRESH_TOKEN));
+        // 차단 중이면 재발급도 막아 이미 발급된 토큰이 만료되는 즉시 접근이 끊긴다.
+        if (user.isBlocked()) {
+            throw new GlobalException(DomainResultCode.USER_BLOCKED);
+        }
 
         String subject = String.valueOf(user.getId());
         return new AuthDto.RefreshResponse(
