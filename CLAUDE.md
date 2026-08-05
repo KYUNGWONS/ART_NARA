@@ -151,6 +151,15 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - **지도 폴백**: 새 등록 작품·갱신된 현재가가 거리순 목록에 반영.
 - QA 조작 팁: 시트가 떠 있을 때 `input keyevent 111` 은 시트를 닫는다(뒤로가기 취급). 시트 안 입력은 키보드를 닫지 말고 좌표 탭으로 진행할 것.
 
+## 개발 DB 영속화 (2026-08-05)
+
+- dev 기본 DB 를 **H2 파일 모드**(`~/artnara-db/artnara`, `ddl-auto: update`)로 전환 — **서버를 재시작해도 계정·거래·소유권이 유지된다**(재로그인 지옥 종료). 검증: 판매·결제·소유권·sold 플래그 재시작 후 생존 + 시드 중복 없음.
+- DB 파일을 레포 밖(사용자 홈)에 두는 이유: 레포는 OneDrive 동기화 경로라 동기화가 파일을 잠가 DB 가 깨질 수 있다.
+- 시드는 영속 DB 와 공존: `test.sql` 은 INSERT IGNORE, `ArtnaraDataInitializer` 는 count()>0 가드라 재부팅마다 중복되지 않는다.
+- **MySQL 전환은 환경변수만으로 가능**: `DB_URL=jdbc:mysql://localhost:3306/artnara DB_DRIVER=com.mysql.cj.jdbc.Driver DB_USERNAME=... DB_PASSWORD=... DDL_AUTO=update`. 이 PC 에 MySQL 8.0 이 설치·구동 중이지만 root 비밀번호를 몰라 연결하지 못했다 — 비밀번호를 받으면 artnara 스키마·전용 계정 생성까지 진행할 것.
+- 데이터를 초기화하고 싶으면: 서버 중지 → `~/artnara-db` 폴더 삭제 → 재시작(시드 재생성).
+- 테스트 프로필은 여전히 인메모리(격리) — `./gradlew test` 는 영구 DB 를 건드리지 않는다.
+
 ## 남은 작업 후보
 
 - 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
