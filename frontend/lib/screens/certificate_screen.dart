@@ -4,6 +4,8 @@ import '../constants/art_tokens.dart';
 
 import '../models/certificate.dart';
 import '../services/certificate_api_service.dart';
+import '../widgets/certificate_card.dart';
+import 'certificate_detail_screen.dart';
 import 'qr_scan_screen.dart';
 
 class CertificateScreen extends StatefulWidget {
@@ -16,7 +18,6 @@ class CertificateScreen extends StatefulWidget {
 class _CertificateScreenState extends State<CertificateScreen> {
   final _api = const CertificateApiService();
   final _qrController = TextEditingController();
-  final _scrollController = ScrollController();
   List<Ownership> _ownerships = const [];
   Certificate? _certificate;
   bool _scanning = false;
@@ -30,7 +31,6 @@ class _CertificateScreenState extends State<CertificateScreen> {
   @override
   void dispose() {
     _qrController.dispose();
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -72,28 +72,14 @@ class _CertificateScreenState extends State<CertificateScreen> {
     }
   }
 
-  /// 소유권 카드를 탭하면 그 작품의 인증서를 바로 펼친다.
-  /// QR 코드는 인증번호 끝자리로 만들어진다(서버 CertificateService.qrCodeOf 와 동일 규칙).
-  Future<void> _openCertificateOf(Ownership ownership) async {
-    _qrController.text = _qrCodeOf(ownership.certificateNo);
-    await _scan();
-    if (mounted) _scrollToCertificate();
-  }
-
-  static String _qrCodeOf(String certificateNo) {
-    final index = certificateNo.lastIndexOf('-');
-    if (index < 0) return certificateNo;
-    return 'ARTNARA-QR-${certificateNo.substring(index + 1)}';
-  }
-
-  /// 인증서는 화면 위쪽에 그려지므로 조회 후 맨 위로 올려준다.
-  void _scrollToCertificate() {
-    if (!_scrollController.hasClients) return;
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
+  /// 소유권 카드를 탭하면 인증서 전용 화면으로 넘어간다(뒤로가기로 목록 복귀).
+  void _openCertificateOf(Ownership ownership) {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => CertificateDetailScreen(
+        certificateNo: ownership.certificateNo,
+        artworkTitle: ownership.artworkTitle,
+      ),
+    ));
   }
 
   void _showMessage(String message) {
@@ -119,7 +105,6 @@ class _CertificateScreenState extends State<CertificateScreen> {
         centerTitle: true,
       ),
       body: ListView(
-        controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
         children: [
           const Text('QR 소유권 인증 스캔',
@@ -183,7 +168,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
           ),
           if (_certificate != null) ...[
             const SizedBox(height: 16),
-            _CertificateCard(certificate: _certificate!),
+            CertificateCard(certificate: _certificate!),
           ],
           const SizedBox(height: 32),
           const Text('내 디지털 소유권',
@@ -206,153 +191,6 @@ class _CertificateScreenState extends State<CertificateScreen> {
   }
 }
 
-/// 디지털 인증서 카드 — Figma 50:1034 골드 프레임 디자인
-class _CertificateCard extends StatelessWidget {
-  const _CertificateCard({required this.certificate});
-
-  final Certificate certificate;
-
-  static const _gold = Color(0xFFB98A2F);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: ArtColors.bgSurface,
-        borderRadius: BorderRadius.circular(ArtRadius.sm),
-        border: Border.all(color: _gold, width: 2),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(ArtSpacing.lg),
-        decoration: BoxDecoration(
-          border: Border.all(color: _gold.withValues(alpha: 0.6)),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Column(
-          children: [
-            const Text('ART NARA',
-                style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 6,
-                    color: ArtColors.textPrimary)),
-            const SizedBox(height: 4),
-            const Text('─  소유권 인증서  ─',
-                style: TextStyle(
-                    fontSize: 13, color: ArtColors.textSecondary)),
-            const SizedBox(height: ArtSpacing.lg),
-            // 디자인 소유권 인증서1/2 항목 순서
-            _certRow('작품 제목', certificate.artworkTitle),
-            _certRow('작가', certificate.artistName),
-            if (certificate.yearCreated != null)
-              _certRow('제작 연도', '${certificate.yearCreated}'),
-            if (certificate.sizeInfo != null && certificate.sizeInfo!.isNotEmpty)
-              _certRow('크기', certificate.sizeInfo!),
-            if (certificate.medium != null && certificate.medium!.isNotEmpty)
-              _certRow('재료', certificate.medium!),
-            _certRow('고유 인증 ID', certificate.certificateNo),
-            _certRow('소유자', certificate.ownerName),
-            _certRow('발급일', certificate.issuedDate),
-            const SizedBox(height: ArtSpacing.lg),
-            Container(
-              width: 96,
-              height: 96,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                border: Border.all(color: _gold, width: 2),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Icon(Icons.qr_code_2,
-                  size: 76, color: ArtColors.textPrimary),
-            ),
-            const SizedBox(height: ArtSpacing.md),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      certificate.verified
-                          ? Icons.verified
-                          : Icons.error_outline,
-                      size: 16,
-                      color: certificate.verified
-                          ? ArtColors.brandPrimary
-                          : ArtColors.danger,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      certificate.verified ? '소유권 인증 완료' : '인증 실패',
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: ArtColors.textPrimary),
-                    ),
-                  ],
-                ),
-                // 왁스 씰
-                Container(
-                  width: 40,
-                  height: 40,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [Color(0xFFD9AC4C), _gold],
-                    ),
-                  ),
-                  // ART NARA 이니셜 씰.
-                  child: const Text('AN',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white)),
-                ),
-              ],
-            ),
-            if (certificate.note.isNotEmpty) ...[
-              const SizedBox(height: ArtSpacing.xs),
-              Text(certificate.note,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 11, color: ArtColors.textSecondary)),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _certRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 96,
-                child: Text(label,
-                    style: const TextStyle(
-                        fontSize: 11, color: ArtColors.textSecondary)),
-              ),
-              Expanded(
-                child: Text(value,
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: ArtColors.textPrimary)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Container(height: 1, color: ArtColors.borderSoft),
-        ],
-      ),
-    );
-  }
-}
 
 class _OwnershipCard extends StatelessWidget {
   const _OwnershipCard({required this.ownership, this.onTap});

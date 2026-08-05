@@ -73,39 +73,41 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
           return ListView(
             padding: EdgeInsets.zero,
             children: [
-              _CoverHeader(profile: profile),
-              _StatsRow(profile: profile),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, 0),
-                child: Text(
-                  profile.introduction,
-                  style: const TextStyle(
-                      fontSize: 13,
-                      height: 1.6,
-                      color: ArtColors.textSecondary),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, 0),
-                child: SizedBox(
-                  height: 44,
-                  child: OutlinedButton.icon(
-                    onPressed: () => openArtistInquiry(context, profile.name),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: ArtColors.brandPrimary,
-                      side: const BorderSide(color: ArtColors.brandPrimary),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(ArtRadius.full),
+              // 커버 사진 위로 흰 카드가 살짝 올라온다(디자인 41:850).
+              Stack(
+                children: [
+                  _CoverHeader(profile: profile),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: ArtColors.bgSurface,
+                        borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(ArtRadius.lg)),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(
+                          ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _StatsRow(profile: profile),
+                          const SizedBox(height: ArtSpacing.md),
+                          Text(
+                            profile.introduction,
+                            style: const TextStyle(
+                                fontSize: 13,
+                                height: 1.6,
+                                color: ArtColors.textSecondary),
+                          ),
+                          const SizedBox(height: ArtSpacing.md),
+                        ],
                       ),
                     ),
-                    icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
-                    label: const Text('작가에게 문의하기'),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: ArtSpacing.md),
               _Tabs(
                 current: _tab,
                 reviewCount: profile.reviewCount,
@@ -285,7 +287,7 @@ class _CoverHeader extends StatelessWidget {
     return Stack(
       children: [
         SizedBox(
-          height: 220,
+          height: 300,
           width: double.infinity,
           child: cover.isEmpty
               ? Container(color: ArtColors.brandDeep)
@@ -313,18 +315,30 @@ class _CoverHeader extends StatelessWidget {
                   icon: const Icon(Icons.chevron_left,
                       size: 28, color: Colors.white),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.share_outlined,
-                      size: 22, color: Colors.white),
+                // 디자인엔 큰 문의 버튼이 없어 헤더 액션으로 뺐다.
+                Row(
+                  children: [
+                    IconButton(
+                      tooltip: '작가에게 문의하기',
+                      onPressed: () => openArtistInquiry(context, profile.name),
+                      icon: const Icon(Icons.chat_bubble_outline_rounded,
+                          size: 21, color: Colors.white),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.share_outlined,
+                          size: 22, color: Colors.white),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
+        // 흰 카드(아래)에 가리지 않도록 위쪽에 배치한다.
         Positioned(
           left: ArtSpacing.lg,
-          bottom: ArtSpacing.lg,
+          bottom: 150,
           child: Row(
             children: [
               Container(
@@ -382,7 +396,7 @@ class _StatsRow extends StatelessWidget {
           children: [
             Text(value,
                 style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: ArtColors.textPrimary)),
             const SizedBox(height: 2),
@@ -394,23 +408,16 @@ class _StatsRow extends StatelessWidget {
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: ArtSpacing.md),
-      decoration: const BoxDecoration(
-        color: ArtColors.bgSurface,
-        border:
-            Border(bottom: BorderSide(color: ArtColors.borderSoft)),
-      ),
-      child: Row(
-        children: [
-          stat('${profile.artworkCount}', '작품'),
-          Container(width: 1, height: 30, color: ArtColors.borderSoft),
-          stat('${profile.salesCount}', '판매'),
-          Container(width: 1, height: 30, color: ArtColors.borderSoft),
-          // 리뷰 도메인이 없어 평점이 없으면 '-' 로 둔다.
-          stat(profile.rating?.toString() ?? '-', '평점'),
-        ],
-      ),
+    // 카드 안에 놓이므로 배경 없이 세로 구분선만 둔다(디자인 41:850).
+    return Row(
+      children: [
+        stat('${profile.artworkCount}', '작품'),
+        Container(width: 1, height: 34, color: ArtColors.borderSoft),
+        stat('${profile.salesCount}', '판매'),
+        Container(width: 1, height: 34, color: ArtColors.borderSoft),
+        // 아직 리뷰가 없으면 평점 자리에 '-' 를 둔다.
+        stat(profile.rating?.toString() ?? '-', '평점'),
+      ],
     );
   }
 }

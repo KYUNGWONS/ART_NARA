@@ -373,8 +373,8 @@ class _CommissionScreenState extends State<CommissionScreen> {
         ),
         const SizedBox(height: ArtSpacing.sm),
         Wrap(
-          spacing: ArtSpacing.sm,
-          runSpacing: ArtSpacing.sm,
+          spacing: 8,
+          runSpacing: 8,
           children: _categories.map((category) {
             final active = _selected.contains(category);
             return GestureDetector(
@@ -387,12 +387,13 @@ class _CommissionScreenState extends State<CommissionScreen> {
               }),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                 decoration: BoxDecoration(
                   color: active
                       ? ArtColors.brandPrimary
                       : ArtColors.bgSurface,
-                  borderRadius: BorderRadius.circular(ArtRadius.sm),
+                  // 디자인 23:67 은 pill 칩이다(홈 피드 카테고리 칩과 같은 형태).
+                  borderRadius: BorderRadius.circular(ArtRadius.full),
                   border: active
                       ? null
                       : Border.all(color: ArtColors.borderSoft),
