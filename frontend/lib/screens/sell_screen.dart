@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants/dust_tokens.dart';
+import '../widgets/won_input_formatter.dart';
 import '../utils/image_url.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/sale.dart';
@@ -89,19 +90,19 @@ class _SellScreenState extends State<SellScreen> {
         _showMessage('작품 제목을 입력해주세요');
         return;
       }
-      final price = int.tryParse(_buyNowController.text);
+      final price = WonInputFormatter.digitsOf(_buyNowController.text);
       if (price == null || price <= 0) {
         _showMessage('예상 가격을 입력해주세요');
         return;
       }
     }
     if (_step == 2 && _auctionEnabled) {
-      final start = int.tryParse(_auctionStartController.text);
+      final start = WonInputFormatter.digitsOf(_auctionStartController.text);
       if (start == null || start <= 0) {
         _showMessage('경매 최저가를 입력해주세요');
         return;
       }
-      final buyNow = int.tryParse(_buyNowController.text);
+      final buyNow = WonInputFormatter.digitsOf(_buyNowController.text);
       if (buyNow != null && start > buyNow) {
         _showMessage('경매 최저가는 즉시 판매가보다 높을 수 없습니다');
         return;
@@ -137,7 +138,7 @@ class _SellScreenState extends State<SellScreen> {
         buyNowPrice: int.parse(_buyNowController.text),
         auctionEnabled: _auctionEnabled,
         auctionStartPrice:
-            _auctionEnabled ? int.tryParse(_auctionStartController.text) : null,
+            _auctionEnabled ? WonInputFormatter.digitsOf(_auctionStartController.text) : null,
         auctionEndDate: _auctionEnabled
             ? _auctionEndDate!.toIso8601String().substring(0, 10)
             : null,
@@ -287,7 +288,7 @@ class _SellScreenState extends State<SellScreen> {
           ),
           const SizedBox(height: DustSpacing.md),
           const _FieldLabel('예상 가격 (₩)'),
-          _input(_buyNowController, '가격을 입력하세요', number: true),
+          _input(_buyNowController, '가격을 입력하세요', money: true),
         ];
       case 1:
         return [
@@ -318,7 +319,7 @@ class _SellScreenState extends State<SellScreen> {
           if (_auctionEnabled) ...[
             const SizedBox(height: DustSpacing.md),
             const _FieldLabel('경매 최저가 (₩)'),
-            _input(_auctionStartController, '즉시 판매가보다 낮게 설정하세요', number: true),
+            _input(_auctionStartController, '즉시 판매가보다 낮게 설정하세요', money: true),
             const SizedBox(height: DustSpacing.md),
             const _FieldLabel('경매 마감일'),
             OutlinedButton.icon(
@@ -339,7 +340,7 @@ class _SellScreenState extends State<SellScreen> {
           ],
         ];
       default:
-        final price = int.tryParse(_buyNowController.text) ?? 0;
+        final price = WonInputFormatter.digitsOf(_buyNowController.text) ?? 0;
         return [
           const Text('등록 내용을 확인해주세요',
               style: TextStyle(
@@ -354,7 +355,7 @@ class _SellScreenState extends State<SellScreen> {
             if (_sizeController.text.isNotEmpty) ('크기', _sizeController.text),
             ('즉시 판매가', '₩${formatPrice(price)}'),
             ('경매', _auctionEnabled
-                ? '최저가 ₩${formatPrice(int.tryParse(_auctionStartController.text) ?? 0)} · ~${_auctionEndDate?.toIso8601String().substring(0, 10) ?? ''}'
+                ? '최저가 ₩${formatPrice(WonInputFormatter.digitsOf(_auctionStartController.text) ?? 0)} · ~${_auctionEndDate?.toIso8601String().substring(0, 10) ?? ''}'
                 : '사용 안 함'),
             ('판매 수수료', '8%'),
           ]),
@@ -362,15 +363,29 @@ class _SellScreenState extends State<SellScreen> {
     }
   }
 
+  /// [money] 는 금액 입력 — ₩ 접두와 천단위 콤마가 붙는다.
+  /// [number] 는 연도처럼 콤마가 붙으면 안 되는 숫자 입력.
   Widget _input(TextEditingController controller, String hint,
-      {int maxLines = 1, bool number = false}) {
+      {int maxLines = 1, bool number = false, bool money = false}) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      keyboardType: number ? TextInputType.number : null,
-      inputFormatters: number ? [FilteringTextInputFormatter.digitsOnly] : null,
+      keyboardType: (number || money) ? TextInputType.number : null,
+      inputFormatters: money
+          ? const [WonInputFormatter()]
+          : number
+              ? [FilteringTextInputFormatter.digitsOnly]
+              : null,
       style: const TextStyle(fontSize: 14, color: DustColors.textPrimary),
-      decoration: _decoration(hint),
+      decoration: money
+          ? _decoration(hint).copyWith(
+              prefixText: '₩ ',
+              prefixStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: DustColors.textPrimary),
+            )
+          : _decoration(hint),
     );
   }
 

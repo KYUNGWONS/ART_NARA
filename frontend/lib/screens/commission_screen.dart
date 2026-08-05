@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants/dust_tokens.dart';
+import '../widgets/won_input_formatter.dart';
 import '../utils/image_url.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/commission.dart';
@@ -119,7 +120,7 @@ class _CommissionScreenState extends State<CommissionScreen> {
       _showMessage('의뢰 세부 내용을 작성해주세요');
       return;
     }
-    final budget = int.tryParse(_budgetController.text);
+    final budget = WonInputFormatter.digitsOf(_budgetController.text);
     if (budget == null || budget <= 0) {
       _showMessage('예산을 입력해주세요');
       return;
@@ -198,9 +199,15 @@ class _CommissionScreenState extends State<CommissionScreen> {
               TextField(
                 controller: _offerAmountController,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: const [WonInputFormatter()],
                 style: const TextStyle(fontSize: 14),
-                decoration: _decoration('제안 금액 (₩)'),
+                decoration: _decoration('제안 금액').copyWith(
+                  prefixText: '₩ ',
+                  prefixStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: DustColors.textPrimary),
+                ),
               ),
               const SizedBox(height: DustSpacing.sm),
               TextField(
@@ -222,7 +229,7 @@ class _CommissionScreenState extends State<CommissionScreen> {
                   ),
                   onPressed: () async {
                     final amount =
-                        int.tryParse(_offerAmountController.text.trim());
+                        WonInputFormatter.digitsOf(_offerAmountController.text);
                     if (amount == null || amount <= 0) {
                       _showMessage('제안 금액을 입력해주세요');
                       return;
@@ -308,9 +315,15 @@ class _CommissionScreenState extends State<CommissionScreen> {
         TextField(
           controller: _budgetController,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: const [WonInputFormatter()],
           style: const TextStyle(fontSize: 14, color: DustColors.textPrimary),
-          decoration: _decoration('예산을 입력해주세요'),
+          decoration: _decoration('예산을 입력해주세요').copyWith(
+            prefixText: '₩ ',
+            prefixStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: DustColors.textPrimary),
+          ),
         ),
         const SizedBox(height: DustSpacing.md),
         const _FieldLabel('희망 마감일'),

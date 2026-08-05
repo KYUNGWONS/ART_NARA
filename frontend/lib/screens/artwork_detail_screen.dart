@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../models/artwork_detail.dart';
 import '../widgets/auction_countdown.dart';
+import '../widgets/won_input_formatter.dart';
 import '../services/artwork_api_service.dart';
 import 'artist_portfolio_screen.dart';
 import 'checkout_screen.dart';
@@ -65,7 +66,7 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
   }
 
   Future<void> _placeBid() async {
-    final amount = int.tryParse(_bidController.text.replaceAll(',', ''));
+    final amount = WonInputFormatter.digitsOf(_bidController.text);
     if (amount == null) {
       _showMessage('입찰가를 숫자로 입력해주세요');
       return;
@@ -487,9 +488,15 @@ class _BidBar extends StatelessWidget {
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              // 치는 동안 천단위 콤마가 붙는다. 앞의 ₩ 는 고정 접두라 입력값에 섞이지 않는다.
+              inputFormatters: const [WonInputFormatter()],
               decoration: InputDecoration(
-                hintText: '최소 ₩${_formatPrice(minimumBid)}',
+                prefixText: '₩ ',
+                prefixStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: DustColors.textPrimary),
+                hintText: '최소 ${_formatPrice(minimumBid)}',
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(4)),
                 ),
