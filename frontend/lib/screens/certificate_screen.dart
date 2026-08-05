@@ -16,6 +16,7 @@ class CertificateScreen extends StatefulWidget {
 class _CertificateScreenState extends State<CertificateScreen> {
   final _api = const CertificateApiService();
   final _qrController = TextEditingController();
+  final _scrollController = ScrollController();
   List<Ownership> _ownerships = const [];
   Certificate? _certificate;
   bool _scanning = false;
@@ -29,6 +30,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
   @override
   void dispose() {
     _qrController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -70,6 +72,30 @@ class _CertificateScreenState extends State<CertificateScreen> {
     }
   }
 
+  /// 소유권 카드를 탭하면 그 작품의 인증서를 바로 펼친다.
+  /// QR 코드는 인증번호 끝자리로 만들어진다(서버 CertificateService.qrCodeOf 와 동일 규칙).
+  Future<void> _openCertificateOf(Ownership ownership) async {
+    _qrController.text = _qrCodeOf(ownership.certificateNo);
+    await _scan();
+    if (mounted) _scrollToCertificate();
+  }
+
+  static String _qrCodeOf(String certificateNo) {
+    final index = certificateNo.lastIndexOf('-');
+    if (index < 0) return certificateNo;
+    return 'ARTNARA-QR-${certificateNo.substring(index + 1)}';
+  }
+
+  /// 인증서는 화면 위쪽에 그려지므로 조회 후 맨 위로 올려준다.
+  void _scrollToCertificate() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -93,6 +119,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
         centerTitle: true,
       ),
       body: ListView(
+        controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
         children: [
           const Text('QR 소유권 인증 스캔',
@@ -169,7 +196,10 @@ class _CertificateScreenState extends State<CertificateScreen> {
             const Text('아직 보유한 디지털 소유권이 없습니다',
                 style: TextStyle(fontSize: 12))
           else
-            ..._ownerships.map((ownership) => _OwnershipCard(ownership: ownership)),
+            ..._ownerships.map((ownership) => _OwnershipCard(
+                  ownership: ownership,
+                  onTap: () => _openCertificateOf(ownership),
+                )),
         ],
       ),
     );
@@ -324,13 +354,17 @@ class _CertificateCard extends StatelessWidget {
 }
 
 class _OwnershipCard extends StatelessWidget {
-  const _OwnershipCard({required this.ownership});
+  const _OwnershipCard({required this.ownership, this.onTap});
 
   final Ownership ownership;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
@@ -372,7 +406,11 @@ class _OwnershipCard extends StatelessWidget {
               ),
             ),
           ),
+          if (onTap != null)
+            const Icon(Icons.chevron_right,
+                size: 18, color: DustColors.textSecondary),
         ],
+      ),
       ),
     );
   }
