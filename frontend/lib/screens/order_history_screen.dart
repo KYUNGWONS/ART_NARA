@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 
 import '../models/order.dart';
@@ -27,9 +27,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: DustColors.bgCanvas,
+        backgroundColor: ArtColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black),
@@ -112,11 +112,11 @@ class _OrderCardState extends State<_OrderCard> {
           padding: EdgeInsets.only(
               bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
           child: Container(
-            padding: const EdgeInsets.all(DustSpacing.lg),
+            padding: const EdgeInsets.all(ArtSpacing.lg),
             decoration: const BoxDecoration(
-              color: DustColors.bgSurface,
+              color: ArtColors.bgSurface,
               borderRadius:
-                  BorderRadius.vertical(top: Radius.circular(DustRadius.lg)),
+                  BorderRadius.vertical(top: Radius.circular(ArtRadius.lg)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -126,8 +126,8 @@ class _OrderCardState extends State<_OrderCard> {
                     style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: DustColors.textPrimary)),
-                const SizedBox(height: DustSpacing.md),
+                        color: ArtColors.textPrimary)),
+                const SizedBox(height: ArtSpacing.md),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (i) {
@@ -138,7 +138,7 @@ class _OrderCardState extends State<_OrderCard> {
                             ? Icons.star_rounded
                             : Icons.star_border_rounded,
                         size: 32,
-                        color: DustColors.brandPrimary,
+                        color: ArtColors.brandPrimary,
                       ),
                     );
                   }),
@@ -150,19 +150,19 @@ class _OrderCardState extends State<_OrderCard> {
                   decoration: InputDecoration(
                     hintText: '작품과 거래 경험을 남겨주세요',
                     hintStyle: const TextStyle(
-                        fontSize: 14, color: DustColors.textSecondary),
+                        fontSize: 14, color: ArtColors.textSecondary),
                     filled: true,
-                    fillColor: DustColors.bgSubtle,
+                    fillColor: ArtColors.bgSubtle,
                     counterText: '',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(DustRadius.sm),
+                      borderRadius: BorderRadius.circular(ArtRadius.sm),
                       borderSide: BorderSide.none,
                     ),
                   ),
                   style: const TextStyle(
-                      fontSize: 14, color: DustColors.textPrimary),
+                      fontSize: 14, color: ArtColors.textPrimary),
                 ),
-                const SizedBox(height: DustSpacing.md),
+                const SizedBox(height: ArtSpacing.md),
                 SizedBox(
                   height: 48,
                   child: FilledButton(
@@ -181,10 +181,10 @@ class _OrderCardState extends State<_OrderCard> {
                           content: Text(error ?? '리뷰가 등록되었어요')));
                     },
                     style: FilledButton.styleFrom(
-                      backgroundColor: DustColors.brandPrimary,
-                      foregroundColor: DustColors.textOnBrand,
+                      backgroundColor: ArtColors.brandPrimary,
+                      foregroundColor: ArtColors.textOnBrand,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(DustRadius.md),
+                        borderRadius: BorderRadius.circular(ArtRadius.md),
                       ),
                     ),
                     child: const Text('등록하기',
@@ -206,7 +206,7 @@ class _OrderCardState extends State<_OrderCard> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        border: Border.all(color: DustColors.borderSoft),
+        border: Border.all(color: ArtColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
@@ -223,34 +223,34 @@ class _OrderCardState extends State<_OrderCard> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: DustColors.successBg,
+                  color: ArtColors.successBg,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(order.status,
                     style: const TextStyle(
-                        fontSize: 11, color: DustColors.success)),
+                        fontSize: 11, color: ArtColors.success)),
               ),
             ],
           ),
           const SizedBox(height: 4),
           Text('${order.artistName} · ${order.orderedDate}',
-              style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
+              style: const TextStyle(fontSize: 11, color: ArtColors.textSecondary)),
           const SizedBox(height: 4),
           Text('결제 금액 ₩${formatPrice(order.amount)}',
-              style: const TextStyle(fontSize: 11, color: DustColors.textSecondary)),
+              style: const TextStyle(fontSize: 11, color: ArtColors.textSecondary)),
           const SizedBox(height: 4),
           Text('디지털 소유권 ${order.certificateNo}',
               style: const TextStyle(fontSize: 11)),
-          const SizedBox(height: DustSpacing.xs),
+          const SizedBox(height: ArtSpacing.xs),
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton.icon(
               onPressed: () => _showReviewSheet(context),
               style: OutlinedButton.styleFrom(
-                foregroundColor: DustColors.brandPrimary,
-                side: const BorderSide(color: DustColors.borderSoft),
+                foregroundColor: ArtColors.brandPrimary,
+                side: const BorderSide(color: ArtColors.borderSoft),
                 padding: const EdgeInsets.symmetric(
-                    horizontal: DustSpacing.sm, vertical: 6),
+                    horizontal: ArtSpacing.sm, vertical: 6),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),

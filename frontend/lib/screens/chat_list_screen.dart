@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../models/chat_room_item.dart';
 import '../services/chat_api_service.dart';
 import 'chat_screen.dart';
@@ -49,20 +49,20 @@ class _ChatListScreenState extends State<ChatListScreen> {
           child: _loading
               ? const Center(
                   child:
-                      CircularProgressIndicator(color: DustColors.brandPrimary),
+                      CircularProgressIndicator(color: ArtColors.brandPrimary),
                 )
               : _rooms.isEmpty
               ? _buildEmpty()
               : RefreshIndicator(
-                  color: DustColors.brandPrimary,
+                  color: ArtColors.brandPrimary,
                   onRefresh: _loadRooms,
                   child: ListView.separated(
                     padding:
-                        const EdgeInsets.symmetric(vertical: DustSpacing.xs),
+                        const EdgeInsets.symmetric(vertical: ArtSpacing.xs),
                     itemCount: _rooms.length,
                     separatorBuilder: (_, __) => const Divider(
                       height: 1,
-                      color: DustColors.borderSoft,
+                      color: ArtColors.borderSoft,
                     ),
                     itemBuilder: (context, index) => _ChatRoomTile(
                       room: _rooms[index],
@@ -78,18 +78,18 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget _buildHeader() {
     return const Padding(
       padding: EdgeInsets.fromLTRB(
-          DustSpacing.lg, DustSpacing.md, DustSpacing.lg, DustSpacing.sm),
+          ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, ArtSpacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text('작품 문의', style: DustText.section),
-          SizedBox(width: DustSpacing.xs),
+          Text('작품 문의', style: ArtText.section),
+          SizedBox(width: ArtSpacing.xs),
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(bottom: 4),
               child: Text(
                 '작가와 직접 이야기해보세요',
-                style: DustText.caption,
+                style: ArtText.caption,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -107,15 +107,15 @@ class _ChatListScreenState extends State<ChatListScreen> {
           const Icon(
             Icons.chat_bubble_outline_rounded,
             size: 64,
-            color: DustColors.borderSoft,
+            color: ArtColors.borderSoft,
           ),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           Text(
             '아직 진행 중인 대화가 없어요',
-            style: DustText.body.copyWith(color: DustColors.textSecondary),
+            style: ArtText.body.copyWith(color: ArtColors.textSecondary),
           ),
-          const SizedBox(height: DustSpacing.xs),
-          const Text('마음에 드는 작품에서 작가에게 문의해보세요', style: DustText.caption),
+          const SizedBox(height: ArtSpacing.xs),
+          const Text('마음에 드는 작품에서 작가에게 문의해보세요', style: ArtText.caption),
         ],
       ),
     );
@@ -166,13 +166,13 @@ class _ChatRoomTile extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-            horizontal: DustSpacing.lg, vertical: 14),
+            horizontal: ArtSpacing.lg, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor: DustColors.bgSubtle,
+              backgroundColor: ArtColors.bgSubtle,
               backgroundImage: room.opponentProfileImageUrl != null
                   ? NetworkImage(room.opponentProfileImageUrl!)
                   : null,
@@ -181,10 +181,10 @@ class _ChatRoomTile extends StatelessWidget {
                       room.opponentNickname.isNotEmpty
                           ? room.opponentNickname[0]
                           : '?',
-                      style: DustText.body.copyWith(
+                      style: ArtText.body.copyWith(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: DustColors.brandPrimary,
+                        color: ArtColors.brandPrimary,
                       ),
                     )
                   : null,
@@ -199,31 +199,31 @@ class _ChatRoomTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           room.opponentNickname,
-                          style: DustText.body
+                          style: ArtText.body
                               .copyWith(fontWeight: FontWeight.w700),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
                         _formatLastMessageTime(room.lastMessageAt),
-                        style: DustText.caption,
+                        style: ArtText.caption,
                       ),
                       if (room.unreadCount > 0) ...[
-                        const SizedBox(width: DustSpacing.xs),
+                        const SizedBox(width: ArtSpacing.xs),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
-                            color: DustColors.brandPrimary,
+                            color: ArtColors.brandPrimary,
                             borderRadius:
-                                BorderRadius.circular(DustRadius.full),
+                                BorderRadius.circular(ArtRadius.full),
                           ),
                           child: Text(
                             '${room.unreadCount}',
-                            style: DustText.caption.copyWith(
+                            style: ArtText.caption.copyWith(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: DustColors.textOnBrand,
+                              color: ArtColors.textOnBrand,
                             ),
                           ),
                         ),
@@ -237,7 +237,7 @@ class _ChatRoomTile extends StatelessWidget {
                         if (roleLabel != null) _Badge(label: roleLabel),
                         if (waiting) ...[
                           if (roleLabel != null)
-                            const SizedBox(width: DustSpacing.xs),
+                            const SizedBox(width: ArtSpacing.xs),
                           const _Badge(label: '상대 대기 중', muted: true),
                         ],
                       ],
@@ -245,12 +245,12 @@ class _ChatRoomTile extends StatelessWidget {
                   ],
                   if (room.lastMessage != null &&
                       room.lastMessage!.isNotEmpty) ...[
-                    const SizedBox(height: DustSpacing.xs),
+                    const SizedBox(height: ArtSpacing.xs),
                     Text(
                       room.lastMessage!,
-                      style: DustText.body.copyWith(
+                      style: ArtText.body.copyWith(
                         fontSize: 14,
-                        color: DustColors.textSecondary,
+                        color: ArtColors.textSecondary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -276,17 +276,17 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding:
-          const EdgeInsets.symmetric(horizontal: DustSpacing.xs, vertical: 3),
+          const EdgeInsets.symmetric(horizontal: ArtSpacing.xs, vertical: 3),
       decoration: BoxDecoration(
-        color: muted ? DustColors.bgSubtle : DustColors.brandPrimary,
-        borderRadius: BorderRadius.circular(DustRadius.full),
+        color: muted ? ArtColors.bgSubtle : ArtColors.brandPrimary,
+        borderRadius: BorderRadius.circular(ArtRadius.full),
       ),
       child: Text(
         label,
-        style: DustText.caption.copyWith(
+        style: ArtText.caption.copyWith(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: muted ? DustColors.textSecondary : DustColors.textOnBrand,
+          color: muted ? ArtColors.textSecondary : ArtColors.textOnBrand,
         ),
       ),
     );

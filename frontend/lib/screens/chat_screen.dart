@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../constants/api_config.dart';
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../models/chat_message.dart';
 import '../services/auth_api_service.dart';
 import '../services/chat_api_service.dart';
@@ -160,32 +160,32 @@ class _ChatScreenState extends State<ChatScreen> {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         decoration: const BoxDecoration(
-          color: DustColors.bgSurface,
+          color: ArtColors.bgSurface,
           borderRadius:
-              BorderRadius.vertical(top: Radius.circular(DustRadius.lg)),
+              BorderRadius.vertical(top: Radius.circular(ArtRadius.lg)),
         ),
         child: SafeArea(
           top: false,
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(
-                horizontal: DustSpacing.lg, vertical: DustSpacing.xs),
+                horizontal: ArtSpacing.lg, vertical: ArtSpacing.xs),
             leading: Container(
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: DustColors.bgInfo,
-                borderRadius: BorderRadius.circular(DustRadius.md),
+                color: ArtColors.bgInfo,
+                borderRadius: BorderRadius.circular(ArtRadius.md),
               ),
               child: const Icon(Icons.event_rounded,
-                  color: DustColors.brandPrimary, size: 24),
+                  color: ArtColors.brandPrimary, size: 24),
             ),
             title: Text(
               '작품 보기 약속',
-              style: DustText.body.copyWith(fontWeight: FontWeight.w600),
+              style: ArtText.body.copyWith(fontWeight: FontWeight.w600),
             ),
             subtitle: const Text(
               '작업실·전시 등 실물을 볼 장소와 시간을 정해 보내기',
-              style: DustText.caption,
+              style: ArtText.caption,
             ),
             onTap: () {
               Navigator.pop(context);
@@ -210,14 +210,14 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setSheetState) => Container(
           padding: EdgeInsets.fromLTRB(
-              DustSpacing.lg,
-              DustSpacing.lg,
-              DustSpacing.lg,
-              DustSpacing.lg + MediaQuery.of(context).padding.bottom),
+              ArtSpacing.lg,
+              ArtSpacing.lg,
+              ArtSpacing.lg,
+              ArtSpacing.lg + MediaQuery.of(context).padding.bottom),
           decoration: const BoxDecoration(
-            color: DustColors.bgSurface,
+            color: ArtColors.bgSurface,
             borderRadius:
-                BorderRadius.vertical(top: Radius.circular(DustRadius.lg)),
+                BorderRadius.vertical(top: Radius.circular(ArtRadius.lg)),
           ),
           child: SingleChildScrollView(
             child: Column(
@@ -226,17 +226,17 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 Text(
                   '작품 보기 약속',
-                  style: DustText.body
+                  style: ArtText.body
                       .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: DustSpacing.lg),
+                const SizedBox(height: ArtSpacing.lg),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.calendar_today_rounded,
-                      color: DustColors.brandPrimary, size: 22),
+                      color: ArtColors.brandPrimary, size: 22),
                   title: Text(
                     '${selectedDate.year}년 ${selectedDate.month}월 ${selectedDate.day}일',
-                    style: DustText.body.copyWith(fontSize: 15),
+                    style: ArtText.body.copyWith(fontSize: 15),
                   ),
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -253,10 +253,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.access_time_rounded,
-                      color: DustColors.brandPrimary, size: 22),
+                      color: ArtColors.brandPrimary, size: 22),
                   title: Text(
                     '${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}',
-                    style: DustText.body.copyWith(fontSize: 15),
+                    style: ArtText.body.copyWith(fontSize: 15),
                   ),
                   onTap: () async {
                     final picked = await showTimePicker(
@@ -266,27 +266,27 @@ class _ChatScreenState extends State<ChatScreen> {
                     }
                   },
                 ),
-                const SizedBox(height: DustSpacing.xs),
+                const SizedBox(height: ArtSpacing.xs),
                 TextField(
                   controller: _placeController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.place_outlined,
-                        color: DustColors.brandPrimary, size: 22),
+                        color: ArtColors.brandPrimary, size: 22),
                     hintText: '장소 (예: 서촌 작업실)',
-                    hintStyle: DustText.body.copyWith(
-                        fontSize: 15, color: DustColors.textSecondary),
+                    hintStyle: ArtText.body.copyWith(
+                        fontSize: 15, color: ArtColors.textSecondary),
                     filled: true,
-                    fillColor: DustColors.bgSubtle,
+                    fillColor: ArtColors.bgSubtle,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(DustRadius.md),
+                      borderRadius: BorderRadius.circular(ArtRadius.md),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: DustSpacing.md, vertical: 14),
+                        horizontal: ArtSpacing.md, vertical: 14),
                   ),
-                  style: DustText.body.copyWith(fontSize: 15),
+                  style: ArtText.body.copyWith(fontSize: 15),
                 ),
-                const SizedBox(height: DustSpacing.lg),
+                const SizedBox(height: ArtSpacing.lg),
                 SizedBox(
                   height: 48,
                   child: FilledButton(
@@ -300,10 +300,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       _send(text, messageType: 'APPOINTMENT');
                     },
                     style: FilledButton.styleFrom(
-                      backgroundColor: DustColors.brandPrimary,
-                      foregroundColor: DustColors.textOnBrand,
+                      backgroundColor: ArtColors.brandPrimary,
+                      foregroundColor: ArtColors.textOnBrand,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(DustRadius.md),
+                        borderRadius: BorderRadius.circular(ArtRadius.md),
                       ),
                     ),
                     child: const Text('채팅으로 보내기',
@@ -331,20 +331,20 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: DustColors.bgCanvas,
+        backgroundColor: ArtColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => Navigator.of(context).pop(),
-          color: DustColors.textPrimary,
+          color: ArtColors.textPrimary,
         ),
         title: Row(
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundColor: DustColors.bgSubtle,
+              backgroundColor: ArtColors.bgSubtle,
               backgroundImage: widget.partnerProfileImageUrl != null
                   ? NetworkImage(widget.partnerProfileImageUrl!)
                   : null,
@@ -353,14 +353,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       widget.partnerNickname.isNotEmpty
                           ? widget.partnerNickname[0]
                           : '?',
-                      style: DustText.body.copyWith(
+                      style: ArtText.body.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: DustColors.brandPrimary,
+                        color: ArtColors.brandPrimary,
                       ),
                     )
                   : null,
             ),
-            const SizedBox(width: DustSpacing.sm),
+            const SizedBox(width: ArtSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,15 +368,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Text(
                     widget.partnerNickname,
-                    style: DustText.body.copyWith(fontWeight: FontWeight.w700),
+                    style: ArtText.body.copyWith(fontWeight: FontWeight.w700),
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     _connected ? '실시간 연결됨' : '연결 중…',
-                    style: DustText.caption.copyWith(
+                    style: ArtText.caption.copyWith(
                       color: _connected
-                          ? DustColors.brandPrimary
-                          : DustColors.textSecondary,
+                          ? ArtColors.brandPrimary
+                          : ArtColors.textSecondary,
                     ),
                   ),
                 ],
@@ -391,19 +391,19 @@ class _ChatScreenState extends State<ChatScreen> {
             child: _loadingHistory
                 ? const Center(
                     child: CircularProgressIndicator(
-                        color: DustColors.brandPrimary),
+                        color: ArtColors.brandPrimary),
                   )
                 : _messages.isEmpty
                 ? const Center(
                     child: Text(
                       '작품에 대해 궁금한 점을 물어보세요',
-                      style: DustText.caption,
+                      style: ArtText.caption,
                     ),
                   )
                 : ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(DustSpacing.md,
-                        DustSpacing.md, DustSpacing.md, DustSpacing.xs),
+                    padding: const EdgeInsets.fromLTRB(ArtSpacing.md,
+                        ArtSpacing.md, ArtSpacing.md, ArtSpacing.xs),
                     itemCount: _messages.length,
                     itemBuilder: (context, index) =>
                         _MessageBubble(message: _messages[index]),
@@ -418,11 +418,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildComposer() {
     return Container(
       decoration: const BoxDecoration(
-        color: DustColors.bgSurface,
-        border: Border(top: BorderSide(color: DustColors.borderSoft)),
+        color: ArtColors.bgSurface,
+        border: Border(top: BorderSide(color: ArtColors.borderSoft)),
       ),
       padding: const EdgeInsets.fromLTRB(
-          DustSpacing.md, DustSpacing.sm, DustSpacing.md, DustSpacing.sm),
+          ArtSpacing.md, ArtSpacing.sm, ArtSpacing.md, ArtSpacing.sm),
       child: SafeArea(
         top: false,
         child: Row(
@@ -430,7 +430,7 @@ class _ChatScreenState extends State<ChatScreen> {
             IconButton(
               onPressed: _showAttachmentMenu,
               icon: const Icon(Icons.add_circle_outline_rounded,
-                  color: DustColors.brandPrimary, size: 28),
+                  color: ArtColors.brandPrimary, size: 28),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
             ),
@@ -440,32 +440,32 @@ class _ChatScreenState extends State<ChatScreen> {
                 controller: _textController,
                 decoration: InputDecoration(
                   hintText: '메시지를 입력하세요',
-                  hintStyle: DustText.body.copyWith(
-                      fontSize: 15, color: DustColors.textSecondary),
+                  hintStyle: ArtText.body.copyWith(
+                      fontSize: 15, color: ArtColors.textSecondary),
                   filled: true,
-                  fillColor: DustColors.bgSubtle,
+                  fillColor: ArtColors.bgSubtle,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(DustRadius.full),
+                    borderRadius: BorderRadius.circular(ArtRadius.full),
                     borderSide: BorderSide.none,
                   ),
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: DustSpacing.sm),
+                      horizontal: 18, vertical: ArtSpacing.sm),
                 ),
-                style: DustText.body.copyWith(fontSize: 15),
+                style: ArtText.body.copyWith(fontSize: 15),
                 maxLines: null,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (value) => _send(value),
               ),
             ),
-            const SizedBox(width: DustSpacing.xs),
+            const SizedBox(width: ArtSpacing.xs),
             Material(
               color:
-                  _connected ? DustColors.brandPrimary : DustColors.borderSoft,
-              borderRadius: BorderRadius.circular(DustRadius.full),
+                  _connected ? ArtColors.brandPrimary : ArtColors.borderSoft,
+              borderRadius: BorderRadius.circular(ArtRadius.full),
               child: IconButton(
                 onPressed: () => _send(_textController.text),
                 icon: const Icon(Icons.send_rounded,
-                    color: DustColors.textOnBrand, size: 22),
+                    color: ArtColors.textOnBrand, size: 22),
               ),
             ),
           ],
@@ -501,37 +501,37 @@ class _MessageBubble extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(bottom: 2),
             padding: const EdgeInsets.symmetric(
-                horizontal: 14, vertical: DustSpacing.sm),
+                horizontal: 14, vertical: ArtSpacing.sm),
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.75,
             ),
             decoration: BoxDecoration(
               color: isAppointment
-                  ? DustColors.bgInfo
-                  : (isMe ? DustColors.brandPrimary : DustColors.bgSurface),
+                  ? ArtColors.bgInfo
+                  : (isMe ? ArtColors.brandPrimary : ArtColors.bgSurface),
               border: isMe && !isAppointment
                   ? null
-                  : Border.all(color: DustColors.borderSoft),
+                  : Border.all(color: ArtColors.borderSoft),
               borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(DustRadius.md),
-                topRight: const Radius.circular(DustRadius.md),
-                bottomLeft: Radius.circular(isMe ? DustRadius.md : 4),
-                bottomRight: Radius.circular(isMe ? 4 : DustRadius.md),
+                topLeft: const Radius.circular(ArtRadius.md),
+                topRight: const Radius.circular(ArtRadius.md),
+                bottomLeft: Radius.circular(isMe ? ArtRadius.md : 4),
+                bottomRight: Radius.circular(isMe ? 4 : ArtRadius.md),
               ),
             ),
             child: Text(
               message.text,
-              style: DustText.body.copyWith(
+              style: ArtText.body.copyWith(
                 fontSize: 15,
                 color: isMe && !isAppointment
-                    ? DustColors.textOnBrand
-                    : DustColors.textPrimary,
+                    ? ArtColors.textOnBrand
+                    : ArtColors.textPrimary,
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: DustSpacing.xs),
-            child: Text(_time, style: DustText.caption.copyWith(fontSize: 11)),
+            padding: const EdgeInsets.only(bottom: ArtSpacing.xs),
+            child: Text(_time, style: ArtText.caption.copyWith(fontSize: 11)),
           ),
         ],
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../screens/art_home_feed_screen.dart' show formatPrice;
 
 import '../models/nearby_artwork.dart';
@@ -15,7 +15,7 @@ void showNearbyArtworksSheet(
 }) {
   showModalBottomSheet<void>(
     context: context,
-    backgroundColor: DustColors.bgCanvas,
+    backgroundColor: ArtColors.bgCanvas,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
@@ -48,7 +48,7 @@ class _NearbyArtworksSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: DustColors.borderSoft,
+                color: ArtColors.borderSoft,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -61,7 +61,7 @@ class _NearbyArtworksSheet extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),
             child: Text('현재 지도 위치에서 가까운 순으로 보여드려요',
-                style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+                style: TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
           ),
           const SizedBox(height: 8),
           Expanded(
@@ -120,7 +120,7 @@ class _NearbyArtworkTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(
-          border: Border.all(color: DustColors.borderSoft),
+          border: Border.all(color: ArtColors.borderSoft),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
@@ -130,12 +130,12 @@ class _NearbyArtworkTile extends StatelessWidget {
               height: 48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: DustColors.bgSurface,
-                border: Border.all(color: DustColors.borderSoft),
+                color: ArtColors.bgSurface,
+                border: Border.all(color: ArtColors.borderSoft),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Icon(Icons.image_outlined,
-                  size: 20, color: DustColors.textSecondary),
+                  size: 20, color: ArtColors.textSecondary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -153,7 +153,7 @@ class _NearbyArtworkTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                        fontSize: 11, color: DustColors.textSecondary),
+                        fontSize: 11, color: ArtColors.textSecondary),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -168,7 +168,7 @@ class _NearbyArtworkTile extends StatelessWidget {
                 style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: DustColors.brandPrimary)),
+                    color: ArtColors.brandPrimary)),
           ],
         ),
       ),

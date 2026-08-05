@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../constants/region_data.dart';
 import '../services/auth_api_service.dart';
 import '../services/user_api_service.dart';
@@ -117,25 +117,25 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: DustColors.bgCanvas,
+        backgroundColor: ArtColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left,
-              size: 28, color: DustColors.textPrimary),
+              size: 28, color: ArtColors.textPrimary),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text('${_isArtist ? '작가' : '컬렉터'} 프로필 설정',
             style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: DustColors.brandPrimary)),
+                color: ArtColors.brandPrimary)),
         centerTitle: true,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-            DustSpacing.lg, DustSpacing.xs, DustSpacing.lg, DustSpacing.lg),
+            ArtSpacing.lg, ArtSpacing.xs, ArtSpacing.lg, ArtSpacing.lg),
         children: [
           Center(
             child: Container(
@@ -144,31 +144,31 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: DustColors.bgSubtle,
-                border: Border.all(color: DustColors.borderSoft),
+                color: ArtColors.bgSubtle,
+                border: Border.all(color: ArtColors.borderSoft),
               ),
               child: widget.kakaoProfileImageUrl == null
                   ? const Icon(Icons.person_outline,
-                      size: 40, color: DustColors.textSecondary)
+                      size: 40, color: ArtColors.textSecondary)
                   : Image.network(widget.kakaoProfileImageUrl!,
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => const Icon(
                           Icons.person_outline,
                           size: 40,
-                          color: DustColors.textSecondary)),
+                          color: ArtColors.textSecondary)),
             ),
           ),
-          const SizedBox(height: DustSpacing.lg),
+          const SizedBox(height: ArtSpacing.lg),
           const _FieldLabel('활동명 (닉네임)'),
           _input(_nicknameController,
               _isArtist ? '작가명으로 사용됩니다' : '닉네임을 입력하세요'),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('이름 (선택)'),
           _input(_nameController, '실명을 입력하면 인증에 사용됩니다'),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('나이'),
           _input(_ageController, '예: 24', number: true),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('활동 지역'),
           DropdownButtonFormField<String>(
             initialValue: _region,
@@ -181,26 +181,26 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             onChanged: (value) => setState(() => _region = value),
             hint: const Text('지역을 선택해주세요',
                 style: TextStyle(
-                    fontSize: 13, color: DustColors.textSecondary)),
+                    fontSize: 13, color: ArtColors.textSecondary)),
             decoration: _decoration(),
           ),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           _FieldLabel(_isArtist ? '작가 소개' : '취향 소개'),
           TextField(
             controller: _bioController,
             maxLines: 3,
             style:
-                const TextStyle(fontSize: 14, color: DustColors.textPrimary),
+                const TextStyle(fontSize: 14, color: ArtColors.textPrimary),
             decoration: _decoration(
                 hint: _isArtist
                     ? '작업 세계와 주로 다루는 주제를 소개해주세요'
                     : '어떤 작품을 좋아하는지 알려주세요'),
           ),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           _FieldLabel(_isArtist ? '주요 장르' : '관심 장르'),
           Wrap(
-            spacing: DustSpacing.xs,
-            runSpacing: DustSpacing.xs,
+            spacing: ArtSpacing.xs,
+            runSpacing: ArtSpacing.xs,
             children: _genres.map((genre) {
               final active = _selectedGenres.contains(genre);
               return GestureDetector(
@@ -216,12 +216,12 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                       horizontal: 16, vertical: 9),
                   decoration: BoxDecoration(
                     color: active
-                        ? DustColors.brandPrimary
-                        : DustColors.bgSurface,
-                    borderRadius: BorderRadius.circular(DustRadius.full),
+                        ? ArtColors.brandPrimary
+                        : ArtColors.bgSurface,
+                    borderRadius: BorderRadius.circular(ArtRadius.full),
                     border: active
                         ? null
-                        : Border.all(color: DustColors.borderSoft),
+                        : Border.all(color: ArtColors.borderSoft),
                   ),
                   child: Text(genre,
                       style: TextStyle(
@@ -229,23 +229,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         fontWeight:
                             active ? FontWeight.w600 : FontWeight.w400,
                         color: active
-                            ? DustColors.textOnBrand
-                            : DustColors.textPrimary,
+                            ? ArtColors.textOnBrand
+                            : ArtColors.textPrimary,
                       )),
                 ),
               );
             }).toList(),
           ),
-          const SizedBox(height: DustSpacing.lg * 1.5),
+          const SizedBox(height: ArtSpacing.lg * 1.5),
           SizedBox(
             height: 52,
             child: FilledButton(
               onPressed: _submitting ? null : _submit,
               style: FilledButton.styleFrom(
-                backgroundColor: DustColors.brandPrimary,
-                foregroundColor: DustColors.textOnBrand,
+                backgroundColor: ArtColors.brandPrimary,
+                foregroundColor: ArtColors.textOnBrand,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(DustRadius.full)),
+                    borderRadius: BorderRadius.circular(ArtRadius.full)),
               ),
               child: Text(_submitting ? '저장 중...' : 'ART NARA 시작하기',
                   style: const TextStyle(
@@ -264,7 +264,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       keyboardType: number ? TextInputType.number : null,
       inputFormatters:
           number ? [FilteringTextInputFormatter.digitsOnly] : null,
-      style: const TextStyle(fontSize: 14, color: DustColors.textPrimary),
+      style: const TextStyle(fontSize: 14, color: ArtColors.textPrimary),
       decoration: _decoration(hint: hint),
     );
   }
@@ -273,22 +273,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
     return InputDecoration(
       hintText: hint,
       hintStyle:
-          const TextStyle(fontSize: 13, color: DustColors.textSecondary),
+          const TextStyle(fontSize: 13, color: ArtColors.textSecondary),
       filled: true,
-      fillColor: DustColors.bgSurface,
+      fillColor: ArtColors.bgSurface,
       contentPadding:
           const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(DustRadius.sm),
-        borderSide: const BorderSide(color: DustColors.borderSoft),
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
+        borderSide: const BorderSide(color: ArtColors.borderSoft),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(DustRadius.sm),
-        borderSide: const BorderSide(color: DustColors.borderSoft),
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
+        borderSide: const BorderSide(color: ArtColors.borderSoft),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(DustRadius.sm),
-        borderSide: const BorderSide(color: DustColors.brandPrimary),
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
+        borderSide: const BorderSide(color: ArtColors.brandPrimary),
       ),
     );
   }
@@ -302,12 +302,12 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: DustSpacing.xs),
+      padding: const EdgeInsets.only(bottom: ArtSpacing.xs),
       child: Text(text,
           style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: DustColors.textPrimary)),
+              color: ArtColors.textPrimary)),
     );
   }
 }

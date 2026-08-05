@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// DUST-ART 디자인 토큰.
+/// ART NARA 디자인 토큰.
 ///
-/// Figma "DUST-ART Foundations"(파일 LghoZTZPejVsF7jndmqJEm, node 25:210)에서
+/// Figma "ART NARA Foundations"(파일 LghoZTZPejVsF7jndmqJEm, node 25:210)에서
 /// 그대로 옮긴 값이다. 새 화면은 하드코딩 대신 이 토큰을 사용할 것.
-class DustColors {
-  DustColors._();
+class ArtColors {
+  ArtColors._();
 
   // ─── Primitives ───
   static const Color ivory = Color(0xFFF8F3E8);
@@ -65,37 +65,37 @@ class DustColors {
 }
 
 /// 타이포그래피 스케일. 폰트는 Noto Sans KR.
-class DustText {
-  DustText._();
+class ArtText {
+  ArtText._();
 
   static const TextStyle heading = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w700,
-    color: DustColors.textPrimary,
+    color: ArtColors.textPrimary,
   );
 
   static const TextStyle section = TextStyle(
     fontSize: 22,
     fontWeight: FontWeight.w700,
-    color: DustColors.textPrimary,
+    color: ArtColors.textPrimary,
   );
 
   static const TextStyle body = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: DustColors.textPrimary,
+    color: ArtColors.textPrimary,
   );
 
   static const TextStyle caption = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    color: DustColors.textSecondary,
+    color: ArtColors.textSecondary,
   );
 }
 
 /// 간격 스케일 (8 · 12 · 16 · 24)
-class DustSpacing {
-  DustSpacing._();
+class ArtSpacing {
+  ArtSpacing._();
 
   static const double xs = 8;
   static const double sm = 12;
@@ -104,8 +104,8 @@ class DustSpacing {
 }
 
 /// 모서리 반경 (8 · 14 · 22 · Full)
-class DustRadius {
-  DustRadius._();
+class ArtRadius {
+  ArtRadius._();
 
   static const double sm = 8;
   static const double md = 14;

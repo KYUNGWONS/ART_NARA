@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../widgets/won_input_formatter.dart';
 import '../utils/image_url.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
@@ -192,7 +192,7 @@ class _SellScreenState extends State<SellScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(
-              DustSpacing.lg, DustSpacing.xs, DustSpacing.lg, 0),
+              ArtSpacing.lg, ArtSpacing.xs, ArtSpacing.lg, 0),
           child: Column(
             children: [
               // 화면 제목은 MainScreen 헤더가 그린다(디자인 header-row). 여기선 진행 표기만.
@@ -200,9 +200,9 @@ class _SellScreenState extends State<SellScreen> {
                 alignment: Alignment.centerRight,
                 child: Text('${_step + 1}/${_stepLabels.length}',
                     style: const TextStyle(
-                        fontSize: 13, color: DustColors.textSecondary)),
+                        fontSize: 13, color: ArtColors.textSecondary)),
               ),
-              const SizedBox(height: DustSpacing.xs),
+              const SizedBox(height: ArtSpacing.xs),
               _StepIndicator(current: _step),
             ],
           ),
@@ -210,25 +210,25 @@ class _SellScreenState extends State<SellScreen> {
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(
-                DustSpacing.lg, DustSpacing.lg, DustSpacing.lg, DustSpacing.lg),
+                ArtSpacing.lg, ArtSpacing.lg, ArtSpacing.lg, ArtSpacing.lg),
             children: _buildStepFields(),
           ),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(
-              DustSpacing.lg, 0, DustSpacing.lg, DustSpacing.lg),
+              ArtSpacing.lg, 0, ArtSpacing.lg, ArtSpacing.lg),
           child: Row(
             children: [
               if (_step > 0)
                 OutlinedButton(
                   onPressed: () => setState(() => _step--),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: DustColors.brandPrimary,
-                    side: const BorderSide(color: DustColors.borderSoft),
+                    foregroundColor: ArtColors.brandPrimary,
+                    side: const BorderSide(color: ArtColors.borderSoft),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(DustRadius.sm)),
+                        borderRadius: BorderRadius.circular(ArtRadius.sm)),
                   ),
                   child: const Text('이전'),
                 ),
@@ -238,12 +238,12 @@ class _SellScreenState extends State<SellScreen> {
                     ? null
                     : (_step == _stepLabels.length - 1 ? _submit : _next),
                 style: FilledButton.styleFrom(
-                  backgroundColor: DustColors.brandPrimary,
-                  foregroundColor: DustColors.textOnBrand,
+                  backgroundColor: ArtColors.brandPrimary,
+                  foregroundColor: ArtColors.textOnBrand,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(DustRadius.sm)),
+                      borderRadius: BorderRadius.circular(ArtRadius.sm)),
                 ),
                 child: Text(_submitting
                     ? '등록 중...'
@@ -268,13 +268,13 @@ class _SellScreenState extends State<SellScreen> {
             localImagePath: _localImagePath,
             uploading: _uploadingImage,
           ),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('작품 제목'),
           _input(_titleController, '제목을 입력하세요'),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('작품 설명'),
           _input(_descriptionController, '작품에 대해 설명해주세요', maxLines: 3),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('카테고리'),
           DropdownButtonFormField<String>(
             initialValue: _category,
@@ -286,7 +286,7 @@ class _SellScreenState extends State<SellScreen> {
             onChanged: (v) => setState(() => _category = v ?? _categories.first),
             decoration: _decoration(''),
           ),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('예상 가격 (₩)'),
           _input(_buyNowController, '가격을 입력하세요', money: true),
         ];
@@ -294,10 +294,10 @@ class _SellScreenState extends State<SellScreen> {
         return [
           const _FieldLabel('재료'),
           _input(_mediumController, '예: 캔버스에 유화'),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('크기'),
           _input(_sizeController, '예: 53.0 x 45.5cm (10호)'),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           const _FieldLabel('제작 연도'),
           _input(_yearController, '예: 2026', number: true),
         ];
@@ -305,29 +305,29 @@ class _SellScreenState extends State<SellScreen> {
         return [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            activeThumbColor: DustColors.brandPrimary,
+            activeThumbColor: ArtColors.brandPrimary,
             title: const Text('경매로도 판매하기',
                 style: TextStyle(
                     fontSize: 15, fontWeight: FontWeight.w600,
-                    color: DustColors.textPrimary)),
+                    color: ArtColors.textPrimary)),
             subtitle: const Text('최저가부터 입찰을 받아 더 높은 가격에 판매될 수 있어요',
                 style:
-                    TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+                    TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
             value: _auctionEnabled,
             onChanged: (v) => setState(() => _auctionEnabled = v),
           ),
           if (_auctionEnabled) ...[
-            const SizedBox(height: DustSpacing.md),
+            const SizedBox(height: ArtSpacing.md),
             const _FieldLabel('경매 최저가 (₩)'),
             _input(_auctionStartController, '즉시 판매가보다 낮게 설정하세요', money: true),
-            const SizedBox(height: DustSpacing.md),
+            const SizedBox(height: ArtSpacing.md),
             const _FieldLabel('경매 마감일'),
             OutlinedButton.icon(
               onPressed: _pickEndDate,
               style: OutlinedButton.styleFrom(
-                foregroundColor: DustColors.textPrimary,
-                side: const BorderSide(color: DustColors.borderSoft),
-                backgroundColor: DustColors.bgSurface,
+                foregroundColor: ArtColors.textPrimary,
+                side: const BorderSide(color: ArtColors.borderSoft),
+                backgroundColor: ArtColors.bgSurface,
               ),
               icon: const Icon(Icons.calendar_today_outlined, size: 16),
               label: Text(
@@ -346,8 +346,8 @@ class _SellScreenState extends State<SellScreen> {
               style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: DustColors.textPrimary)),
-          const SizedBox(height: DustSpacing.md),
+                  color: ArtColors.textPrimary)),
+          const SizedBox(height: ArtSpacing.md),
           _SummaryCard(rows: [
             ('작품 제목', _titleController.text),
             ('카테고리', _category),
@@ -376,14 +376,14 @@ class _SellScreenState extends State<SellScreen> {
           : number
               ? [FilteringTextInputFormatter.digitsOnly]
               : null,
-      style: const TextStyle(fontSize: 14, color: DustColors.textPrimary),
+      style: const TextStyle(fontSize: 14, color: ArtColors.textPrimary),
       decoration: money
           ? _decoration(hint).copyWith(
               prefixText: '₩ ',
               prefixStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: DustColors.textPrimary),
+                  color: ArtColors.textPrimary),
             )
           : _decoration(hint),
     );
@@ -393,22 +393,22 @@ class _SellScreenState extends State<SellScreen> {
     return InputDecoration(
       hintText: hint,
       hintStyle:
-          const TextStyle(fontSize: 13, color: DustColors.textSecondary),
+          const TextStyle(fontSize: 13, color: ArtColors.textSecondary),
       filled: true,
-      fillColor: DustColors.bgSurface,
+      fillColor: ArtColors.bgSurface,
       contentPadding:
           const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(DustRadius.sm),
-        borderSide: const BorderSide(color: DustColors.borderSoft),
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
+        borderSide: const BorderSide(color: ArtColors.borderSoft),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(DustRadius.sm),
-        borderSide: const BorderSide(color: DustColors.borderSoft),
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
+        borderSide: const BorderSide(color: ArtColors.borderSoft),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(DustRadius.sm),
-        borderSide: const BorderSide(color: DustColors.brandPrimary),
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
+        borderSide: const BorderSide(color: ArtColors.brandPrimary),
       ),
     );
   }
@@ -430,7 +430,7 @@ class _StepIndicator extends StatelessWidget {
             child: Container(
               height: 2,
               margin: const EdgeInsets.only(bottom: 18),
-              color: done ? DustColors.brandPrimary : DustColors.borderSoft,
+              color: done ? ArtColors.brandPrimary : ArtColors.borderSoft,
             ),
           );
         }
@@ -443,11 +443,11 @@ class _StepIndicator extends StatelessWidget {
               height: 12,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: active ? DustColors.brandPrimary : DustColors.bgSurface,
+                color: active ? ArtColors.brandPrimary : ArtColors.bgSurface,
                 border: Border.all(
                     color: active
-                        ? DustColors.brandPrimary
-                        : DustColors.borderSoft),
+                        ? ArtColors.brandPrimary
+                        : ArtColors.borderSoft),
               ),
             ),
             const SizedBox(height: 6),
@@ -455,8 +455,8 @@ class _StepIndicator extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 10,
                     color: active
-                        ? DustColors.brandPrimary
-                        : DustColors.textSecondary)),
+                        ? ArtColors.brandPrimary
+                        : ArtColors.textSecondary)),
           ],
         );
       }),
@@ -472,12 +472,12 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: DustSpacing.xs),
+      padding: const EdgeInsets.only(bottom: ArtSpacing.xs),
       child: Text(text,
           style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: DustColors.textPrimary)),
+              color: ArtColors.textPrimary)),
     );
   }
 }
@@ -504,9 +504,9 @@ class _UploadBox extends StatelessWidget {
         alignment: Alignment.center,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: DustColors.bgSubtle,
-          border: Border.all(color: DustColors.borderSoft),
-          borderRadius: BorderRadius.circular(DustRadius.md),
+          color: ArtColors.bgSubtle,
+          border: Border.all(color: ArtColors.borderSoft),
+          borderRadius: BorderRadius.circular(ArtRadius.md),
         ),
         child: localImagePath != null
             ? Stack(
@@ -526,17 +526,17 @@ class _UploadBox extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.file_upload_outlined,
-                      size: 32, color: DustColors.brandPrimary),
-                  SizedBox(height: DustSpacing.sm),
+                      size: 32, color: ArtColors.brandPrimary),
+                  SizedBox(height: ArtSpacing.sm),
                   Text('이미지 업로드',
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: DustColors.textPrimary)),
+                          color: ArtColors.textPrimary)),
                   SizedBox(height: 4),
                   Text('JPG, PNG, WEBP 지원 (최대 10MB)',
                       style: TextStyle(
-                          fontSize: 12, color: DustColors.textSecondary)),
+                          fontSize: 12, color: ArtColors.textSecondary)),
                 ],
               ),
       ),
@@ -552,11 +552,11 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(DustSpacing.md),
+      padding: const EdgeInsets.all(ArtSpacing.md),
       decoration: BoxDecoration(
-        color: DustColors.bgSurface,
-        borderRadius: BorderRadius.circular(DustRadius.md),
-        border: Border.all(color: DustColors.borderSoft),
+        color: ArtColors.bgSurface,
+        borderRadius: BorderRadius.circular(ArtRadius.md),
+        border: Border.all(color: ArtColors.borderSoft),
       ),
       child: Column(
         children: rows
@@ -570,13 +570,13 @@ class _SummaryCard extends StatelessWidget {
                         child: Text(row.$1,
                             style: const TextStyle(
                                 fontSize: 12,
-                                color: DustColors.textSecondary)),
+                                color: ArtColors.textSecondary)),
                       ),
                       Expanded(
                         child: Text(row.$2,
                             style: const TextStyle(
                                 fontSize: 13,
-                                color: DustColors.textPrimary)),
+                                color: ArtColors.textPrimary)),
                       ),
                     ],
                   ),
@@ -597,50 +597,50 @@ class _CompletedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(DustSpacing.lg),
+      padding: const EdgeInsets.all(ArtSpacing.lg),
       children: [
-        const SizedBox(height: DustSpacing.lg),
+        const SizedBox(height: ArtSpacing.lg),
         const Icon(Icons.check_circle,
-            size: 56, color: DustColors.brandPrimary),
-        const SizedBox(height: DustSpacing.md),
+            size: 56, color: ArtColors.brandPrimary),
+        const SizedBox(height: ArtSpacing.md),
         const Text('판매 등록이 완료되었습니다',
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: DustColors.textPrimary)),
+                color: ArtColors.textPrimary)),
         const SizedBox(height: 6),
         const Text('검수 후 홈 피드에 노출됩니다 · 판매 수수료 8%',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
-        const SizedBox(height: DustSpacing.lg),
+            style: TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
+        const SizedBox(height: ArtSpacing.lg),
         Center(
           child: FilledButton(
             onPressed: onReset,
             style: FilledButton.styleFrom(
-              backgroundColor: DustColors.brandPrimary,
-              foregroundColor: DustColors.textOnBrand,
+              backgroundColor: ArtColors.brandPrimary,
+              foregroundColor: ArtColors.textOnBrand,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(DustRadius.full)),
+                  borderRadius: BorderRadius.circular(ArtRadius.full)),
             ),
             child: const Text('새 작품 등록하기'),
           ),
         ),
-        const SizedBox(height: DustSpacing.lg),
+        const SizedBox(height: ArtSpacing.lg),
         if (sales.isNotEmpty) ...[
           const Text('내 판매 작품',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: DustColors.textPrimary)),
-          const SizedBox(height: DustSpacing.sm),
+                  color: ArtColors.textPrimary)),
+          const SizedBox(height: ArtSpacing.sm),
           ...sales.map((sale) => Container(
-                margin: const EdgeInsets.only(bottom: DustSpacing.xs),
-                padding: const EdgeInsets.all(DustSpacing.sm),
+                margin: const EdgeInsets.only(bottom: ArtSpacing.xs),
+                padding: const EdgeInsets.all(ArtSpacing.sm),
                 decoration: BoxDecoration(
-                  color: DustColors.bgSurface,
-                  borderRadius: BorderRadius.circular(DustRadius.sm),
-                  border: Border.all(color: DustColors.borderSoft),
+                  color: ArtColors.bgSurface,
+                  borderRadius: BorderRadius.circular(ArtRadius.sm),
+                  border: Border.all(color: ArtColors.borderSoft),
                 ),
                 child: Row(
                   children: [
@@ -664,7 +664,7 @@ class _CompletedView extends StatelessWidget {
                               style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: DustColors.textPrimary)),
+                                  color: ArtColors.textPrimary)),
                           const SizedBox(height: 2),
                           Text(
                             sale.auctionEnabled
@@ -672,7 +672,7 @@ class _CompletedView extends StatelessWidget {
                                 : '즉시 ₩${formatPrice(sale.buyNowPrice)}',
                             style: const TextStyle(
                                 fontSize: 11,
-                                color: DustColors.textSecondary),
+                                color: ArtColors.textSecondary),
                           ),
                         ],
                       ),
@@ -681,13 +681,13 @@ class _CompletedView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: DustColors.bgSubtle,
+                        color: ArtColors.bgSubtle,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(sale.status,
                           style: const TextStyle(
                               fontSize: 11,
-                              color: DustColors.textSecondary)),
+                              color: ArtColors.textSecondary)),
                     ),
                   ],
                 ),

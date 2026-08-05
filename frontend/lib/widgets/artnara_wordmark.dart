@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 
 /// ART NARA 워드마크.
 ///
-/// 디자인 파일(Figma "DUST-ART")에서 받은 워드마크 이미지는 옛 브랜드명이 박혀 있어,
+/// 디자인 파일(Figma "ART NARA")에서 받은 워드마크 이미지는 옛 브랜드명이 박혀 있어,
 /// 같은 조판(넓은 자간 + 글자 사이 오렌지 점)을 텍스트로 다시 그린다.
 class ArtNaraWordmark extends StatelessWidget {
   const ArtNaraWordmark({
     super.key,
     this.fontSize = 40,
-    this.color = DustColors.brandPrimary,
+    this.color = ArtColors.brandPrimary,
   });
 
   final double fontSize;

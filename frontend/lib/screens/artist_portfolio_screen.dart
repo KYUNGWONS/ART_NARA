@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../utils/image_url.dart';
 import '../utils/artist_inquiry.dart';
 import '../models/artist_profile.dart';
@@ -41,14 +41,14 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       body: FutureBuilder<ArtistProfile>(
         future: _profileFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child:
-                  CircularProgressIndicator(color: DustColors.brandPrimary),
+                  CircularProgressIndicator(color: ArtColors.brandPrimary),
             );
           }
           if (snapshot.hasError) {
@@ -57,8 +57,8 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text('작가 정보를 불러오지 못했어요',
-                      style: DustText.caption),
-                  const SizedBox(height: DustSpacing.sm),
+                      style: ArtText.caption),
+                  const SizedBox(height: ArtSpacing.sm),
                   OutlinedButton(
                     onPressed: () => setState(() {
                       _profileFuture = _api.fetchPortfolio(widget.artistName);
@@ -77,27 +77,27 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
               _StatsRow(profile: profile),
               Padding(
                 padding: const EdgeInsets.fromLTRB(
-                    DustSpacing.lg, DustSpacing.md, DustSpacing.lg, 0),
+                    ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, 0),
                 child: Text(
                   profile.introduction,
                   style: const TextStyle(
                       fontSize: 13,
                       height: 1.6,
-                      color: DustColors.textSecondary),
+                      color: ArtColors.textSecondary),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(
-                    DustSpacing.lg, DustSpacing.md, DustSpacing.lg, 0),
+                    ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, 0),
                 child: SizedBox(
                   height: 44,
                   child: OutlinedButton.icon(
                     onPressed: () => openArtistInquiry(context, profile.name),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: DustColors.brandPrimary,
-                      side: const BorderSide(color: DustColors.brandPrimary),
+                      foregroundColor: ArtColors.brandPrimary,
+                      side: const BorderSide(color: ArtColors.brandPrimary),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(DustRadius.full),
+                        borderRadius: BorderRadius.circular(ArtRadius.full),
                       ),
                     ),
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
@@ -105,19 +105,19 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: DustSpacing.md),
+              const SizedBox(height: ArtSpacing.md),
               _Tabs(
                 current: _tab,
                 reviewCount: profile.reviewCount,
                 onChanged: (index) => setState(() => _tab = index),
               ),
-              const SizedBox(height: DustSpacing.md),
+              const SizedBox(height: ArtSpacing.md),
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: DustSpacing.md),
+                    const EdgeInsets.symmetric(horizontal: ArtSpacing.md),
                 child: _buildTabContent(profile),
               ),
-              const SizedBox(height: DustSpacing.lg),
+              const SizedBox(height: ArtSpacing.lg),
             ],
           );
         },
@@ -131,15 +131,15 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
     if (reviews.isEmpty) {
       return const [
         Text('아직 등록된 리뷰가 없어요',
-            style: TextStyle(fontSize: 13, color: DustColors.textSecondary)),
+            style: TextStyle(fontSize: 13, color: ArtColors.textSecondary)),
         SizedBox(height: 4),
         Text('작품을 구매하면 리뷰를 남길 수 있습니다',
-            style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+            style: TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
       ];
     }
     return reviews
         .map((review) => Padding(
-              padding: const EdgeInsets.only(bottom: DustSpacing.sm),
+              padding: const EdgeInsets.only(bottom: ArtSpacing.sm),
               child: _ReviewCard(review: review),
             ))
         .toList();
@@ -150,11 +150,11 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
       case 0:
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(DustSpacing.md),
+          padding: const EdgeInsets.all(ArtSpacing.md),
           decoration: BoxDecoration(
-            color: DustColors.bgSurface,
-            borderRadius: BorderRadius.circular(DustRadius.md),
-            border: Border.all(color: DustColors.borderSoft),
+            color: ArtColors.bgSurface,
+            borderRadius: BorderRadius.circular(ArtRadius.md),
+            border: Border.all(color: ArtColors.borderSoft),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,27 +163,27 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                   style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: DustColors.textPrimary)),
-              const SizedBox(height: DustSpacing.xs),
+                      color: ArtColors.textPrimary)),
+              const SizedBox(height: ArtSpacing.xs),
               Text(profile.introduction,
                   style: const TextStyle(
                       fontSize: 13,
                       height: 1.6,
-                      color: DustColors.textPrimary)),
-              const SizedBox(height: DustSpacing.xs),
+                      color: ArtColors.textPrimary)),
+              const SizedBox(height: ArtSpacing.xs),
               if (profile.location != null && profile.location!.isNotEmpty)
                 Text('활동 지역 · ${profile.location}',
                     style: const TextStyle(
-                        fontSize: 12, color: DustColors.textSecondary)),
+                        fontSize: 12, color: ArtColors.textSecondary)),
             ],
           ),
         );
       case 1:
         if (profile.artworks.isEmpty) {
           return const Padding(
-            padding: EdgeInsets.all(DustSpacing.lg),
+            padding: EdgeInsets.all(ArtSpacing.lg),
             child: Center(
-                child: Text('등록된 작품이 없습니다', style: DustText.caption)),
+                child: Text('등록된 작품이 없습니다', style: ArtText.caption)),
           );
         }
         return GridView.builder(
@@ -192,8 +192,8 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
           itemCount: profile.artworks.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            crossAxisSpacing: DustSpacing.xs,
-            mainAxisSpacing: DustSpacing.xs,
+            crossAxisSpacing: ArtSpacing.xs,
+            mainAxisSpacing: ArtSpacing.xs,
             childAspectRatio: 0.78,
           ),
           itemBuilder: (context, index) {
@@ -205,10 +205,10 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                 ),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(DustRadius.sm),
+                borderRadius: BorderRadius.circular(ArtRadius.sm),
                 child: artwork.imageUrl.isEmpty
                     ? Container(
-                        color: DustColors.bgSubtle,
+                        color: ArtColors.bgSubtle,
                         alignment: Alignment.center,
                         child: Padding(
                           padding: const EdgeInsets.all(6),
@@ -219,7 +219,7 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                                 fontSize: 11,
-                                color: DustColors.textSecondary),
+                                color: ArtColors.textSecondary),
                           ),
                         ),
                       )
@@ -227,7 +227,7 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                         resolveImageUrl(artwork.imageUrl),
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) =>
-                            Container(color: DustColors.bgSubtle),
+                            Container(color: ArtColors.bgSubtle),
                       ),
               ),
             );
@@ -236,11 +236,11 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
       default:
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(DustSpacing.lg),
+          padding: const EdgeInsets.all(ArtSpacing.lg),
           decoration: BoxDecoration(
-            color: DustColors.bgSurface,
-            borderRadius: BorderRadius.circular(DustRadius.md),
-            border: Border.all(color: DustColors.borderSoft),
+            color: ArtColors.bgSurface,
+            borderRadius: BorderRadius.circular(ArtRadius.md),
+            border: Border.all(color: ArtColors.borderSoft),
           ),
           child: Column(
             children: [
@@ -249,19 +249,19 @@ class _ArtistPortfolioScreenState extends State<ArtistPortfolioScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.star_rounded,
-                        size: 20, color: DustColors.brandPrimary),
+                        size: 20, color: ArtColors.brandPrimary),
                     const SizedBox(width: 4),
                     Text('${profile.rating}',
                         style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: DustColors.textPrimary)),
+                            color: ArtColors.textPrimary)),
                     Text('  ·  리뷰 ${profile.reviewCount ?? 0}개',
                         style: const TextStyle(
-                            fontSize: 13, color: DustColors.textSecondary)),
+                            fontSize: 13, color: ArtColors.textSecondary)),
                   ],
                 ),
-              const SizedBox(height: DustSpacing.md),
+              const SizedBox(height: ArtSpacing.md),
               ..._buildReviewList(),
             ],
           ),
@@ -288,13 +288,13 @@ class _CoverHeader extends StatelessWidget {
           height: 220,
           width: double.infinity,
           child: cover.isEmpty
-              ? Container(color: DustColors.brandDeep)
+              ? Container(color: ArtColors.brandDeep)
               : Stack(
                   fit: StackFit.expand,
                   children: [
                     Image.network(resolveImageUrl(cover.first), fit: BoxFit.cover,
                         errorBuilder: (_, _, _) =>
-                            Container(color: DustColors.brandDeep)),
+                            Container(color: ArtColors.brandDeep)),
                     Container(color: Colors.black.withValues(alpha: 0.35)),
                   ],
                 ),
@@ -323,8 +323,8 @@ class _CoverHeader extends StatelessWidget {
           ),
         ),
         Positioned(
-          left: DustSpacing.lg,
-          bottom: DustSpacing.lg,
+          left: ArtSpacing.lg,
+          bottom: ArtSpacing.lg,
           child: Row(
             children: [
               Container(
@@ -332,13 +332,13 @@ class _CoverHeader extends StatelessWidget {
                 height: 72,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: DustColors.bgSubtle,
+                  color: ArtColors.bgSubtle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: const Icon(Icons.person_outline,
-                    size: 36, color: DustColors.textSecondary),
+                    size: 36, color: ArtColors.textSecondary),
               ),
-              const SizedBox(width: DustSpacing.md),
+              const SizedBox(width: ArtSpacing.md),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -384,29 +384,29 @@ class _StatsRow extends StatelessWidget {
                 style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: DustColors.textPrimary)),
+                    color: ArtColors.textPrimary)),
             const SizedBox(height: 2),
             Text(label,
                 style: const TextStyle(
-                    fontSize: 12, color: DustColors.textSecondary)),
+                    fontSize: 12, color: ArtColors.textSecondary)),
           ],
         ),
       );
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: DustSpacing.md),
+      padding: const EdgeInsets.symmetric(vertical: ArtSpacing.md),
       decoration: const BoxDecoration(
-        color: DustColors.bgSurface,
+        color: ArtColors.bgSurface,
         border:
-            Border(bottom: BorderSide(color: DustColors.borderSoft)),
+            Border(bottom: BorderSide(color: ArtColors.borderSoft)),
       ),
       child: Row(
         children: [
           stat('${profile.artworkCount}', '작품'),
-          Container(width: 1, height: 30, color: DustColors.borderSoft),
+          Container(width: 1, height: 30, color: ArtColors.borderSoft),
           stat('${profile.salesCount}', '판매'),
-          Container(width: 1, height: 30, color: DustColors.borderSoft),
+          Container(width: 1, height: 30, color: ArtColors.borderSoft),
           // 리뷰 도메인이 없어 평점이 없으면 '-' 로 둔다.
           stat(profile.rating?.toString() ?? '-', '평점'),
         ],
@@ -453,8 +453,8 @@ class _Tabs extends StatelessWidget {
                       fontWeight:
                           active ? FontWeight.w700 : FontWeight.w400,
                       color: active
-                          ? DustColors.textPrimary
-                          : DustColors.textSecondary,
+                          ? ArtColors.textPrimary
+                          : ArtColors.textSecondary,
                     ),
                   ),
                 ),
@@ -462,7 +462,7 @@ class _Tabs extends StatelessWidget {
                   height: 2,
                   margin: const EdgeInsets.symmetric(horizontal: 32),
                   color: active
-                      ? DustColors.brandPrimary
+                      ? ArtColors.brandPrimary
                       : Colors.transparent,
                 ),
               ],
@@ -485,11 +485,11 @@ class _ReviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(DustSpacing.md),
+      padding: const EdgeInsets.all(ArtSpacing.md),
       decoration: BoxDecoration(
-        color: DustColors.bgSurface,
-        borderRadius: BorderRadius.circular(DustRadius.md),
-        border: Border.all(color: DustColors.borderSoft),
+        color: ArtColors.bgSurface,
+        borderRadius: BorderRadius.circular(ArtRadius.md),
+        border: Border.all(color: ArtColors.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -501,14 +501,14 @@ class _ReviewCard extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: DustColors.textPrimary)),
+                        color: ArtColors.textPrimary)),
               ),
               ...List.generate(
                 5,
                 (i) => Icon(
                   i < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
                   size: 15,
-                  color: DustColors.brandPrimary,
+                  color: ArtColors.brandPrimary,
                 ),
               ),
             ],
@@ -518,11 +518,11 @@ class _ReviewCard extends StatelessWidget {
               style: const TextStyle(
                   fontSize: 13,
                   height: 1.5,
-                  color: DustColors.textPrimary)),
+                  color: ArtColors.textPrimary)),
           const SizedBox(height: 6),
           Text(review.artworkTitle,
               style: const TextStyle(
-                  fontSize: 11, color: DustColors.textSecondary)),
+                  fontSize: 11, color: ArtColors.textSecondary)),
         ],
       ),
     );

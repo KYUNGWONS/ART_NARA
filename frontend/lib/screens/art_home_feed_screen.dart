@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../utils/image_url.dart';
 import '../utils/artist_inquiry.dart';
 import 'artwork_list_screen.dart';
@@ -80,7 +80,7 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CircularProgressIndicator(color: DustColors.brandPrimary),
+            child: CircularProgressIndicator(color: ArtColors.brandPrimary),
           );
         }
         if (snapshot.hasError) {
@@ -89,17 +89,17 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
 
         final feed = snapshot.data!;
         return RefreshIndicator(
-          color: DustColors.brandPrimary,
+          color: ArtColors.brandPrimary,
           onRefresh: () async => _search(),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(
-                DustSpacing.md, DustSpacing.md, DustSpacing.md, 32),
+                ArtSpacing.md, ArtSpacing.md, ArtSpacing.md, 32),
             children: [
               _SearchRow(
                 controller: _searchController,
                 onSubmitted: (_) => _search(),
               ),
-              const SizedBox(height: DustSpacing.lg),
+              const SizedBox(height: ArtSpacing.lg),
               _CategoryTabs(
                 selected: _selectedCategory,
                 onSelected: (index) {
@@ -107,21 +107,21 @@ class _ArtHomeFeedScreenState extends State<ArtHomeFeedScreen> {
                   _search();
                 },
               ),
-              const SizedBox(height: DustSpacing.lg),
+              const SizedBox(height: ArtSpacing.lg),
               _SectionHeader(
                 title: '추천 작품',
                 onMore: () => _openMore('추천 작품'),
               ),
-              const SizedBox(height: DustSpacing.sm),
+              const SizedBox(height: ArtSpacing.sm),
               _ArtworkGrid(items: feed.recommended, onToggleLike: _toggleLike),
-              const SizedBox(height: DustSpacing.lg),
+              const SizedBox(height: ArtSpacing.lg),
               _SectionHeader(
                 title: '마감 임박 경매',
                 onMore: () => _openMore('마감 임박 경매'),
               ),
-              const SizedBox(height: DustSpacing.sm),
+              const SizedBox(height: ArtSpacing.sm),
               _ArtworkGrid(items: feed.auctions, onToggleLike: _toggleLike),
-              const SizedBox(height: DustSpacing.lg),
+              const SizedBox(height: ArtSpacing.lg),
               _ArtistSection(artists: feed.artists),
             ],
           ),
@@ -150,34 +150,34 @@ class _SearchRow extends StatelessWidget {
               onSubmitted: onSubmitted,
               textInputAction: TextInputAction.search,
               style: const TextStyle(
-                  fontSize: 14, color: DustColors.textPrimary),
+                  fontSize: 14, color: ArtColors.textPrimary),
               decoration: InputDecoration(
                 hintText: '작품, 작가, 태그 검색',
                 hintStyle: const TextStyle(
-                    fontSize: 14, color: DustColors.textSecondary),
+                    fontSize: 14, color: ArtColors.textSecondary),
                 prefixIcon: const Icon(Icons.search,
-                    size: 20, color: DustColors.textSecondary),
+                    size: 20, color: ArtColors.textSecondary),
                 filled: true,
-                fillColor: DustColors.bgSurface,
+                fillColor: ArtColors.bgSurface,
                 contentPadding: EdgeInsets.zero,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(DustRadius.full),
+                  borderRadius: BorderRadius.circular(ArtRadius.full),
                   borderSide: BorderSide.none,
                 ),
               ),
             ),
           ),
         ),
-        const SizedBox(width: DustSpacing.xs),
+        const SizedBox(width: ArtSpacing.xs),
         Container(
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: DustColors.bgSurface,
-            borderRadius: BorderRadius.circular(DustRadius.sm),
+            color: ArtColors.bgSurface,
+            borderRadius: BorderRadius.circular(ArtRadius.sm),
           ),
           child: const Icon(Icons.tune,
-              size: 20, color: DustColors.textPrimary),
+              size: 20, color: ArtColors.textPrimary),
         ),
       ],
     );
@@ -208,12 +208,12 @@ class _CategoryTabs extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: active
-                    ? DustColors.brandPrimary
-                    : DustColors.bgSurface,
-                borderRadius: BorderRadius.circular(DustRadius.full),
+                    ? ArtColors.brandPrimary
+                    : ArtColors.bgSurface,
+                borderRadius: BorderRadius.circular(ArtRadius.full),
                 border: active
                     ? null
-                    : Border.all(color: DustColors.borderSoft),
+                    : Border.all(color: ArtColors.borderSoft),
               ),
               child: Text(
                 _categories[index],
@@ -221,8 +221,8 @@ class _CategoryTabs extends StatelessWidget {
                   fontSize: 14,
                   fontWeight: active ? FontWeight.w600 : FontWeight.w400,
                   color: active
-                      ? DustColors.textOnBrand
-                      : DustColors.textPrimary,
+                      ? ArtColors.textOnBrand
+                      : ArtColors.textPrimary,
                 ),
               ),
             ),
@@ -249,20 +249,20 @@ class _SectionHeader extends StatelessWidget {
             style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: DustColors.textPrimary)),
+                color: ArtColors.textPrimary)),
         InkWell(
           onTap: onMore,
-          borderRadius: BorderRadius.circular(DustRadius.sm),
+          borderRadius: BorderRadius.circular(ArtRadius.sm),
           child: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             child: Row(
               children: [
                 Text('더보기',
                     style: TextStyle(
-                        fontSize: 13, color: DustColors.textSecondary)),
+                        fontSize: 13, color: ArtColors.textSecondary)),
                 SizedBox(width: 2),
                 Icon(Icons.chevron_right,
-                    size: 16, color: DustColors.textSecondary),
+                    size: 16, color: ArtColors.textSecondary),
               ],
             ),
           ),
@@ -282,8 +282,8 @@ class _ArtworkGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) {
       return const Padding(
-        padding: EdgeInsets.symmetric(vertical: DustSpacing.md),
-        child: Text('작품이 없습니다', style: DustText.caption),
+        padding: EdgeInsets.symmetric(vertical: ArtSpacing.md),
+        child: Text('작품이 없습니다', style: ArtText.caption),
       );
     }
     return GridView.builder(
@@ -292,8 +292,8 @@ class _ArtworkGrid extends StatelessWidget {
       itemCount: items.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: DustSpacing.sm,
-        mainAxisSpacing: DustSpacing.sm,
+        crossAxisSpacing: ArtSpacing.sm,
+        mainAxisSpacing: ArtSpacing.sm,
         mainAxisExtent: 258,
       ),
       itemBuilder: (context, index) => _ArtworkCard(
@@ -327,8 +327,8 @@ class _ArtworkCard extends StatelessWidget {
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: DustColors.bgSurface,
-          borderRadius: BorderRadius.circular(DustRadius.md),
+          color: ArtColors.bgSurface,
+          borderRadius: BorderRadius.circular(ArtRadius.md),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,14 +346,14 @@ class _ArtworkCard extends StatelessWidget {
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: onToggleLike,
-                      borderRadius: BorderRadius.circular(DustRadius.full),
+                      borderRadius: BorderRadius.circular(ArtRadius.full),
                       child: Padding(
                         padding: const EdgeInsets.all(6),
                         child: Icon(
                           artwork.liked ? Icons.favorite : Icons.favorite_border,
                           size: 20,
                           color: artwork.liked
-                              ? DustColors.brandPrimary
+                              ? ArtColors.brandPrimary
                               : Colors.white,
                         ),
                       ),
@@ -364,7 +364,7 @@ class _ArtworkCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  DustSpacing.md, DustSpacing.xs, DustSpacing.md, 0),
+                  ArtSpacing.md, ArtSpacing.xs, ArtSpacing.md, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -376,13 +376,13 @@ class _ArtworkCard extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: DustColors.textPrimary),
+                        color: ArtColors.textPrimary),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     artwork.artistName,
                     style: const TextStyle(
-                        fontSize: 13, color: DustColors.textSecondary),
+                        fontSize: 13, color: ArtColors.textSecondary),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -390,7 +390,7 @@ class _ArtworkCard extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: DustColors.textPrimary),
+                        color: ArtColors.textPrimary),
                   ),
                   if (artwork.remainingTime != null) ...[
                     const SizedBox(height: 2),
@@ -400,7 +400,7 @@ class _ArtworkCard extends StatelessWidget {
                       artwork.remainingTime,
                       prefix: '남은 시간 ',
                       style: const TextStyle(
-                          fontSize: 11, color: DustColors.brandPrimary),
+                          fontSize: 11, color: ArtColors.brandPrimary),
                     ),
                   ],
                 ],
@@ -424,13 +424,13 @@ class _ArtistSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _SectionHeader(title: '주목할 작가'),
-        const SizedBox(height: DustSpacing.xs),
+        const SizedBox(height: ArtSpacing.xs),
         ...artists.map(
           (artist) => Container(
-            margin: const EdgeInsets.only(bottom: DustSpacing.xs),
+            margin: const EdgeInsets.only(bottom: ArtSpacing.xs),
             decoration: BoxDecoration(
-              color: DustColors.bgSurface,
-              borderRadius: BorderRadius.circular(DustRadius.md),
+              color: ArtColors.bgSurface,
+              borderRadius: BorderRadius.circular(ArtRadius.md),
             ),
             child: ListTile(
               onTap: () => Navigator.of(context).push(
@@ -440,26 +440,26 @@ class _ArtistSection extends StatelessWidget {
                 ),
               ),
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: DustSpacing.md),
+                  const EdgeInsets.symmetric(horizontal: ArtSpacing.md),
               leading: const CircleAvatar(
-                  backgroundColor: DustColors.bgSubtle,
+                  backgroundColor: ArtColors.bgSubtle,
                   child: Icon(Icons.person_outline,
-                      color: DustColors.textSecondary)),
+                      color: ArtColors.textSecondary)),
               title: Text(artist.name,
                   style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: DustColors.textPrimary)),
+                      color: ArtColors.textPrimary)),
               subtitle: Text(artist.introduction,
                   style: const TextStyle(
-                      fontSize: 12, color: DustColors.textSecondary)),
+                      fontSize: 12, color: ArtColors.textSecondary)),
               trailing: OutlinedButton(
                 onPressed: () => openArtistInquiry(context, artist.name),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: DustColors.brandPrimary,
-                  side: const BorderSide(color: DustColors.brandPrimary),
+                  foregroundColor: ArtColors.brandPrimary,
+                  side: const BorderSide(color: ArtColors.brandPrimary),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(DustRadius.full),
+                    borderRadius: BorderRadius.circular(ArtRadius.full),
                   ),
                 ),
                 child: const Text('문의하기'),
@@ -485,9 +485,9 @@ class _ArtworkThumb extends StatelessWidget {
         height: height,
         width: double.infinity,
         alignment: Alignment.center,
-        color: DustColors.bgSubtle,
+        color: ArtColors.bgSubtle,
         child: const Icon(Icons.image_outlined,
-            size: 28, color: DustColors.textSecondary),
+            size: 28, color: ArtColors.textSecondary),
       );
     }
     return Image.network(
@@ -497,10 +497,10 @@ class _ArtworkThumb extends StatelessWidget {
       fit: BoxFit.cover,
       errorBuilder: (_, _, _) => Container(
         height: height,
-        color: DustColors.bgSubtle,
+        color: ArtColors.bgSubtle,
         alignment: Alignment.center,
         child: const Icon(Icons.image_outlined,
-            size: 28, color: DustColors.textSecondary),
+            size: 28, color: ArtColors.textSecondary),
       ),
     );
   }
@@ -517,13 +517,13 @@ class _ErrorView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('홈 피드를 불러오지 못했어요', style: DustText.caption),
-          const SizedBox(height: DustSpacing.sm),
+          const Text('홈 피드를 불러오지 못했어요', style: ArtText.caption),
+          const SizedBox(height: ArtSpacing.sm),
           OutlinedButton(
             onPressed: onRetry,
             style: OutlinedButton.styleFrom(
-              foregroundColor: DustColors.brandPrimary,
-              side: const BorderSide(color: DustColors.brandPrimary),
+              foregroundColor: ArtColors.brandPrimary,
+              side: const BorderSide(color: ArtColors.brandPrimary),
             ),
             child: const Text('다시 시도'),
           ),

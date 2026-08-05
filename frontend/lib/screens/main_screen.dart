@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_strings.dart';
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/google_auth_service.dart';
@@ -73,7 +73,7 @@ class _MainScreenState extends State<MainScreen>
           builder: (context, localeProvider, _) {
             return Container(
               decoration: const BoxDecoration(
-                color: DustColors.bgSurface,
+                color: ArtColors.bgSurface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
@@ -85,7 +85,7 @@ class _MainScreenState extends State<MainScreen>
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: DustColors.borderSoft,
+                      color: ArtColors.borderSoft,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -96,24 +96,24 @@ class _MainScreenState extends State<MainScreen>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: DustColors.textPrimary,
+                      color: ArtColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Divider(height: 1, color: DustColors.borderSoft),
+                  const Divider(height: 1, color: ArtColors.borderSoft),
                   // 로그아웃 버튼
                   ListTile(
                     leading: Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: DustColors.danger.withValues(alpha: 0.1),
+                        color: ArtColors.danger.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.logout_rounded,
                         size: 20,
-                        color: DustColors.danger,
+                        color: ArtColors.danger,
                       ),
                     ),
                     title: Text(
@@ -121,7 +121,7 @@ class _MainScreenState extends State<MainScreen>
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: DustColors.danger,
+                        color: ArtColors.danger,
                       ),
                     ),
                     onTap: () {
@@ -154,7 +154,7 @@ class _MainScreenState extends State<MainScreen>
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: DustColors.textPrimary,
+                  color: ArtColors.textPrimary,
                 ),
               ),
               content: Text(
@@ -162,7 +162,7 @@ class _MainScreenState extends State<MainScreen>
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
-                  color: DustColors.textSecondary,
+                  color: ArtColors.textSecondary,
                 ),
               ),
               actions: [
@@ -173,7 +173,7 @@ class _MainScreenState extends State<MainScreen>
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: DustColors.textSecondary,
+                      color: ArtColors.textSecondary,
                     ),
                   ),
                 ),
@@ -187,7 +187,7 @@ class _MainScreenState extends State<MainScreen>
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: DustColors.danger,
+                      color: ArtColors.danger,
                     ),
                   ),
                 ),
@@ -229,7 +229,7 @@ class _MainScreenState extends State<MainScreen>
       builder: (context, locale, _) {
         return Scaffold(
           key: _scaffoldKey,
-          backgroundColor: DustColors.bgCanvas,
+          backgroundColor: ArtColors.bgCanvas,
           drawer: _buildDrawer(),
           body: SafeArea(
             child: FadeTransition(
@@ -255,42 +255,42 @@ class _MainScreenState extends State<MainScreen>
   // 디자인 하단 내비에는 채팅 탭이 없어, 작품 문의(채팅)와 설정을 여기로 옮겼다.
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: DustColors.bgSurface,
+      backgroundColor: ArtColors.bgSurface,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Padding(
-              padding: EdgeInsets.fromLTRB(DustSpacing.lg, DustSpacing.lg,
-                  DustSpacing.lg, DustSpacing.sm),
+              padding: EdgeInsets.fromLTRB(ArtSpacing.lg, ArtSpacing.lg,
+                  ArtSpacing.lg, ArtSpacing.sm),
               child: Text('ART NARA',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: DustColors.brandPrimary,
+                    color: ArtColors.brandPrimary,
                   )),
             ),
-            const Divider(height: 1, color: DustColors.borderSoft),
+            const Divider(height: 1, color: ArtColors.borderSoft),
             ListTile(
               leading: const Icon(Icons.chat_bubble_outline_rounded,
-                  color: DustColors.brandPrimary),
-              title: const Text('작품 문의', style: DustText.body),
-              subtitle: const Text('작가와 나눈 대화', style: DustText.caption),
+                  color: ArtColors.brandPrimary),
+              title: const Text('작품 문의', style: ArtText.body),
+              subtitle: const Text('작가와 나눈 대화', style: ArtText.caption),
               onTap: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => Scaffold(
-                      backgroundColor: DustColors.bgCanvas,
+                      backgroundColor: ArtColors.bgCanvas,
                       appBar: AppBar(
-                        backgroundColor: DustColors.bgCanvas,
+                        backgroundColor: ArtColors.bgCanvas,
                         elevation: 0,
-                        foregroundColor: DustColors.textPrimary,
+                        foregroundColor: ArtColors.textPrimary,
                         title: const Text('작품 문의',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: DustColors.brandPrimary,
+                              color: ArtColors.brandPrimary,
                             )),
                         centerTitle: true,
                       ),
@@ -302,8 +302,8 @@ class _MainScreenState extends State<MainScreen>
             ),
             ListTile(
               leading: const Icon(Icons.settings_outlined,
-                  color: DustColors.brandPrimary),
-              title: const Text('설정', style: DustText.body),
+                  color: ArtColors.brandPrimary),
+              title: const Text('설정', style: ArtText.body),
               onTap: () {
                 Navigator.of(context).pop();
                 _showSettingsSheet();
@@ -321,8 +321,8 @@ class _MainScreenState extends State<MainScreen>
   Widget _buildTopBar(LocaleProvider locale) {
     return Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: DustSpacing.md, vertical: DustSpacing.sm),
-      color: DustColors.bgCanvas,
+          horizontal: ArtSpacing.md, vertical: ArtSpacing.sm),
+      color: ArtColors.bgCanvas,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -331,14 +331,14 @@ class _MainScreenState extends State<MainScreen>
             color: Colors.transparent,
             child: InkWell(
               onTap: () => _scaffoldKey.currentState?.openDrawer(),
-              borderRadius: BorderRadius.circular(DustRadius.full),
+              borderRadius: BorderRadius.circular(ArtRadius.full),
               child: const SizedBox(
                 width: 40,
                 height: 40,
                 child: Icon(
                   Icons.menu_rounded,
                   size: 24,
-                  color: DustColors.textPrimary,
+                  color: ArtColors.textPrimary,
                 ),
               ),
             ),
@@ -349,7 +349,7 @@ class _MainScreenState extends State<MainScreen>
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: DustColors.brandPrimary,
+              color: ArtColors.brandPrimary,
             ),
           ),
           // 우측: 알림 벨 (디자인 header-right-icons > notification-button)
@@ -357,7 +357,7 @@ class _MainScreenState extends State<MainScreen>
             color: Colors.transparent,
             child: InkWell(
               onTap: () => _selectTab(4),
-              borderRadius: BorderRadius.circular(DustRadius.full),
+              borderRadius: BorderRadius.circular(ArtRadius.full),
               child: SizedBox(
                 width: 40,
                 height: 40,
@@ -367,7 +367,7 @@ class _MainScreenState extends State<MainScreen>
                     const Icon(
                       Icons.notifications_none_rounded,
                       size: 24,
-                      color: DustColors.textPrimary,
+                      color: ArtColors.textPrimary,
                     ),
                     // 안읽은 알림이 있으면 점 배지
                     if (_unreadNotifications > 0)
@@ -378,7 +378,7 @@ class _MainScreenState extends State<MainScreen>
                           width: 8,
                           height: 8,
                           decoration: const BoxDecoration(
-                            color: DustColors.brandPrimary,
+                            color: ArtColors.brandPrimary,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -440,14 +440,14 @@ class _MainScreenState extends State<MainScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icons[_currentTab], size: 48, color: DustColors.borderSoft),
+          Icon(icons[_currentTab], size: 48, color: ArtColors.borderSoft),
           const SizedBox(height: 16),
           Text(
             locale.tr(labels[_currentTab]),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: DustColors.textSecondary,
+              color: ArtColors.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
@@ -456,7 +456,7 @@ class _MainScreenState extends State<MainScreen>
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: DustColors.borderSoft,
+              color: ArtColors.borderSoft,
             ),
           ),
         ],
@@ -501,8 +501,8 @@ class _MainScreenState extends State<MainScreen>
 
     return Container(
       decoration: const BoxDecoration(
-        color: DustColors.bgCanvas,
-        border: Border(top: BorderSide(color: DustColors.borderSoft)),
+        color: ArtColors.bgCanvas,
+        border: Border(top: BorderSide(color: ArtColors.borderSoft)),
       ),
       child: SafeArea(
         top: false,
@@ -527,8 +527,8 @@ class _MainScreenState extends State<MainScreen>
                           isSelected ? item.activeIcon : item.icon,
                           size: 24,
                           color: isSelected
-                              ? DustColors.brandPrimary
-                              : DustColors.textSecondary,
+                              ? ArtColors.brandPrimary
+                              : ArtColors.textSecondary,
                         ),
                         const SizedBox(height: 4),
                         // 라벨
@@ -540,8 +540,8 @@ class _MainScreenState extends State<MainScreen>
                                 ? FontWeight.w700
                                 : FontWeight.w500,
                             color: isSelected
-                                ? DustColors.brandPrimary
-                                : DustColors.textSecondary,
+                                ? ArtColors.brandPrimary
+                                : ArtColors.textSecondary,
                           ),
                         ),
                       ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/app_strings.dart';
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../widgets/artnara_wordmark.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen>
           locale.tr(AppStrings.loginError),
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
-        backgroundColor: DustColors.danger,
+        backgroundColor: ArtColors.danger,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         margin: const EdgeInsets.all(16),
@@ -275,11 +275,11 @@ class _LoginScreenState extends State<LoginScreen>
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
-          backgroundColor: DustColors.bgCanvas,
+          backgroundColor: ArtColors.bgCanvas,
           body: Container(
             width: double.infinity,
             height: double.infinity,
-            color: DustColors.bgCanvas,
+            color: ArtColors.bgCanvas,
             child: SafeArea(
               child: Column(
                 children: [
@@ -293,14 +293,14 @@ class _LoginScreenState extends State<LoginScreen>
                         icon: const Icon(
                           Icons.arrow_back_ios_rounded,
                           size: 16,
-                          color: DustColors.textSecondary,
+                          color: ArtColors.textSecondary,
                         ),
                         label: Text(
                           locale.tr(AppStrings.back),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: DustColors.textSecondary,
+                            color: ArtColors.textSecondary,
                           ),
                         ),
                       ),
@@ -322,14 +322,14 @@ class _LoginScreenState extends State<LoginScreen>
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: DustColors.brandPrimary,
+                              color: ArtColors.brandPrimary,
                             ),
                           ),
-                          const SizedBox(height: DustSpacing.lg * 2),
+                          const SizedBox(height: ArtSpacing.lg * 2),
                           // 타이틀
                           Text(
                             locale.tr(AppStrings.loginTitle),
-                            style: DustText.section.copyWith(fontSize: 19),
+                            style: ArtText.section.copyWith(fontSize: 19),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -406,9 +406,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   ? null
                                   : _handleGoogleLogin,
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: DustColors.textPrimary,
+                                foregroundColor: ArtColors.textPrimary,
                                 side: const BorderSide(
-                                  color: DustColors.borderSoft,
+                                  color: ArtColors.borderSoft,
                                   width: 1.5,
                                 ),
                                 shape: RoundedRectangleBorder(
@@ -421,7 +421,7 @@ class _LoginScreenState extends State<LoginScreen>
                                       height: 22,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2.5,
-                                        color: DustColors.textSecondary,
+                                        color: ArtColors.textSecondary,
                                       ),
                                     )
                                   : Row(
@@ -435,7 +435,7 @@ class _LoginScreenState extends State<LoginScreen>
                                         const Icon(
                                           Icons.g_mobiledata_rounded,
                                           size: 24,
-                                          color: DustColors.textSecondary,
+                                          color: ArtColors.textSecondary,
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
@@ -443,7 +443,7 @@ class _LoginScreenState extends State<LoginScreen>
                                           style: const TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
-                                            color: DustColors.textSecondary,
+                                            color: ArtColors.textSecondary,
                                           ),
                                         ),
                                       ],

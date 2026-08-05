@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 
 import '../models/certificate.dart';
 import '../services/certificate_api_service.dart';
@@ -105,9 +105,9 @@ class _CertificateScreenState extends State<CertificateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: DustColors.bgCanvas,
+        backgroundColor: ArtColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black),
@@ -126,7 +126,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           const Text('작품 뒤에 부착된 QR 코드를 스캔하면 디지털 인증서를 확인할 수 있어요.',
-              style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+              style: TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: _openCameraScan,
@@ -134,17 +134,17 @@ class _CertificateScreenState extends State<CertificateScreen> {
               height: 160,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: DustColors.bgSurface,
-                border: Border.all(color: DustColors.borderSoft),
+                color: ArtColors.bgSurface,
+                border: Border.all(color: ArtColors.borderSoft),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.qr_code_scanner, size: 40, color: DustColors.textSecondary),
+                  Icon(Icons.qr_code_scanner, size: 40, color: ArtColors.textSecondary),
                   SizedBox(height: 8),
                   Text('카메라로 QR 스캔',
-                      style: TextStyle(fontSize: 11, color: DustColors.textSecondary)),
+                      style: TextStyle(fontSize: 11, color: ArtColors.textSecondary)),
                 ],
               ),
             ),
@@ -160,7 +160,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
                   decoration: const InputDecoration(
                     hintText: 'QR 코드 직접 입력 (예: ARTNARA-QR-0001)',
                     hintStyle:
-                        TextStyle(fontSize: 12, color: DustColors.textSecondary),
+                        TextStyle(fontSize: 12, color: ArtColors.textSecondary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(4)),
                     ),
@@ -172,7 +172,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
               FilledButton(
                 onPressed: _scanning ? null : _scan,
                 style: FilledButton.styleFrom(
-                  backgroundColor: DustColors.brandPrimary,
+                  backgroundColor: ArtColors.brandPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -190,7 +190,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           const Text('구매가 완료된 작품의 소유권이 자동으로 이전되어 영구 보관됩니다.',
-              style: TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+              style: TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
           const SizedBox(height: 12),
           if (_ownerships.isEmpty)
             const Text('아직 보유한 디지털 소유권이 없습니다',
@@ -219,12 +219,12 @@ class _CertificateCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: DustColors.bgSurface,
-        borderRadius: BorderRadius.circular(DustRadius.sm),
+        color: ArtColors.bgSurface,
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
         border: Border.all(color: _gold, width: 2),
       ),
       child: Container(
-        padding: const EdgeInsets.all(DustSpacing.lg),
+        padding: const EdgeInsets.all(ArtSpacing.lg),
         decoration: BoxDecoration(
           border: Border.all(color: _gold.withValues(alpha: 0.6)),
           borderRadius: BorderRadius.circular(4),
@@ -236,12 +236,12 @@ class _CertificateCard extends StatelessWidget {
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 6,
-                    color: DustColors.textPrimary)),
+                    color: ArtColors.textPrimary)),
             const SizedBox(height: 4),
             const Text('─  소유권 인증서  ─',
                 style: TextStyle(
-                    fontSize: 13, color: DustColors.textSecondary)),
-            const SizedBox(height: DustSpacing.lg),
+                    fontSize: 13, color: ArtColors.textSecondary)),
+            const SizedBox(height: ArtSpacing.lg),
             // 디자인 소유권 인증서1/2 항목 순서
             _certRow('작품 제목', certificate.artworkTitle),
             _certRow('작가', certificate.artistName),
@@ -254,7 +254,7 @@ class _CertificateCard extends StatelessWidget {
             _certRow('고유 인증 ID', certificate.certificateNo),
             _certRow('소유자', certificate.ownerName),
             _certRow('발급일', certificate.issuedDate),
-            const SizedBox(height: DustSpacing.lg),
+            const SizedBox(height: ArtSpacing.lg),
             Container(
               width: 96,
               height: 96,
@@ -264,9 +264,9 @@ class _CertificateCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: const Icon(Icons.qr_code_2,
-                  size: 76, color: DustColors.textPrimary),
+                  size: 76, color: ArtColors.textPrimary),
             ),
-            const SizedBox(height: DustSpacing.md),
+            const SizedBox(height: ArtSpacing.md),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -278,8 +278,8 @@ class _CertificateCard extends StatelessWidget {
                           : Icons.error_outline,
                       size: 16,
                       color: certificate.verified
-                          ? DustColors.brandPrimary
-                          : DustColors.danger,
+                          ? ArtColors.brandPrimary
+                          : ArtColors.danger,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -287,7 +287,7 @@ class _CertificateCard extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: DustColors.textPrimary),
+                          color: ArtColors.textPrimary),
                     ),
                   ],
                 ),
@@ -302,7 +302,8 @@ class _CertificateCard extends StatelessWidget {
                       colors: [Color(0xFFD9AC4C), _gold],
                     ),
                   ),
-                  child: const Text('DA',
+                  // ART NARA 이니셜. 예전 브랜드(DUST ART) 의 'DA' 를 걷어냈다.
+                  child: const Text('AN',
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -311,11 +312,11 @@ class _CertificateCard extends StatelessWidget {
               ],
             ),
             if (certificate.note.isNotEmpty) ...[
-              const SizedBox(height: DustSpacing.xs),
+              const SizedBox(height: ArtSpacing.xs),
               Text(certificate.note,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontSize: 11, color: DustColors.textSecondary)),
+                      fontSize: 11, color: ArtColors.textSecondary)),
             ],
           ],
         ),
@@ -334,19 +335,19 @@ class _CertificateCard extends StatelessWidget {
                 width: 96,
                 child: Text(label,
                     style: const TextStyle(
-                        fontSize: 11, color: DustColors.textSecondary)),
+                        fontSize: 11, color: ArtColors.textSecondary)),
               ),
               Expanded(
                 child: Text(value,
                     style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: DustColors.textPrimary)),
+                        color: ArtColors.textPrimary)),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          Container(height: 1, color: DustColors.borderSoft),
+          Container(height: 1, color: ArtColors.borderSoft),
         ],
       ),
     );
@@ -368,7 +369,7 @@ class _OwnershipCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        border: Border.all(color: DustColors.borderSoft),
+        border: Border.all(color: ArtColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -383,7 +384,7 @@ class _OwnershipCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${ownership.artistName} · ${ownership.certificateNo} · 취득일 ${ownership.acquiredDate}',
-                  style: const TextStyle(fontSize: 11, color: DustColors.textSecondary),
+                  style: const TextStyle(fontSize: 11, color: ArtColors.textSecondary),
                 ),
               ],
             ),
@@ -392,8 +393,8 @@ class _OwnershipCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: ownership.qrIssued
-                  ? DustColors.successBg
-                  : DustColors.bgSubtle,
+                  ? ArtColors.successBg
+                  : ArtColors.bgSubtle,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
@@ -401,14 +402,14 @@ class _OwnershipCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 color: ownership.qrIssued
-                    ? DustColors.success
-                    : DustColors.textSecondary,
+                    ? ArtColors.success
+                    : ArtColors.textSecondary,
               ),
             ),
           ),
           if (onTap != null)
             const Icon(Icons.chevron_right,
-                size: 18, color: DustColors.textSecondary),
+                size: 18, color: ArtColors.textSecondary),
         ],
       ),
       ),

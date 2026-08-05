@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/app_strings.dart';
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../providers/locale_provider.dart';
 import 'profile_setup_screen.dart';
 
@@ -39,7 +39,7 @@ class RoleSelectionScreen extends StatelessWidget {
     return Consumer<LocaleProvider>(
       builder: (context, locale, _) {
         return Scaffold(
-          backgroundColor: DustColors.bgCanvas,
+          backgroundColor: ArtColors.bgCanvas,
           body: SafeArea(
             child: Column(
               children: [
@@ -48,36 +48,36 @@ class RoleSelectionScreen extends StatelessWidget {
                   child: IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.chevron_left,
-                        size: 28, color: DustColors.textPrimary),
+                        size: 28, color: ArtColors.textPrimary),
                   ),
                 ),
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: DustSpacing.lg * 1.5),
+                      horizontal: ArtSpacing.lg * 1.5),
                   child: Column(
                     children: [
                       Text(
                         locale.tr(AppStrings.roleTitle),
                         textAlign: TextAlign.center,
-                        style: DustText.section
-                            .copyWith(color: DustColors.brandPrimary),
+                        style: ArtText.section
+                            .copyWith(color: ArtColors.brandPrimary),
                       ),
-                      const SizedBox(height: DustSpacing.xs),
+                      const SizedBox(height: ArtSpacing.xs),
                       Text(
                         locale.tr(AppStrings.roleSubtitle),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                             fontSize: 13,
-                            color: DustColors.textSecondary),
+                            color: ArtColors.textSecondary),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: DustSpacing.lg * 1.5),
+                const SizedBox(height: ArtSpacing.lg * 1.5),
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: DustSpacing.lg),
+                      const EdgeInsets.symmetric(horizontal: ArtSpacing.lg),
                   child: Column(
                     children: [
                       _RoleCard(
@@ -88,7 +88,7 @@ class RoleSelectionScreen extends StatelessWidget {
                         onTap: () =>
                             _select(context, UserRole.koreanStudent),
                       ),
-                      const SizedBox(height: DustSpacing.md),
+                      const SizedBox(height: ArtSpacing.md),
                       _RoleCard(
                         icon: Icons.collections_outlined,
                         title: locale.tr(AppStrings.roleForeigner),
@@ -126,11 +126,11 @@ class _RoleCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(DustSpacing.lg),
+        padding: const EdgeInsets.all(ArtSpacing.lg),
         decoration: BoxDecoration(
-          color: DustColors.bgSurface,
-          borderRadius: BorderRadius.circular(DustRadius.md),
-          border: Border.all(color: DustColors.borderSoft),
+          color: ArtColors.bgSurface,
+          borderRadius: BorderRadius.circular(ArtRadius.md),
+          border: Border.all(color: ArtColors.borderSoft),
         ),
         child: Row(
           children: [
@@ -139,13 +139,13 @@ class _RoleCard extends StatelessWidget {
               height: 56,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: DustColors.bgInfo,
-                borderRadius: BorderRadius.circular(DustRadius.md),
+                color: ArtColors.bgInfo,
+                borderRadius: BorderRadius.circular(ArtRadius.md),
               ),
               child:
-                  Icon(icon, size: 28, color: DustColors.brandPrimary),
+                  Icon(icon, size: 28, color: ArtColors.brandPrimary),
             ),
-            const SizedBox(width: DustSpacing.md),
+            const SizedBox(width: ArtSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,18 +154,18 @@ class _RoleCard extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
-                          color: DustColors.textPrimary)),
+                          color: ArtColors.textPrimary)),
                   const SizedBox(height: 4),
                   Text(description,
                       style: const TextStyle(
                           fontSize: 12,
                           height: 1.4,
-                          color: DustColors.textSecondary)),
+                          color: ArtColors.textSecondary)),
                 ],
               ),
             ),
             const Icon(Icons.chevron_right,
-                color: DustColors.textSecondary),
+                color: ArtColors.textSecondary),
           ],
         ),
       ),

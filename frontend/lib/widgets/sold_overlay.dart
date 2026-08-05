@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 
 /// 판매 완료된 작품 썸네일 위에 덮는 딤 + '판매 완료' 칩.
 ///
@@ -24,17 +24,17 @@ class SoldOverlay extends StatelessWidget {
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: DustSpacing.md, vertical: 6),
+                horizontal: ArtSpacing.md, vertical: 6),
             decoration: BoxDecoration(
-              color: DustColors.bgSurface,
-              borderRadius: BorderRadius.circular(DustRadius.full),
+              color: ArtColors.bgSurface,
+              borderRadius: BorderRadius.circular(ArtRadius.full),
             ),
             child: const Text(
               '판매 완료',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: DustColors.textPrimary,
+                color: ArtColors.textPrimary,
               ),
             ),
           ),

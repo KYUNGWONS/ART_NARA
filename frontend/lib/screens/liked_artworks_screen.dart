@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../utils/image_url.dart';
 import '../models/artwork_detail.dart';
 import '../services/artwork_like_api_service.dart';
@@ -79,47 +79,47 @@ class _LikedArtworksScreenState extends State<LikedArtworksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: DustColors.bgCanvas,
+        backgroundColor: ArtColors.bgCanvas,
         elevation: 0,
-        foregroundColor: DustColors.textPrimary,
+        foregroundColor: ArtColors.textPrimary,
         title: const Text('관심 작품',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: DustColors.brandPrimary,
+              color: ArtColors.brandPrimary,
             )),
         centerTitle: true,
       ),
       body: _loading
           ? const Center(
-              child: CircularProgressIndicator(color: DustColors.brandPrimary))
+              child: CircularProgressIndicator(color: ArtColors.brandPrimary))
           : _items.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.favorite_border,
-                      size: 64, color: DustColors.borderSoft),
-                  const SizedBox(height: DustSpacing.md),
+                      size: 64, color: ArtColors.borderSoft),
+                  const SizedBox(height: ArtSpacing.md),
                   Text('아직 관심 작품이 없어요',
-                      style: DustText.body
-                          .copyWith(color: DustColors.textSecondary)),
-                  const SizedBox(height: DustSpacing.xs),
+                      style: ArtText.body
+                          .copyWith(color: ArtColors.textSecondary)),
+                  const SizedBox(height: ArtSpacing.xs),
                   const Text('마음에 드는 작품의 하트를 눌러보세요',
-                      style: DustText.caption),
+                      style: ArtText.caption),
                 ],
               ),
             )
           : RefreshIndicator(
-              color: DustColors.brandPrimary,
+              color: ArtColors.brandPrimary,
               onRefresh: _load,
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(vertical: DustSpacing.xs),
+                padding: const EdgeInsets.symmetric(vertical: ArtSpacing.xs),
                 itemCount: _items.length,
                 separatorBuilder: (_, __) =>
-                    const Divider(height: 1, color: DustColors.borderSoft),
+                    const Divider(height: 1, color: ArtColors.borderSoft),
                 itemBuilder: (context, index) => _tile(_items[index]),
               ),
             ),
@@ -129,33 +129,33 @@ class _LikedArtworksScreenState extends State<LikedArtworksScreen> {
   Widget _tile(ArtworkDetail artwork) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
-          horizontal: DustSpacing.lg, vertical: DustSpacing.xs),
+          horizontal: ArtSpacing.lg, vertical: ArtSpacing.xs),
       leading: Container(
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: DustColors.bgSubtle,
-          borderRadius: BorderRadius.circular(DustRadius.sm),
+          color: ArtColors.bgSubtle,
+          borderRadius: BorderRadius.circular(ArtRadius.sm),
         ),
         child: artwork.imageUrl.isEmpty
             ? const Icon(Icons.image_outlined,
-                color: DustColors.textSecondary, size: 22)
+                color: ArtColors.textSecondary, size: 22)
             : ClipRRect(
-                borderRadius: BorderRadius.circular(DustRadius.sm),
+                borderRadius: BorderRadius.circular(ArtRadius.sm),
                 child: Image.network(resolveImageUrl(artwork.imageUrl), fit: BoxFit.cover),
               ),
       ),
       title: Text(artwork.title,
-          style: DustText.body.copyWith(fontWeight: FontWeight.w700)),
+          style: ArtText.body.copyWith(fontWeight: FontWeight.w700)),
       subtitle: Text(
         // 관심 작품이 그새 팔렸을 수 있으니 목록에서 바로 알려준다.
         '${artwork.artistName} · ₩${formatPrice(artwork.auction ? (artwork.currentBid ?? artwork.price) : artwork.price)}'
         '${artwork.sold ? ' · 판매 완료' : ''}',
-        style: DustText.caption,
+        style: ArtText.caption,
       ),
       trailing: IconButton(
         icon: const Icon(Icons.favorite,
-            size: 20, color: DustColors.brandPrimary),
+            size: 20, color: ArtColors.brandPrimary),
         tooltip: '관심 해제',
         onPressed: () => _unlike(artwork),
       ),

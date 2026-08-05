@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../models/app_notification.dart';
 import '../services/notification_api_service.dart';
 import '../models/chat_room_item.dart';
@@ -135,22 +135,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(
-              DustSpacing.lg, DustSpacing.md, DustSpacing.lg, DustSpacing.sm),
+              ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, ArtSpacing.sm),
           child: Row(
             children: [
-              const Text('알림', style: DustText.section),
-              const SizedBox(width: DustSpacing.xs),
+              const Text('알림', style: ArtText.section),
+              const SizedBox(width: ArtSpacing.xs),
               if (_unread > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: DustColors.brandPrimary,
-                    borderRadius: BorderRadius.circular(DustRadius.full),
+                    color: ArtColors.brandPrimary,
+                    borderRadius: BorderRadius.circular(ArtRadius.full),
                   ),
                   child: Text(
                     '$_unread',
-                    style: DustText.caption.copyWith(
-                      color: DustColors.textOnBrand,
+                    style: ArtText.caption.copyWith(
+                      color: ArtColors.textOnBrand,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -160,10 +160,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 onPressed: _unread == 0 ? null : _readAll,
                 child: Text(
                   '모두 읽음',
-                  style: DustText.caption.copyWith(
+                  style: ArtText.caption.copyWith(
                     color: _unread == 0
-                        ? DustColors.textSecondary
-                        : DustColors.brandPrimary,
+                        ? ArtColors.textSecondary
+                        : ArtColors.brandPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -175,19 +175,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
           child: _loading
               ? const Center(
                   child:
-                      CircularProgressIndicator(color: DustColors.brandPrimary),
+                      CircularProgressIndicator(color: ArtColors.brandPrimary),
                 )
               : _items.isEmpty
               ? _buildEmpty()
               : RefreshIndicator(
-                  color: DustColors.brandPrimary,
+                  color: ArtColors.brandPrimary,
                   onRefresh: _load,
                   child: ListView.separated(
                     padding:
-                        const EdgeInsets.symmetric(vertical: DustSpacing.xs),
+                        const EdgeInsets.symmetric(vertical: ArtSpacing.xs),
                     itemCount: _items.length,
                     separatorBuilder: (_, __) => const Divider(
-                        height: 1, color: DustColors.borderSoft),
+                        height: 1, color: ArtColors.borderSoft),
                     itemBuilder: (context, index) =>
                         _tile(_items[index]),
                   ),
@@ -203,13 +203,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.notifications_none_rounded,
-              size: 64, color: DustColors.borderSoft),
-          const SizedBox(height: DustSpacing.md),
+              size: 64, color: ArtColors.borderSoft),
+          const SizedBox(height: ArtSpacing.md),
           Text('새로운 알림이 없어요',
-              style: DustText.body.copyWith(color: DustColors.textSecondary)),
-          const SizedBox(height: DustSpacing.xs),
+              style: ArtText.body.copyWith(color: ArtColors.textSecondary)),
+          const SizedBox(height: ArtSpacing.xs),
           const Text('의뢰 제안·경매 마감·결제 소식이 여기에 쌓입니다',
-              style: DustText.caption),
+              style: ArtText.caption),
         ],
       ),
     );
@@ -219,9 +219,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return InkWell(
       onTap: () => _open(item),
       child: Container(
-        color: item.read ? Colors.transparent : DustColors.bgInfo,
+        color: item.read ? Colors.transparent : ArtColors.bgInfo,
         padding: const EdgeInsets.symmetric(
-            horizontal: DustSpacing.lg, vertical: 14),
+            horizontal: ArtSpacing.lg, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -229,13 +229,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: DustColors.bgSubtle,
-                borderRadius: BorderRadius.circular(DustRadius.sm),
+                color: ArtColors.bgSubtle,
+                borderRadius: BorderRadius.circular(ArtRadius.sm),
               ),
               child: Icon(_iconFor(item.type),
-                  size: 20, color: DustColors.brandPrimary),
+                  size: 20, color: ArtColors.brandPrimary),
             ),
-            const SizedBox(width: DustSpacing.sm),
+            const SizedBox(width: ArtSpacing.sm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +245,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       Expanded(
                         child: Text(
                           item.title,
-                          style: DustText.body.copyWith(
+                          style: ArtText.body.copyWith(
                             fontSize: 15,
                             fontWeight:
                                 item.read ? FontWeight.w500 : FontWeight.w700,
@@ -253,15 +253,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Text(_elapsed(item.createdAt), style: DustText.caption),
+                      Text(_elapsed(item.createdAt), style: ArtText.caption),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     item.message,
-                    style: DustText.body.copyWith(
+                    style: ArtText.body.copyWith(
                       fontSize: 13,
-                      color: DustColors.textSecondary,
+                      color: ArtColors.textSecondary,
                     ),
                   ),
                 ],

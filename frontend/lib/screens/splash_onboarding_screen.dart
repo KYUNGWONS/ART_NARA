@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../services/auth_api_service.dart';
 import '../widgets/artnara_wordmark.dart';
 import 'login_screen.dart';
@@ -80,7 +80,7 @@ class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final sw = constraints.maxWidth / _designWidth;
@@ -91,7 +91,7 @@ class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
             children: [
               // 수채 배경 (Figma image 2)
               Image.asset(
-                'assets/images/dust_splash_bg.jpg',
+                'assets/images/splash_bg.jpg',
                 fit: BoxFit.cover,
               ),
 
@@ -122,8 +122,8 @@ class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: selected
-                              ? DustColors.brandPrimary
-                              : DustColors.brandPrimary.withValues(alpha: 0.25),
+                              ? ArtColors.brandPrimary
+                              : ArtColors.brandPrimary.withValues(alpha: 0.25),
                         ),
                       );
                     }),
@@ -141,10 +141,10 @@ class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
                   child: FilledButton(
                     onPressed: _start,
                     style: FilledButton.styleFrom(
-                      backgroundColor: DustColors.brandPrimary,
-                      foregroundColor: DustColors.textOnBrand,
+                      backgroundColor: ArtColors.brandPrimary,
+                      foregroundColor: ArtColors.textOnBrand,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(DustRadius.full),
+                        borderRadius: BorderRadius.circular(ArtRadius.full),
                       ),
                     ),
                     child: const Text(
@@ -191,7 +191,7 @@ class _WordmarkPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: DustColors.brandPrimary,
+                color: ArtColors.brandPrimary,
               ),
             ),
           ),
@@ -217,15 +217,15 @@ class _MessagePage extends StatelessWidget {
           Text(
             page.title,
             textAlign: TextAlign.center,
-            style: DustText.section.copyWith(color: DustColors.brandPrimary),
+            style: ArtText.section.copyWith(color: ArtColors.brandPrimary),
           ),
-          const SizedBox(height: DustSpacing.md),
+          const SizedBox(height: ArtSpacing.md),
           Text(
             page.subtitle,
             textAlign: TextAlign.center,
-            style: DustText.body.copyWith(
+            style: ArtText.body.copyWith(
               height: 1.6,
-              color: DustColors.textSecondary,
+              color: ArtColors.textSecondary,
             ),
           ),
         ],

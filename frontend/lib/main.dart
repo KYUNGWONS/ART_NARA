@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart' show KakaoMapSdk;
 import 'package:provider/provider.dart';
-import 'constants/dust_tokens.dart';
+import 'constants/art_tokens.dart';
 import 'providers/locale_provider.dart';
 import 'screens/splash_onboarding_screen.dart';
 
@@ -84,14 +84,14 @@ class ArtNaraApp extends StatelessWidget {
         title: 'ART NARA',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          // 디자인 토큰 기준 (Figma "DUST-ART Foundations" 25:210 — 파일명이 옛 브랜드명이다)
+          // 디자인 토큰 기준 (Figma "ART NARA Foundations" 25:210 — 파일명이 옛 브랜드명이다)
           colorScheme: ColorScheme.fromSeed(
-            seedColor: DustColors.brandPrimary,
-            primary: DustColors.brandPrimary,
-            secondary: DustColors.brandDeep,
+            seedColor: ArtColors.brandPrimary,
+            primary: ArtColors.brandPrimary,
+            secondary: ArtColors.brandDeep,
           ),
           useMaterial3: true,
-          scaffoldBackgroundColor: DustColors.bgSurface,
+          scaffoldBackgroundColor: ArtColors.bgSurface,
           textTheme: GoogleFonts.notoSansKrTextTheme(),
         ),
         home: const SplashOnboardingScreen(),

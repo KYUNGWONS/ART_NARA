@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../models/home_feed.dart';
 import '../services/artwork_api_service.dart';
 import '../utils/image_url.dart';
@@ -80,30 +80,30 @@ class _ArtworkListScreenState extends State<ArtworkListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: DustColors.bgCanvas,
+        backgroundColor: ArtColors.bgCanvas,
         elevation: 0,
-        foregroundColor: DustColors.textPrimary,
+        foregroundColor: ArtColors.textPrimary,
         title: Text(widget.title,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: DustColors.brandPrimary,
+              color: ArtColors.brandPrimary,
             )),
         centerTitle: true,
       ),
       body: _items.isEmpty && !_loading
-          ? const Center(child: Text('작품이 없습니다', style: DustText.caption))
+          ? const Center(child: Text('작품이 없습니다', style: ArtText.caption))
           : GridView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.all(DustSpacing.md),
+              padding: const EdgeInsets.all(ArtSpacing.md),
               // 로딩 인디케이터 자리 1칸
               itemCount: _items.length + (_hasMore ? 1 : 0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: DustSpacing.sm,
-                mainAxisSpacing: DustSpacing.sm,
+                crossAxisSpacing: ArtSpacing.sm,
+                mainAxisSpacing: ArtSpacing.sm,
                 mainAxisExtent: 258,
               ),
               itemBuilder: (context, index) {
@@ -113,7 +113,7 @@ class _ArtworkListScreenState extends State<ArtworkListScreen> {
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2.5, color: DustColors.brandPrimary),
+                          strokeWidth: 2.5, color: ArtColors.brandPrimary),
                     ),
                   );
                 }
@@ -139,8 +139,8 @@ class _Card extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: DustColors.bgSurface,
-          borderRadius: BorderRadius.circular(DustRadius.md),
+          color: ArtColors.bgSurface,
+          borderRadius: BorderRadius.circular(ArtRadius.md),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,16 +151,16 @@ class _Card extends StatelessWidget {
                   height: 160,
                   width: double.infinity,
                   decoration: const BoxDecoration(
-                    color: DustColors.bgSubtle,
+                    color: ArtColors.bgSubtle,
                     borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(DustRadius.md)),
+                        top: Radius.circular(ArtRadius.md)),
                   ),
                   child: artwork.imageUrl.isEmpty
                       ? const Icon(Icons.image_outlined,
-                          color: DustColors.textSecondary)
+                          color: ArtColors.textSecondary)
                       : ClipRRect(
                           borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(DustRadius.md)),
+                              top: Radius.circular(ArtRadius.md)),
                           child: Image.network(
                               resolveImageUrl(artwork.imageUrl),
                               fit: BoxFit.cover),
@@ -170,14 +170,14 @@ class _Card extends StatelessWidget {
                   const Positioned.fill(
                     child: SoldOverlay(
                       borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(DustRadius.md)),
+                          top: Radius.circular(ArtRadius.md)),
                     ),
                   ),
               ],
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                  DustSpacing.md, DustSpacing.xs, DustSpacing.md, 0),
+                  ArtSpacing.md, ArtSpacing.xs, ArtSpacing.md, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -187,18 +187,18 @@ class _Card extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          color: DustColors.textPrimary)),
+                          color: ArtColors.textPrimary)),
                   const SizedBox(height: 3),
                   Text(artwork.artistName,
                       style: const TextStyle(
-                          fontSize: 13, color: DustColors.textSecondary)),
+                          fontSize: 13, color: ArtColors.textSecondary)),
                   const SizedBox(height: 6),
                   Text(
                     '₩${formatPrice(artwork.auction ? (artwork.currentBid ?? artwork.price) : artwork.price)}',
                     style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: DustColors.textPrimary),
+                        color: ArtColors.textPrimary),
                   ),
                   if (artwork.remainingTime != null) ...[
                     const SizedBox(height: 2),
@@ -206,7 +206,7 @@ class _Card extends StatelessWidget {
                       artwork.remainingTime,
                       prefix: '남은 시간 ',
                       style: const TextStyle(
-                          fontSize: 11, color: DustColors.brandPrimary),
+                          fontSize: 11, color: ArtColors.brandPrimary),
                     ),
                   ],
                 ],

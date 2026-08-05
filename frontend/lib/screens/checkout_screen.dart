@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../constants/dust_tokens.dart';
+import '../constants/art_tokens.dart';
 import '../utils/image_url.dart';
 
 import '../models/artwork_detail.dart';
@@ -59,7 +59,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: const Row(
           children: [
-            Icon(Icons.verified, color: DustColors.success),
+            Icon(Icons.verified, color: ArtColors.success),
             SizedBox(width: 8),
             Text('결제 완료', style: TextStyle(fontSize: 16)),
           ],
@@ -72,7 +72,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 style: const TextStyle(fontSize: 13)),
             const SizedBox(height: 8),
             Text('디지털 소유권이 발급되었습니다.\n인증 번호: ${order.certificateNo}',
-                style: const TextStyle(fontSize: 12, color: DustColors.textSecondary)),
+                style: const TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
           ],
         ),
         actions: [
@@ -93,7 +93,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               Navigator.pop(context); // 결제 화면 닫기
             },
             style: FilledButton.styleFrom(
-              backgroundColor: DustColors.brandPrimary,
+              backgroundColor: ArtColors.brandPrimary,
             ),
             child: const Text('확인'),
           ),
@@ -112,9 +112,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     final artwork = widget.artwork;
     return Scaffold(
-      backgroundColor: DustColors.bgCanvas,
+      backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
-        backgroundColor: DustColors.bgCanvas,
+        backgroundColor: ArtColors.bgCanvas,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black),
@@ -133,7 +133,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 8),
             const Text(
               '🎉 낙찰을 축하합니다! 낙찰가로 결제가 진행됩니다.',
-              style: TextStyle(fontSize: 12, color: DustColors.success),
+              style: TextStyle(fontSize: 12, color: ArtColors.success),
             ),
           ],
           const SizedBox(height: 24),
@@ -157,7 +157,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           FilledButton(
             onPressed: _paying ? null : _pay,
             style: FilledButton.styleFrom(
-              backgroundColor: DustColors.brandPrimary,
+              backgroundColor: ArtColors.brandPrimary,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -171,7 +171,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const Text(
             '구매자 수수료 0% · 결제 완료 시 디지털 소유권이 자동 발급됩니다',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, color: DustColors.textSecondary),
+            style: TextStyle(fontSize: 11, color: ArtColors.textSecondary),
           ),
         ],
       ),
@@ -190,8 +190,8 @@ class _ArtworkSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: DustColors.bgSurface,
-        border: Border.all(color: DustColors.borderSoft),
+        color: ArtColors.bgSurface,
+        border: Border.all(color: ArtColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -203,12 +203,12 @@ class _ArtworkSummary extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(color: DustColors.borderSoft),
+              border: Border.all(color: ArtColors.borderSoft),
               borderRadius: BorderRadius.circular(6),
             ),
             child: artwork.imageUrl.isEmpty
                 ? const Icon(Icons.image_outlined,
-                    size: 22, color: DustColors.textSecondary)
+                    size: 22, color: ArtColors.textSecondary)
                 : Image.network(resolveImageUrl(artwork.imageUrl), fit: BoxFit.cover),
           ),
           const SizedBox(width: 12),
@@ -222,7 +222,7 @@ class _ArtworkSummary extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text('${artwork.artistName} · ${artwork.size}',
                     style: const TextStyle(
-                        fontSize: 11, color: DustColors.textSecondary)),
+                        fontSize: 11, color: ArtColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text('₩${_formatPrice(price)}',
                     style: const TextStyle(
@@ -246,13 +246,13 @@ class _PriceSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        border: Border.all(color: DustColors.borderSoft),
+        border: Border.all(color: ArtColors.borderSoft),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
         children: [
           _row('작품 금액', '₩${_formatPrice(price)}'),
-          const Divider(height: 16, color: DustColors.borderSoft),
+          const Divider(height: 16, color: ArtColors.borderSoft),
           _row('총 결제 금액', '₩${_formatPrice(price)}', bold: true),
         ],
       ),
