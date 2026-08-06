@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 
@@ -47,17 +49,60 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  /// 작품 마커(POI) 공용 스타일 — 브랜드 teal 라벨 텍스트.
-  static final _poiStyle = PoiStyle(
-    textStyle: const [
-      PoiTextStyle(
-        size: 26,
-        color: ArtColors.brandPrimary,
-        stroke: 2,
-        strokeColor: Colors.white,
-      ),
-    ],
-  );
+  /// 작품 마커(POI) 공용 스타일. 핀 아이콘을 만든 뒤 채워진다.
+  PoiStyle? _poiStyle;
+
+  /// 작품 핀을 코드로 그린다(에셋 없이 ArtColors 를 그대로 쓰기 위해).
+  ///
+  /// 글자만 찍으면 지도의 지명 라벨과 뒤섞여 어떤 게 작품인지 구분되지 않는다 —
+  /// 브랜드 색 물방울 핀을 아이콘으로 붙이고 제목은 핀 아래에 둔다.
+  Future<PoiStyle> _artworkPoiStyle() async {
+    final cached = _poiStyle;
+    if (cached != null) return cached;
+
+    const width = 60.0;
+    const height = 78.0;
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    final pin = Path()
+      ..moveTo(width / 2, height) // 뾰족한 끝이 좌표를 가리킨다
+      ..cubicTo(width * 0.08, height * 0.62, 0, height * 0.42, 0, width / 2)
+      ..arcToPoint(const Offset(width, width / 2),
+          radius: const Radius.circular(width / 2), clockwise: true)
+      ..cubicTo(width, height * 0.42, width * 0.92, height * 0.62,
+          width / 2, height)
+      ..close();
+
+    canvas.drawPath(pin, Paint()..color = ArtColors.brandPrimary);
+    canvas.drawPath(
+        pin,
+        Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 4);
+    canvas.drawCircle(
+        const Offset(width / 2, width / 2), width * 0.18, Paint()..color = Colors.white);
+
+    final image = await recorder
+        .endRecording()
+        .toImage(width.toInt(), height.toInt());
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final style = PoiStyle(
+      icon: KImage.fromData(
+          bytes!.buffer.asUint8List(), (width / 2).round(), (height / 2).round()),
+      textStyle: const [
+        PoiTextStyle(
+          size: 22,
+          color: ArtColors.brandPrimary,
+          stroke: 3,
+          strokeColor: Colors.white,
+        ),
+      ],
+    );
+    _poiStyle = style;
+    return style;
+  }
 
   Future<void> _renderMarkers() async {
     final controller = _mapController;
@@ -67,10 +112,11 @@ class _MapScreenState extends State<MapScreen> {
       await controller.labelLayer.removePoi(poi);
     }
     _pois.clear();
+    final style = await _artworkPoiStyle();
     for (final artwork in _artworks) {
       final poi = await controller.labelLayer.addPoi(
         LatLng(artwork.latitude, artwork.longitude),
-        style: _poiStyle,
+        style: style,
         text: artwork.title,
         onClick: () => setState(() => _selected = artwork),
       );
