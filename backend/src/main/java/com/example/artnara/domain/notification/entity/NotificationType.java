@@ -9,6 +9,8 @@ public enum NotificationType {
     AUCTION_CLOSED,
     /** 결제 완료 및 소유권 인증서 발급 */
     ORDER_COMPLETED,
+    /** 관리자 환불 처리 — 구매자에게 알린다 */
+    ORDER_REFUNDED,
     /** 작품 문의 채팅에 새 메시지 도착 */
     CHAT_MESSAGE
 }

@@ -4,6 +4,8 @@ import com.example.artnara.domain.admin.dto.AdminDto;
 import com.example.artnara.domain.artwork.repository.ArtworkRepository;
 import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.certificate.service.CertificateService;
+import com.example.artnara.domain.notification.entity.NotificationType;
+import com.example.artnara.domain.notification.service.NotificationService;
 import com.example.artnara.domain.order.entity.ArtOrder;
 import com.example.artnara.domain.order.repository.ArtOrderRepository;
 import com.example.artnara.domain.user.entity.User;
@@ -42,6 +44,7 @@ public class AdminService {
     private final ArtworkRepository artworkRepository;
     private final ArtworkService artworkService;
     private final CertificateService certificateService;
+    private final NotificationService notificationService;
     private final TossPaymentClient tossPaymentClient;
 
     @Transactional(readOnly = true)
@@ -200,6 +203,11 @@ public class AdminService {
         artworkService.markUnsold(order.getArtworkId());
         // 작품이 다시 팔릴 수 있게 됐으므로 이전 구매자의 소유권·인증서도 회수한다.
         certificateService.revoke(order.getCertificateNo());
+        // 구매자는 앱에서 환불 사실을 알 수 있어야 한다(관리자가 처리하므로 본인은 모른다).
+        notificationService.publishTo(order.getBuyerId(),
+                NotificationType.ORDER_REFUNDED, "환불이 처리되었어요",
+                "'" + order.getArtworkTitle() + "' 주문이 환불되었습니다. 디지털 소유권은 회수됩니다.",
+                order.getId());
     }
 
     private static String normalize(String value) {
