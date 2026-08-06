@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../constants/art_tokens.dart';
@@ -62,7 +66,11 @@ class _TossPaymentScreenState extends State<TossPaymentScreen> {
         onPageFinished: (_) {
           if (mounted) setState(() => _loading = false);
         },
+        onWebResourceError: (error) {
+          debugPrint('[toss] resourceError ${error.errorCode} ${error.description} ${error.url}');
+        },
         onNavigationRequest: (request) {
+          debugPrint('[toss] navigate ${request.url}');
           if (request.url.startsWith(_successUrl)) {
             _complete(_readSuccess(request.url));
             return NavigationDecision.prevent;
@@ -72,21 +80,74 @@ class _TossPaymentScreenState extends State<TossPaymentScreen> {
             _complete(TossPaymentResult.failure(message ?? '결제를 취소했어요'));
             return NavigationDecision.prevent;
           }
+          // 카드사·간편결제 앱으로 넘기는 스킴(intent://, kb-acp://, supertoss:// …)은
+          // WebView 가 열지 못해 ERR_UNKNOWN_URL_SCHEME 로 끊긴다. 외부 앱으로 넘긴다.
+          if (!request.url.startsWith('http')) {
+            _openExternal(request.url);
+            return NavigationDecision.prevent;
+          }
           return NavigationDecision.navigate;
         },
-      ))
-      ..loadFlutterAsset(_assetUrl());
+      ));
+    _loadCheckout();
   }
 
-  /// 위젯 호스트 페이지에 결제 정보를 쿼리로 넘긴다.
-  String _assetUrl() {
-    final query = Uri(queryParameters: {
-      'clientKey': widget.clientKey,
-      'orderId': widget.orderId,
-      'orderName': widget.orderName,
-      'amount': '${widget.amount}',
-    }).query;
-    return 'assets/toss_checkout.html?$query';
+  /// 호스트 페이지에 결제 정보를 심어 로드한다.
+  ///
+  /// `loadFlutterAsset` 은 쿼리스트링을 붙일 수 없어(에셋 키를 그대로 찾는다)
+  /// 에셋을 문자열로 읽어 설정 스크립트를 치환한 뒤 `loadHtmlString` 으로 띄운다.
+  /// baseUrl 을 성공/실패 URL 과 같은 오리진으로 둬야 토스가 리다이렉트할 때
+  /// NavigationDelegate 가 가로챌 수 있다.
+  Future<void> _loadCheckout() async {
+    try {
+      final template = await rootBundle.loadString('assets/toss_checkout.html');
+      final config = jsonEncode({
+        'clientKey': widget.clientKey,
+        'orderId': widget.orderId,
+        'orderName': widget.orderName,
+        'amount': widget.amount,
+      });
+      final html = template.replaceFirst(
+        '/*__PAYMENT_CONFIG__*/',
+        'window.__ARTNARA_PAYMENT__ = $config;',
+      );
+      await _controller.loadHtmlString(html, baseUrl: 'https://artnara.app/checkout');
+    } catch (_) {
+      _complete(const TossPaymentResult.failure('결제창을 불러오지 못했어요'));
+    }
+  }
+
+  /// 결제 앱을 띄운다. 앱이 없으면 마켓으로, 그것도 안 되면 안내만 한다.
+  ///
+  /// intent:// URL 은 `;package=com.xxx;` 로 대상 앱을,
+  /// `S.browser_fallback_url=` 로 웹 대체 주소를 알려준다.
+  Future<void> _openExternal(String url) async {
+    if (await _launch(url)) return;
+
+    final fallback = RegExp(r'S\.browser_fallback_url=([^;]+)').firstMatch(url);
+    if (fallback != null) {
+      final decoded = Uri.decodeComponent(fallback.group(1)!);
+      if (await _launch(decoded)) return;
+    }
+    final package = RegExp(r'package=([^;]+)').firstMatch(url);
+    if (package != null &&
+        await _launch('market://details?id=${package.group(1)}')) {
+      return;
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('결제 앱을 열지 못했어요. 앱이 설치되어 있는지 확인해 주세요.')),
+      );
+    }
+  }
+
+  Future<bool> _launch(String url) async {
+    try {
+      return await launchUrl(Uri.parse(url),
+          mode: LaunchMode.externalApplication);
+    } catch (_) {
+      return false;
+    }
   }
 
   TossPaymentResult _readSuccess(String url) {

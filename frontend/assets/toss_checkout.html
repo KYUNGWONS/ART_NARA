@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>결제</title>
+  <!-- Flutter 가 이 자리(__PAYMENT_CONFIG__)를 결제 정보 스크립트로 치환한다 -->
+  <script>/*__PAYMENT_CONFIG__*/</script>
   <script src="https://js.tosspayments.com/v1/payment-widget"></script>
   <style>
     body {
@@ -46,11 +48,13 @@
    * NavigationDelegate 가 가로채 paymentKey 를 서버 승인으로 넘긴다.
    * (승인은 반드시 서버에서 — 여기서 성공 처리하면 금액 위조가 가능하다.)
    */
-  const params = new URLSearchParams(location.search);
-  const clientKey = params.get('clientKey');
-  const amount = Number(params.get('amount') || 0);
-  const orderId = params.get('orderId');
-  const orderName = params.get('orderName') || '작품 결제';
+  // Flutter 가 로드 전에 window.__ARTNARA_PAYMENT__ 를 주입한다.
+  // (loadFlutterAsset 은 쿼리스트링을 못 받으므로 HTML 에 직접 심는다.)
+  const params = window.__ARTNARA_PAYMENT__ || {};
+  const clientKey = params.clientKey;
+  const amount = Number(params.amount || 0);
+  const orderId = params.orderId;
+  const orderName = params.orderName || '작품 결제';
 
   const status = document.getElementById('status');
   const payButton = document.getElementById('pay');

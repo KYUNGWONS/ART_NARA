@@ -194,6 +194,18 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - **환불**: 주문에 paymentKey 가 있으면 관리자 환불이 토스 취소를 **먼저** 호출하고 성공해야 환불 상태로 바꾼다(PG 와 장부가 어긋나지 않게).
 - 운영 전환은 가맹 계약 후 `TOSS_SECRET_KEY`/`TOSS_CLIENT_KEY` 만 교체하면 된다. successUrl 인터셉트 주소(`artnara.app`)는 실제 도메인이 아니라 WebView 가 가로채는 용도라 그대로 둬도 된다.
 
+## 실 PG(토스) 결제 실측 (2026-08-06 심야)
+
+에뮬레이터에서 **실제 토스 결제위젯 → 샌드박스 승인 → 서버 confirm → 소유권 인증서 발급 → 관리자 환불 → 토스 취소**까지 전 구간 왕복 확인. `TOSS_SECRET_KEY=test_gsk_docs_...` 로 백엔드를 띄우면 `GET /api/payments/config` 가 enabled=true 를 내리고 앱이 결제창을 띄운다.
+
+- 결제 성공 로그: successUrl `…paymentKey=tgen_2026…&amount=180000` → 서버 승인 → 인증서 `ARTNARA-2026-102` 발급. 관리자 주문 목록에 즉시 반영.
+- 환불: `POST /api/admin/orders/{id}/refund` → 토스 `GET /v1/payments/{paymentKey}` 조회 결과 **status CANCELED, balanceAmount 0, 사유 그대로** + `Artwork.sold` 해제(앱 상세가 다시 '구매하기'로 복귀).
+- **고친 것 2가지**:
+  - `loadFlutterAsset('assets/toss_checkout.html?...')` 은 쿼리스트링을 붙이면 **에셋 키를 통째로 찾아 실패**한다(Asset for key ... not found). → 에셋을 문자열로 읽어 `/*__PAYMENT_CONFIG__*/` 자리에 `window.__ARTNARA_PAYMENT__` 를 심고 `loadHtmlString(baseUrl: 'https://artnara.app/checkout')` 로 로드. baseUrl 을 success/fail URL 과 같은 오리진으로 둬야 리다이렉트를 가로챌 수 있다.
+  - 카드 결제는 카드사 앱카드로 넘어가며 `intent://…kb-acp://…` 스킴을 던지는데 WebView 가 `ERR_UNKNOWN_URL_SCHEME` 로 죽었다. → http 가 아닌 스킴은 `url_launcher` 로 외부 앱 실행, 실패 시 `S.browser_fallback_url` → `market://details?id=패키지` 순으로 폴백(매니페스트 `<queries>` 에 VIEW/https·market 추가). **에뮬레이터엔 카드사 앱이 없어 이 경로는 실기기 확인이 남아 있다.**
+- 위젯 테스트용 경로: 카드 대신 **퀵계좌이체**를 고르면 웹 안에서 끝난다(테스트 비밀번호 000000). 카드사를 안 고르고 결제하면 위젯이 "카드 결제 정보를 선택해주세요" 로 거절한다.
+- 복수 카테고리 의뢰도 앱에서 실측: 회화·조각·사진 선택 → 카드에 `회화 · 조각 · 사진`, 알림 62명(카테고리별 작가 합).
+
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)
