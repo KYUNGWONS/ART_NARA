@@ -6,6 +6,7 @@ import '../services/user_api_service.dart';
 import 'certificate_screen.dart';
 import 'liked_artworks_screen.dart';
 import 'order_history_screen.dart';
+import 'settlement_screen.dart';
 
 /// 내 프로필 조회 화면 (GET /users/me)
 class MyProfileScreen extends StatefulWidget {
@@ -169,6 +170,20 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           builder: (_) => const OrderHistoryScreen()),
                     ),
                   ),
+                  // 정산은 파는 쪽 화면이라 작가일 때만 노출한다(역할 전환 시 함께 바뀐다).
+                  if (_profile!.userType != null &&
+                      !_profile!.userType!.toUpperCase().startsWith('FOREIGN')) ...[
+                    const SizedBox(height: ArtSpacing.sm),
+                    _buildMenuTile(
+                      icon: Icons.account_balance_wallet_outlined,
+                      title: '판매 정산',
+                      subtitle: '판매 금액·수수료와 정산 예정액을 확인하세요',
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                            builder: (_) => const SettlementScreen()),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: ArtSpacing.lg),
                   _buildSection('기본 정보', [
                     _row('닉네임', _profile!.nickname),
