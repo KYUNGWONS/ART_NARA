@@ -1,3 +1,9 @@
+# 운영은 리버스 프록시(nginx 등)에서 TLS 를 끊고 앱 서버로 넘긴다.
+# 그러면 Spring 이 보는 스킴은 http 라서, 프록시가 붙여 준 X-Forwarded-* 를 신뢰해야
+# 리다이렉트·절대 URL·쿠키 secure 판정이 https 기준으로 맞는다.
+server:
+  forward-headers-strategy: ${FORWARD_HEADERS:framework}
+
 spring:
   application:
     name: ArtNara
