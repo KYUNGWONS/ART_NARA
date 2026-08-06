@@ -70,7 +70,5 @@ toss:
   secret-key: ${TOSS_SECRET_KEY:}
   client-key: ${TOSS_CLIENT_KEY:test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm}
 
-oauth:
-  google:
-    # 설정 시 구글 idToken의 aud(클라이언트 ID) 검증. 비어 있으면 검증을 건너뜁니다.
-    client-id: ${GOOGLE_CLIENT_ID:}
+# 소셜 로그인(카카오·네이버)은 앱이 받은 액세스 토큰을 서버가 프로필 조회로 검증하므로
+# 서버 쪽에 별도 클라이언트 설정이 필요 없다.

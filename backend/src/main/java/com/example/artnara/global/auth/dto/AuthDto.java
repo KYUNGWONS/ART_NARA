@@ -12,7 +12,7 @@ public class AuthDto {
             @Schema(description = "OAuth 제공자", example = "KAKAO")
             OAuthProvider provider,
 
-            @Schema(description = "OAuth 토큰 (KAKAO: access token, GOOGLE: idToken)",
+            @Schema(description = "OAuth 토큰 (KAKAO/NAVER: access token)",
                     example = "ya29.a0Af...")
             String accessToken
     ) {}

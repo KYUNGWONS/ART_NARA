@@ -23,7 +23,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "OAuth 로그인",
-            description = "클라이언트에서 발급받은 OAuth 토큰(KAKAO: access token, GOOGLE: idToken)을 검증하고 " +
+            description = "클라이언트에서 발급받은 OAuth 토큰(KAKAO/NAVER: access token)을 검증하고 " +
                     "앱 JWT(access/refresh)를 발급합니다. 신규 유저는 profileCompleted=false로 응답되며, " +
                     "발급된 토큰으로 프로필 설정(POST /api/users)을 진행합니다.")
     @ApiResponses({
