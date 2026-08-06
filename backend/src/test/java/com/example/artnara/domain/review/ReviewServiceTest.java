@@ -22,6 +22,7 @@ class ReviewServiceTest {
 
     @Autowired ReviewService reviewService;
     @Autowired OrderService orderService;
+    @Autowired com.example.artnara.domain.admin.service.AdminService adminService;
 
     private void buy(long artworkId) {
         orderService.create(new OrderDto.CreateRequest(artworkId, "CARD", null, null), BUYER_ID, BUYER);

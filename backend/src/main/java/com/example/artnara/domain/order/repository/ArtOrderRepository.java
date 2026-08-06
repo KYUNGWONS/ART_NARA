@@ -12,8 +12,11 @@ public interface ArtOrderRepository extends JpaRepository<ArtOrder, Long> {
 
     boolean existsByArtworkId(Long artworkId);
 
-    /** 리뷰 작성 자격 확인 — 이 사용자가 그 작품을 결제했는가 */
-    boolean existsByArtworkIdAndBuyerId(Long artworkId, Long buyerId);
+    /**
+     * 리뷰 작성 자격 확인 — 이 사용자가 그 작품을 결제했고 **환불하지 않았는가**.
+     * 환불 건까지 인정하면 결제 후 환불해도 리뷰가 남는다.
+     */
+    boolean existsByArtworkIdAndBuyerIdAndRefundedFalse(Long artworkId, Long buyerId);
 
     /** 작가 포트폴리오의 판매 수 */
     long countByArtistName(String artistName);

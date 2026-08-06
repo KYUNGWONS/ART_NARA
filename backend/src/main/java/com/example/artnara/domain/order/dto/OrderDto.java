@@ -21,7 +21,9 @@ public class OrderDto {
             String paymentMethod,
             String status,
             String certificateNo,
-            String orderedDate
+            String orderedDate,
+            /** 환불된 주문인지 — 앱이 리뷰 버튼을 감추고 환불 표시를 하는 근거 */
+            boolean refunded
     ) {}
 
     public record ListResponse(List<Response> orders) {}

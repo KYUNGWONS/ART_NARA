@@ -130,7 +130,8 @@ public class OrderService {
         return new OrderDto.Response(
                 order.getId(), order.getArtworkId(), order.getArtworkTitle(),
                 order.getArtistName(), order.getAmount(), order.getPaymentMethod(),
-                order.getStatus(), order.getCertificateNo(), order.getOrderedDate());
+                order.getStatus(), order.getCertificateNo(), order.getOrderedDate(),
+                order.isRefunded());
     }
 
     private static String blankToNull(String value) {
