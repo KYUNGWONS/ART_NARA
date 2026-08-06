@@ -284,6 +284,14 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - 없는 경로 → **404**, 잘못된 메서드 → **405** 로 매핑(`GlobalExceptionHandler`). 전에는 둘 다 500 + 스택 로그라 "서버 장애"로 오인하기 쉬웠다.
 - 참고: 인증이 필요한 경로에 **없는 하위 경로**를 부르면 404 가 아니라 **401** 이 난다(스프링 시큐리티가 먼저 막는다 — 경로 존재 여부를 노출하지 않는 정상 동작).
 
+## 환불 시 소유권 회수 (2026-08-07) — 야간 QA 중 발견
+
+- **결함**: 관리자 환불은 `Artwork.sold` 만 풀고 **구매자의 디지털 소유권·인증서를 그대로 뒀다** → 작품은 다시 팔리는데 이전 구매자도 소유권 보유(소유자 둘).
+- **수정**: `Ownership.revoked` / `Certificate.revoked` 추가(둘 다 `columnDefinition = "boolean default false"`), `CertificateService.revoke(certificateNo)` 를 `AdminService.refund` 에서 호출. 기록은 지우지 않고 무효 표시만 한다.
+  - '내 디지털 소유권' 목록에서 빠지고(`findByOwnerIdAndRevokedFalseOrderByIdDesc`), QR 스캔은 **"환불로 무효 처리된 인증서입니다."** 로 응답한다.
+- **소급 정리**: 기능 도입 전 환불 건이 유효한 상태로 남아 있어 `RefundedOwnershipCleanup`(CommandLineRunner)이 부팅 때 한 번 정리한다. 회수는 몇 번 돌려도 결과가 같다.
+- 실측: 결제(ARTNARA-2026-165) → 소유권 5건 → 환불 → 4건 + QR 스캔 무효 응답, 재부팅 후 과거 환불 건도 회수됨.
+
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)
