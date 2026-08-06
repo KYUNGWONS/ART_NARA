@@ -124,7 +124,7 @@ public class ArtnaraDataInitializer implements CommandLineRunner {
         Commission sample = commissionRepository.save(Commission.builder()
                 .title("거실에 걸 바다 풍경화 의뢰")
                 .description("3m 폭 거실 벽에 어울리는 잔잔한 바다 풍경을 원해요. 파란색 계열이면 좋겠습니다.")
-                .category("회화")
+                .categories(java.util.List.of("회화", "일러스트"))
                 .budget(500000)
                 .desiredDate(LocalDate.now().plusDays(30))
                 .referenceImageUrl("")

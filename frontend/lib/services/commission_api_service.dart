@@ -27,7 +27,8 @@ class CommissionApiService {
   Future<Commission> create({
     required String title,
     required String description,
-    required String category,
+    /// 화면에서 고른 선호 카테고리 전체(복수 선택).
+    required List<String> categories,
     required int budget,
     String? desiredDate,
     String? referenceImageUrl,
@@ -38,7 +39,7 @@ class CommissionApiService {
       body: jsonEncode({
         'title': title,
         'description': description,
-        'category': category,
+        'categories': categories,
         'budget': budget,
         'desiredDate': desiredDate,
         'referenceImageUrl': referenceImageUrl,

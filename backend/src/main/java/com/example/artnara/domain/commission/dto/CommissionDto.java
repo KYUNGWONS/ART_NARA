@@ -8,6 +8,8 @@ public class CommissionDto {
     public record CreateRequest(
             String title,
             String description,
+            /** 선호 카테고리(복수). 단일 문자열만 보내던 구버전 호환은 category 로 받는다. */
+            List<String> categories,
             String category,
             Integer budget,
             LocalDate desiredDate,
@@ -32,6 +34,7 @@ public class CommissionDto {
             String title,
             String description,
             String category,
+            List<String> categories,
             Integer budget,
             LocalDate desiredDate,
             String referenceImageUrl,

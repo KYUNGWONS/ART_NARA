@@ -4,6 +4,7 @@ class Commission {
     required this.title,
     required this.description,
     required this.category,
+    this.categories = const [],
     required this.budget,
     required this.status,
     required this.notifiedArtistCount,
@@ -16,7 +17,11 @@ class Commission {
   final int id;
   final String title;
   final String description;
+  /// 대표 카테고리(첫 선택). 구버전 응답 호환용.
   final String category;
+
+  /// 선택한 선호 카테고리 전체. 없으면 category 하나로 채운다.
+  final List<String> categories;
   final int budget;
   final String? desiredDate;
   final String status;
@@ -37,6 +42,9 @@ class Commission {
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
       category: json['category'] as String? ?? '',
+      categories: json['categories'] is List
+          ? (json['categories'] as List).whereType<String>().toList()
+          : [if ((json['category'] as String? ?? '').isNotEmpty) json['category'] as String],
       budget: json['budget'] as int? ?? 0,
       desiredDate: json['desiredDate'] as String?,
       status: json['status'] as String? ?? '',

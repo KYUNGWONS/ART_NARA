@@ -135,11 +135,10 @@ class _CommissionScreenState extends State<CommissionScreen> {
       final firstLine = description.split('\n').first;
       final title =
           firstLine.length > 30 ? '${firstLine.substring(0, 30)}…' : firstLine;
-      // TODO(서버 연동): 백엔드가 단일 카테고리만 받으므로 첫 선택을 대표로 전송.
       final created = await _api.create(
         title: title,
         description: description,
-        category: _selected.first,
+        categories: _selected.toList(),
         budget: budget,
         desiredDate: _desiredDate?.toIso8601String().substring(0, 10),
         referenceImageUrl: _referenceImageUrl,
@@ -632,7 +631,9 @@ class _CommissionCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '${commission.category} · 예산 ₩${formatPrice(commission.budget)}'
+            // 고른 카테고리를 모두 보여준다(복수 선택 지원).
+            '${commission.categories.isEmpty ? commission.category : commission.categories.join(' · ')}'
+            ' · 예산 ₩${formatPrice(commission.budget)}'
             '${commission.desiredDate != null ? ' · 희망일 ${commission.desiredDate}' : ''}',
             style: const TextStyle(
                 fontSize: 11, color: ArtColors.textSecondary),

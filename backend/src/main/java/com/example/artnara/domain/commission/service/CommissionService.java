@@ -35,23 +35,50 @@ public class CommissionService {
     private final NotificationService notificationService;
 
     public CommissionDto.Response create(CommissionDto.CreateRequest request) {
-        validate(request);
+        List<String> categories = selectedCategories(request);
+        validate(request, categories);
         Commission commission = commissionRepository.save(Commission.builder()
                 .title(request.title().trim())
                 .description(request.description() == null ? "" : request.description().trim())
-                .category(request.category().trim())
+                .categories(categories)
                 .budget(request.budget())
                 .desiredDate(request.desiredDate())
                 .referenceImageUrl(request.referenceImageUrl() == null
                         ? "" : request.referenceImageUrl().trim())
-                .notifiedArtistCount(ARTIST_POOL.getOrDefault(request.category().trim(), 10))
+                .notifiedArtistCount(notifiedArtistCount(categories))
                 .build());
         notificationService.publish(NotificationType.COMMISSION_CREATED,
                 "의뢰가 작가들에게 전달되었어요",
-                commission.getNotifiedArtistCount() + "명의 " + commission.getCategory()
+                commission.getNotifiedArtistCount() + "명의 "
+                        + String.join("·", categories)
                         + " 작가에게 '" + commission.getTitle() + "' 의뢰가 전달되었습니다.",
                 commission.getId());
         return toDto(commission);
+    }
+
+    /**
+     * 화면에서 고른 카테고리 목록. 구버전 클라이언트는 category 하나만 보내므로
+     * 그 경우에도 한 개짜리 목록으로 받아준다.
+     */
+    private List<String> selectedCategories(CommissionDto.CreateRequest request) {
+        List<String> selected = request.categories() == null
+                ? List.of()
+                : request.categories().stream()
+                        .filter(category -> category != null && !category.isBlank())
+                        .map(String::trim)
+                        .distinct()
+                        .toList();
+        if (!selected.isEmpty()) return selected;
+        return (request.category() == null || request.category().isBlank())
+                ? List.of()
+                : List.of(request.category().trim());
+    }
+
+    /** 선택한 카테고리들의 매칭 희망 작가를 합산한다(중복 작가는 고려하지 않는 mock). */
+    private int notifiedArtistCount(List<String> categories) {
+        return categories.stream()
+                .mapToInt(category -> ARTIST_POOL.getOrDefault(category, 10))
+                .sum();
     }
 
     @Transactional(readOnly = true)
@@ -103,17 +130,18 @@ public class CommissionService {
         Integer lowestOffer = offers.isEmpty() ? null : offers.get(0).amount();
         return new CommissionDto.Response(
                 commission.getId(), commission.getTitle(), commission.getDescription(),
-                commission.getCategory(), commission.getBudget(), commission.getDesiredDate(),
+                commission.getCategory(), commission.getCategories(),
+                commission.getBudget(), commission.getDesiredDate(),
                 commission.getReferenceImageUrl(),
                 offers.isEmpty() ? "작가 제안 대기" : "역경매 진행 중",
                 commission.getNotifiedArtistCount(), lowestOffer, offers);
     }
 
-    private void validate(CommissionDto.CreateRequest request) {
+    private void validate(CommissionDto.CreateRequest request, List<String> categories) {
         if (request.title() == null || request.title().isBlank()) {
             throw new GlobalException(DomainResultCode.COMMISSION_TITLE_REQUIRED);
         }
-        if (request.category() == null || request.category().isBlank()) {
+        if (categories.isEmpty()) {
             throw new GlobalException(DomainResultCode.COMMISSION_CATEGORY_REQUIRED);
         }
         if (request.budget() == null || request.budget() <= 0) {
