@@ -224,6 +224,12 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - **남은 것은 계정 작업뿐**: Firebase 프로젝트 생성 → Android 앱(`com.artnara.artnara`) 등록 → `google-services.json` 다운로드 → 서비스 계정 키 발급. 이건 사용자 구글 계정 로그인이 필요해 내가 대신 할 수 없다.
 - 검증: 기기 등록 200 / 비로그인 401 / 해제 200, 서비스 테스트 4건(소유자 재할당·비활성 시 미발송·죽은 토큰 정리·시스템 알림 제외).
 
+## HTTPS 준비 (2026-08-07)
+
+- 앱: `usesCleartextTraffic="true"` 를 **`network_security_config.xml` 로 교체**. 평문 HTTP 는 `10.0.2.2`/`localhost`/`127.0.0.1`(개발 백엔드)에만 허용하고 그 외 도메인은 OS 가 차단한다 — 운영 주소에 실수로 http 를 써도 평문이 나가지 않는다. 실측: 에뮬레이터에서 자동 로그인·알림 조회 정상.
+- 백엔드: `server.forward-headers-strategy=framework`(env `FORWARD_HEADERS`). **TLS 는 리버스 프록시(nginx 등)에서 끊는 전제** — 그러면 Spring 이 보는 스킴이 http 라서 X-Forwarded-* 를 신뢰해야 리다이렉트·절대 URL·쿠키 secure 판정이 https 기준으로 맞는다.
+- 운영 전환 시 할 일: 도메인·인증서 발급(Let's Encrypt) → 프록시 설정 → 앱 빌드의 `--dart-define=API_BASE_URL=https://...` → 관리자 콘솔의 `artnara.apiBase` 도 https 로(https 페이지에서 http API 를 부르면 브라우저가 mixed content 로 막는다).
+
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)
