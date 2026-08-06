@@ -230,6 +230,20 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - 백엔드: `server.forward-headers-strategy=framework`(env `FORWARD_HEADERS`). **TLS 는 리버스 프록시(nginx 등)에서 끊는 전제** — 그러면 Spring 이 보는 스킴이 http 라서 X-Forwarded-* 를 신뢰해야 리다이렉트·절대 URL·쿠키 secure 판정이 https 기준으로 맞는다.
 - 운영 전환 시 할 일: 도메인·인증서 발급(Let's Encrypt) → 프록시 설정 → 앱 빌드의 `--dart-define=API_BASE_URL=https://...` → 관리자 콘솔의 `artnara.apiBase` 도 https 로(https 페이지에서 http API 를 부르면 브라우저가 mixed content 로 막는다).
 
+## 에뮬레이터에서 카카오맵 띄우기 (2026-08-07) — 해결
+
+- **원인 재정의**: 문제는 "에뮬레이터라서"가 아니라 **앱 프로세스가 x86_64 라서**였다. 이 AVD 는 `ro.product.cpu.abilist = x86_64,arm64-v8a` 로 **arm64 변환을 지원**한다. 그런데 유니버설 APK 에는 x86_64 .so 가 섞여 있어(카메라/MLKit 플러그인) 안드로이드가 앱을 x86_64 로 설치하고, 그러면 arm 전용 `libK3fAndroid.so` 가 dlopen 에서 죽는다.
+- **해결**: arm64 만 담은 APK 로 설치하면 앱 전체가 arm64 로 뜨고 지도 SDK 가 정상 로드된다.
+  ```bash
+  flutter build apk --debug --split-per-abi --target-platform android-arm64     --dart-define=API_BASE_URL=http://10.0.2.2:8080 --dart-define=KAKAO_NATIVE_APP_KEY=...
+  adb uninstall com.artnara.artnara   # ABI 가 바뀌므로 재설치가 아니라 지우고 설치
+  adb install build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk
+  ```
+  실측 로그: `libK3fAndroid.so ... ok` → `카카오 지도 SDK 초기화 성공`. (변환 실행이라 평소보다 느리다 — 기능 확인용으로만 쓸 것.)
+- **가드 수정**: `main.dart` 가 `getprop ro.product.cpu.abi`(기기 속성)를 보던 것을 **`Abi.current()`(프로세스 ABI)** 로 교체했다. 기기 속성은 arm64 APK 로 설치해도 x86_64 라서 멀쩡한 환경에서 지도를 꺼버렸다.
+- **네이버 지도로 바꿀 이유는 없다**: 카카오맵이 에뮬레이터에서 확인되므로, 키 두 벌 관리(로그인=카카오 / 지도=네이버)를 되살릴 필요가 없다. 네이버 SDK 의 x86_64 지원 여부는 이번에 검증하지 못했다(메이븐 저장소 응답 404).
+- 릴리스(AOT) 빌드는 이 경로(OneDrive)에서 `app.dill` 을 못 읽어 실패한다 — 필요하면 레포를 OneDrive 밖으로 복사해 빌드할 것.
+
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)

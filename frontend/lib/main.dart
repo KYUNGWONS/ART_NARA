@@ -1,4 +1,5 @@
-import 'dart:io' show Platform, Process;
+import 'dart:ffi' show Abi;
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,16 +18,15 @@ bool isKakaoMapInitialized = false;
 /// 지도를 못 그리는 이유(목록 폴백 배너에 표시). 초기화 성공 시 null.
 String? kakaoMapUnavailableReason;
 
-/// x86/x86_64 안드로이드(에뮬레이터)인지 — 카카오맵 네이티브 미지원 환경 판별용.
-Future<bool> _isX86Android() async {
-  if (!Platform.isAndroid) return false;
-  try {
-    final result = await Process.run('getprop', ['ro.product.cpu.abi']);
-    return (result.stdout as String).trim().startsWith('x86');
-  } catch (_) {
-    return false;
-  }
-}
+/// 이 앱 프로세스가 arm 으로 돌고 있는지.
+///
+/// 카카오맵 네이티브(libK3fAndroid.so)는 arm 전용이라 x86 프로세스에서는 dlopen 이
+/// FATAL 로 죽는다(Dart 에서 못 잡는다). 판단 기준은 **기기 속성이 아니라 프로세스 ABI** 다 —
+/// arm64 변환을 지원하는 에뮬레이터에 arm64 APK 를 설치하면 x86_64 기기여도 지도가 동작한다.
+bool get _isArmProcess =>
+    !Platform.isAndroid ||
+    Abi.current() == Abi.androidArm64 ||
+    Abi.current() == Abi.androidArm;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,13 +47,11 @@ void main() async {
     if (kakaoAppKey.isEmpty) {
       throw StateError('KAKAO_NATIVE_APP_KEY is not configured');
     }
-    if (await _isX86Android()) {
-      // 카카오맵 네이티브 라이브러리(libK3fAndroid.so)는 arm 전용이라
-      // x86_64 에뮬레이터에서는 dlopen 이 FATAL 로 죽는다(Dart 에서 못 잡음).
+    if (!_isArmProcess) {
       // 초기화를 건너뛰면 지도 탭이 거리순 목록 폴백으로 동작한다.
       kakaoMapUnavailableReason =
-          '에뮬레이터는 카카오맵을 지원하지 않아 목록으로 보여드려요. 실제 기기에서는 지도가 표시됩니다.';
-      throw StateError('x86 에뮬레이터 — 카카오맵 네이티브 미지원');
+          'x86 빌드에서는 카카오맵을 쓸 수 없어 목록으로 보여드려요. arm 기기·arm64 빌드에서는 지도가 표시됩니다.';
+      throw StateError('x86 프로세스 — 카카오맵 네이티브 미지원 (${Abi.current()})');
     }
     await KakaoMapSdk.instance.initialize(kakaoAppKey);
     isKakaoMapInitialized = true;
