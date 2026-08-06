@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase 설정(계정 자산) — 커밋 금지
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist

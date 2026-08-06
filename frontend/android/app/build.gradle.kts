@@ -7,6 +7,12 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// 푸시는 Firebase 설정 파일이 있을 때만 켠다. 파일이 없으면 플러그인이 빌드를 깨뜨리므로
+// (google-services.json 은 계정 자산이라 저장소에 없다) 존재할 때만 적용한다.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 // 카카오 네이티브 앱 키는 커스텀 스킴(kakao{키}://oauth)에 들어가야 해서 매니페스트에 필요하다.
 // 저장소에 커밋되지 않도록 git 미추적 파일 android/local.properties 에서 읽는다.
 //   kakaoNativeAppKey=xxxxxxxx

@@ -5,6 +5,7 @@ import '../constants/art_tokens.dart';
 import '../widgets/artnara_wordmark.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
+import '../services/push_service.dart';
 import '../services/google_auth_service.dart';
 import '../services/kakao_auth_service.dart';
 import 'main_screen.dart';
@@ -186,6 +187,8 @@ class _LoginScreenState extends State<LoginScreen>
     String? profileImageUrl,
     String? nickname,
   }) {
+    // 로그인이 끝난 시점에 기기를 등록한다(신규·기존 모두).
+    PushService.registerDevice();
     if (isNewUser) {
       Navigator.of(context).push(
         PageRouteBuilder(

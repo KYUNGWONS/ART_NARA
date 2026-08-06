@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/art_tokens.dart';
 import '../services/auth_api_service.dart';
+import '../services/push_service.dart';
 import '../widgets/artnara_wordmark.dart';
 import 'login_screen.dart';
 import 'main_screen.dart';
@@ -56,6 +57,8 @@ class _SplashOnboardingScreenState extends State<SplashOnboardingScreen> {
   Future<void> _tryAutoLogin() async {
     final profileCompleted = await AuthApiService.tryAutoLogin();
     if (!mounted || profileCompleted == null) return;
+    // 로그인 신원이 생긴 뒤에 등록해야 이 계정으로 푸시가 간다.
+    PushService.registerDevice();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => profileCompleted

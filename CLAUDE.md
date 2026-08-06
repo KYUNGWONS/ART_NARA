@@ -214,6 +214,16 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
   - **플랫폼 수수료 10%는 내가 정한 기본값**(`SettlementService.FEE_RATE`) — 사업계획서에 요율이 없어서 판매자 부담 10%로 잡았다. 정해지면 이 상수만 바꾸면 된다.
 - 함정: `bootRun` 이 포트 8080 점유로 조용히 죽고 **구버전 서버가 계속 응답**해 "코드가 반영 안 된다"로 보였다. 재기동 뒤에는 `boot.log` 의 `Started ArtNaraApplication` 을 확인할 것.
 
+## 푸시 알림 FCM (2026-08-07) — 코드 완료, 키만 넣으면 켜짐
+
+- 백엔드: `device_tokens` 테이블 + `POST/DELETE /api/devices`(소유자는 JWT 신원, 토큰이 고유해서 같은 기기를 다른 계정이 쓰면 소유자만 바뀐다). `NotificationService.publishTo` 가 알림을 저장한 뒤 `PushService.sendToUser` 로 푸시를 곁들인다 — **시스템 알림(userId=null)은 대상이 없어 건너뛴다.**
+- `FcmClient` 는 **FCM HTTP v1**(레거시 서버 키 API 는 종료됨). 서비스 계정 JSON 으로 RS256 JWT 를 만들어 액세스 토큰을 받고 만료 1분 전까지 재사용한다. 새 의존성 없이 jjwt + java.net.http 로 구현.
+- **켜는 법**: `FCM_CREDENTIALS=/경로/service-account.json ./gradlew bootRun` + 앱에 `android/app/google-services.json`(git 미추적) 배치. 둘 다 없으면 서버는 `FCM 푸시 비활성`, 앱은 `[Push] 초기화 실패 — 푸시 없이 진행합니다` 를 찍고 **앱 내 알림만으로 정상 동작**한다(실측 확인).
+- **google-services.json 이 없어도 빌드가 깨지지 않게** `app/build.gradle.kts` 가 파일 존재 시에만 `com.google.gms.google-services` 를 적용한다. 파일을 넣으면 그때부터 자동으로 켜진다.
+- 앱은 로그인·자동 로그인 직후 `PushService.registerDevice()` 로 토큰을 올리고, `onTokenRefresh` 도 서버에 반영한다. 알림 권한 거부는 정상 흐름으로 취급(등록만 건너뜀).
+- **남은 것은 계정 작업뿐**: Firebase 프로젝트 생성 → Android 앱(`com.artnara.artnara`) 등록 → `google-services.json` 다운로드 → 서비스 계정 키 발급. 이건 사용자 구글 계정 로그인이 필요해 내가 대신 할 수 없다.
+- 검증: 기기 등록 200 / 비로그인 401 / 해제 200, 서비스 테스트 4건(소유자 재할당·비활성 시 미발송·죽은 토큰 정리·시스템 알림 제외).
+
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)
