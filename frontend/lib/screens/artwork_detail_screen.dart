@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
+import '../constants/api_config.dart';
 import '../constants/art_tokens.dart';
 import '../utils/image_url.dart';
 import '../utils/artist_inquiry.dart';
@@ -27,14 +29,65 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
   late Future<ArtworkDetail> _detailFuture;
   bool _bidding = false;
 
+  /// 경매 작품일 때만 연결한다(일반 판매 작품은 갱신할 게 없다).
+  StompClient? _auctionClient;
+
   @override
   void initState() {
     super.initState();
-    _detailFuture = _api.fetchDetail(widget.artworkId);
+    _load();
+  }
+
+  void _load() {
+    final future = _api.fetchDetail(widget.artworkId);
+    _detailFuture = future;
+    // 진행 중인 경매면 남이 넣은 입찰도 바로 보이도록 구독한다.
+    future.then((detail) {
+      if (mounted && detail.auction && !detail.auctionClosed) {
+        _connectAuction();
+      }
+    }).catchError((_) {/* 조회 실패는 FutureBuilder 가 화면에 표시한다 */});
+  }
+
+  void _connectAuction() {
+    if (_auctionClient != null) return;
+    _auctionClient = StompClient(
+      config: StompConfig(
+        url: websocketUrl,
+        onConnect: (_) {
+          debugPrint('[Auction] 구독 → /topic/auction/${widget.artworkId}');
+          _auctionClient?.subscribe(
+            destination: '/topic/auction/${widget.artworkId}',
+            // 서버가 최신 현재가를 밀어주면 상세를 다시 읽는다. 입찰 내역·낙찰 여부까지
+            // 서버 계산 결과를 그대로 쓰기 위해서다(클라이언트가 부분 갱신하지 않는다).
+            callback: (frame) {
+              debugPrint('[Auction] 현황 수신: ${frame.body}');
+              _refreshFromBroadcast();
+            },
+          );
+        },
+        onWebSocketError: (dynamic e) =>
+            debugPrint('[Auction] WebSocket 오류: $e'),
+        reconnectDelay: const Duration(seconds: 5),
+      ),
+    )..activate();
+  }
+
+  Future<void> _refreshFromBroadcast() async {
+    try {
+      final updated = await _api.fetchDetail(widget.artworkId);
+      if (!mounted) return;
+      setState(() {
+        _detailFuture = Future.value(updated);
+      });
+    } catch (error) {
+      debugPrint('[Auction] 현황 갱신 실패: $error');
+    }
   }
 
   @override
   void dispose() {
+    _auctionClient?.deactivate();
     _bidController.dispose();
     super.dispose();
   }
@@ -108,9 +161,7 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
             if (snapshot.hasError) {
               return Center(
                 child: OutlinedButton(
-                  onPressed: () => setState(() {
-                    _detailFuture = _api.fetchDetail(widget.artworkId);
-                  }),
+                  onPressed: () => setState(_load),
                   child: const Text('다시 시도'),
                 ),
               );
@@ -124,9 +175,7 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                     detail: detail,
                     // 카운트다운이 0이 되면 서버를 다시 조회해
                     // 마감 상태(낙찰자·결제 버튼)를 반영한다.
-                    onAuctionExpired: () => setState(() {
-                      _detailFuture = _api.fetchDetail(widget.artworkId);
-                    }),
+                    onAuctionExpired: () => setState(_load),
                   ),
                 ),
                 if (detail.sold)

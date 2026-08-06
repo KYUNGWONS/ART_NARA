@@ -7,3 +7,8 @@ String get apiBaseUrl => const String.fromEnvironment(
       'API_BASE_URL',
       defaultValue: 'http://localhost:8080',
     );
+
+/// 백엔드 STOMP 엔드포인트. REST 베이스 URL(http/https)을 ws/wss 로 바꿔 쓴다.
+/// 채팅과 경매 현황이 같은 연결을 쓴다.
+String get websocketUrl =>
+    '${apiBaseUrl.replaceFirst(RegExp(r'^http'), 'ws')}/ws';

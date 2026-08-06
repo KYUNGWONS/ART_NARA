@@ -9,10 +9,6 @@ import '../models/chat_message.dart';
 import '../services/auth_api_service.dart';
 import '../services/chat_api_service.dart';
 
-/// 백엔드 STOMP 엔드포인트. REST 베이스 URL(http/https)을 ws/wss 로 바꿔 쓴다.
-String get chatWebSocketUrl =>
-    '${apiBaseUrl.replaceFirst(RegExp(r'^http'), 'ws')}/ws';
-
 /// 작품 문의 채팅 상세 화면.
 ///
 /// - 이전 대화: GET /api/chat/rooms/{roomId}/messages
@@ -68,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _connect() {
     _client = StompClient(
       config: StompConfig(
-        url: chatWebSocketUrl,
+        url: websocketUrl,
         onConnect: _onConnect,
         onWebSocketError: (dynamic e) {
           debugPrint('[Chat] WebSocket 오류: $e');
