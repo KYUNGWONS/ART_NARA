@@ -239,9 +239,15 @@ class _OrderCardState extends State<_OrderCard> {
           Text('결제 금액 ₩${formatPrice(order.amount)}',
               style: const TextStyle(fontSize: 11, color: ArtColors.textSecondary)),
           const SizedBox(height: 4),
-          Text('디지털 소유권 ${order.certificateNo}',
+          Text(
+              order.refunded
+                  // 환불되면 소유권도 회수되므로 인증서 번호를 그대로 두면 오해를 준다.
+                  ? '환불되어 디지털 소유권이 회수되었습니다'
+                  : '디지털 소유권 ${order.certificateNo}',
               style: const TextStyle(fontSize: 11)),
           const SizedBox(height: ArtSpacing.xs),
+          // 환불한 주문에는 리뷰를 쓸 수 없다(서버도 막는다).
+          if (!order.refunded)
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton.icon(
