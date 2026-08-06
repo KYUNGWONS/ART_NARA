@@ -1,22 +1,31 @@
 package com.example.artnara.domain.artwork;
 
 import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
+import com.example.artnara.domain.artwork.dto.AuctionUpdateDto;
+import com.example.artnara.domain.artwork.service.AuctionBroadcaster;
 import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import com.example.artnara.support.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 
 @IntegrationTest
 class ArtworkServiceTest {
 
     @Autowired
     ArtworkService artworkService;
+
+    // 발행 자체를 검증한다 — 실제 STOMP 브로커 없이 호출 여부만 보면 충분하다.
+    @MockitoSpyBean
+    AuctionBroadcaster auctionBroadcaster;
 
     @Test
     @DisplayName("작품 상세 조회")
@@ -51,6 +60,20 @@ class ArtworkServiceTest {
         ArtworkDetailDto detail = artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(800000), "나");
         assertThat(detail.currentBid()).isEqualTo(800000);
         assertThat(detail.bidHistory().get(0).amount()).isEqualTo(800000);
+    }
+
+    @Test
+    @DisplayName("입찰하면 경매 현황이 구독자에게 발행된다")
+    void placeBidBroadcasts() {
+        artworkService.placeBid(5L, new ArtworkDetailDto.BidRequest(900000), "경원");
+
+        ArgumentCaptor<AuctionUpdateDto> captor = ArgumentCaptor.forClass(AuctionUpdateDto.class);
+        verify(auctionBroadcaster).publish(captor.capture());
+        AuctionUpdateDto update = captor.getValue();
+        assertThat(update.artworkId()).isEqualTo(5L);
+        assertThat(update.currentBid()).isEqualTo(900000);
+        assertThat(update.topBidderName()).isEqualTo("경원");
+        assertThat(update.auctionClosed()).isFalse();
     }
 
     @Test

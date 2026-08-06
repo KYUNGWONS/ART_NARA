@@ -2,6 +2,7 @@ package com.example.artnara.domain.artwork.service;
 
 import com.example.artnara.domain.artwork.dto.ArtworkCreate;
 import com.example.artnara.domain.artwork.dto.ArtworkDetailDto;
+import com.example.artnara.domain.artwork.dto.AuctionUpdateDto;
 import com.example.artnara.domain.artwork.dto.NearbyArtworkDto;
 import com.example.artnara.domain.artwork.entity.Artwork;
 import com.example.artnara.domain.artwork.entity.ArtworkBid;
@@ -56,6 +57,7 @@ public class ArtworkService {
     private final ArtworkBidRepository artworkBidRepository;
     private final ArtworkLikeRepository artworkLikeRepository;
     private final NotificationService notificationService;
+    private final AuctionBroadcaster auctionBroadcaster;
 
     @Transactional(readOnly = true)
     public ArtworkDetailDto getDetail(Long artworkId) {
@@ -144,6 +146,8 @@ public class ArtworkService {
                 .amount(request.amount())
                 .bidTime("방금 전")
                 .build());
+        // 같은 작품을 보고 있는 사용자에게 새 현재가를 밀어준다(폴링 없이 갱신).
+        broadcast(artwork);
         return toDto(artwork);
     }
 
@@ -157,6 +161,7 @@ public class ArtworkService {
             throw new GlobalException(DomainResultCode.AUCTION_ALREADY_CLOSED);
         }
         artwork.closeAuction(topBidderName(artworkId));
+        broadcast(artwork);
         return toDto(artwork);
     }
 
@@ -167,6 +172,7 @@ public class ArtworkService {
         expired.forEach(artwork -> {
             String winner = topBidderName(artwork.getId());
             artwork.closeAuction(winner);
+            broadcast(artwork);
             notificationService.publish(NotificationType.AUCTION_CLOSED,
                     winner == null ? "경매가 유찰되었어요" : "경매가 마감되었어요",
                     winner == null
@@ -175,6 +181,18 @@ public class ArtworkService {
                     artwork.getId());
         });
         return expired.size();
+    }
+
+    /** 경매 현황(현재가·최고 입찰자·마감 여부)을 구독자에게 발행한다. */
+    private void broadcast(Artwork artwork) {
+        List<ArtworkBid> bids = artworkBidRepository.findByArtworkIdOrderByAmountDesc(artwork.getId());
+        auctionBroadcaster.publish(new AuctionUpdateDto(
+                artwork.getId(),
+                artwork.getCurrentBid() == null ? artwork.getPrice() : artwork.getCurrentBid(),
+                bids.isEmpty() ? null : bids.get(0).getBidderName(),
+                bids.size(),
+                artwork.isAuctionClosed(),
+                artwork.getWinnerName()));
     }
 
     private String topBidderName(Long artworkId) {
