@@ -50,7 +50,7 @@ public class ArtworkService {
             5L, "서울 마포구 망원동", 6L, "서울 마포구 합정동",
             7L, "서울 마포구 상수동", 8L, "서울 마포구 서교동");
 
-    // 위치 정보가 없는 등록 작품의 기본 좌표 (홍대입구)
+    // 위치 정보가 없는 등록 작품의 기준 좌표 (홍대입구)
     private static final double[] DEFAULT_LOCATION = {37.5563, 126.9220};
 
     private final ArtworkRepository artworkRepository;
@@ -183,6 +183,28 @@ public class ArtworkService {
         return expired.size();
     }
 
+    /**
+     * 작품의 지도 좌표. 시드 작품은 고정 좌표를, 새로 등록된 작품은 기준점 주변에 흩뿌린다.
+     *
+     * 전부 같은 기본 좌표를 쓰면 지도에서 핀이 완전히 겹쳐 한 개처럼 보인다.
+     * 황금각으로 회전시켜 id 마다 다른 방향·거리를 주되, **id 가 같으면 항상 같은 위치**라
+     * 새로고침해도 핀이 움직이지 않는다.
+     */
+    private double[] locationOf(Long artworkId) {
+        double[] fixed = LOCATIONS.get(artworkId);
+        if (fixed != null) return fixed;
+
+        int index = (int) (artworkId % 64);
+        double angle = Math.toRadians(index * 137.5);      // 황금각 — 고르게 퍼진다
+        double radiusKm = 0.15 + (index % 5) * 0.12;       // 150m ~ 630m
+        double latitudeDelta = radiusKm / 111.0;
+        double longitudeDelta = radiusKm
+                / (111.0 * Math.cos(Math.toRadians(DEFAULT_LOCATION[0])));
+        return new double[]{
+                DEFAULT_LOCATION[0] + latitudeDelta * Math.sin(angle),
+                DEFAULT_LOCATION[1] + longitudeDelta * Math.cos(angle)};
+    }
+
     /** 경매 현황(현재가·최고 입찰자·마감 여부)을 구독자에게 발행한다. */
     private void broadcast(Artwork artwork) {
         List<ArtworkBid> bids = artworkBidRepository.findByArtworkIdOrderByAmountDesc(artwork.getId());
@@ -245,7 +267,7 @@ public class ArtworkService {
     public NearbyArtworkDto getNearby(double latitude, double longitude) {
         List<NearbyArtworkDto.Item> items = artworkRepository.findAllByOrderByIdAsc().stream()
                 .map(artwork -> {
-                    double[] location = LOCATIONS.getOrDefault(artwork.getId(), DEFAULT_LOCATION);
+                    double[] location = locationOf(artwork.getId());
                     double distance = haversineKm(latitude, longitude, location[0], location[1]);
                     return new NearbyArtworkDto.Item(
                             artwork.getId(), artwork.getTitle(), artwork.getArtistName(),

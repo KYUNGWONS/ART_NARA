@@ -151,6 +151,26 @@ class ArtworkServiceTest {
     }
 
     @Test
+    @DisplayName("새로 등록한 작품들은 지도에서 서로 다른 좌표를 갖는다")
+    void registeredArtworksDoNotShareOneSpot() {
+        Long first = artworkService.register(new com.example.artnara.domain.artwork.dto.ArtworkCreate(
+                "좌표1", "작가", "소개", "설명", "유화", "10호", 2026,
+                100000, false, null, null, "", "회화"));
+        Long second = artworkService.register(new com.example.artnara.domain.artwork.dto.ArtworkCreate(
+                "좌표2", "작가", "소개", "설명", "유화", "10호", 2026,
+                100000, false, null, null, "", "회화"));
+
+        var items = artworkService.getNearby(37.5563, 126.9220).artworks();
+        var a = items.stream().filter(i -> i.id().equals(first)).findFirst().orElseThrow();
+        var b = items.stream().filter(i -> i.id().equals(second)).findFirst().orElseThrow();
+
+        assertThat(a.latitude() == b.latitude() && a.longitude() == b.longitude()).isFalse();
+        // 기준점(홍대입구)에서 1km 안쪽에 머문다 — 엉뚱한 동네로 튀지 않는다.
+        assertThat(a.distanceKm()).isLessThan(1.0);
+        assertThat(b.distanceKm()).isLessThan(1.0);
+    }
+
+    @Test
     @DisplayName("집 주변 작품은 가까운 순으로 정렬된다")
     void getNearby() {
         // 홍대입구 좌표 기준
