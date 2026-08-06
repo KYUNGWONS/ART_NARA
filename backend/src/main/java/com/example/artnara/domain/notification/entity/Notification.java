@@ -27,8 +27,12 @@ public class Notification extends BaseTimeEntity {
     /** 수신자. null 이면 시스템 알림(전체 노출) */
     private Long userId;
 
+    /**
+     * 문자열 컬럼으로 못박는다. 기본 매핑은 DB 에 enum 목록 CHECK 제약을 만들어 두는데,
+     * `ddl-auto=update` 는 그 제약을 갱신하지 않아 **알림 종류를 새로 추가하면 저장이 실패**한다.
+     */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(40)")
     private NotificationType type;
 
     @Column(nullable = false)

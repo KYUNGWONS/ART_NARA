@@ -292,6 +292,14 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - **소급 정리**: 기능 도입 전 환불 건이 유효한 상태로 남아 있어 `RefundedOwnershipCleanup`(CommandLineRunner)이 부팅 때 한 번 정리한다. 회수는 몇 번 돌려도 결과가 같다.
 - 실측: 결제(ARTNARA-2026-165) → 소유권 5건 → 환불 → 4건 + QR 스캔 무효 응답, 재부팅 후 과거 환불 건도 회수됨.
 
+## 환불 흐름 결함 3건 (2026-08-07 야간 QA)
+
+1. **환불한 작품을 다시 팔 수 없었다** — 결제 가드가 `existsByArtworkId` 라 환불된 지난 주문까지 세서, 환불하면 화면상 '구매하기'로 돌아오지만 실제 결제는 409 로 막혔다. → `existsByArtworkIdAndRefundedFalse`. 테스트 `refundedArtworkCanBeSoldAgain`.
+2. **환불 후에도 리뷰를 쓸 수 있었다** — 자격 확인이 주문 존재 여부만 봤다(사서 리뷰 쓰고 환불하면 리뷰가 남는다). → `existsByArtworkIdAndBuyerIdAndRefundedFalse`. 앱은 주문 응답의 `refunded` 로 리뷰 버튼을 감추고 '환불되어 디지털 소유권이 회수되었습니다' 로 표시한다.
+3. **환불 사실을 구매자가 알 수 없었다**(관리자가 처리하므로) → `ORDER_REFUNDED` 알림 추가, 탭하면 주문 내역으로 이동.
+
+- **함정(중요)**: 알림 종류를 새로 추가했더니 저장이 500 으로 실패했다. 기존 스키마의 `notifications.type` 이 **enum 목록 CHECK 제약**으로 만들어져 있는데 `ddl-auto=update` 는 그 제약을 갱신하지 않는다. → 엔티티에 `columnDefinition = "varchar(40)"` 을 주고, 이미 만들어진 개발 DB 는 `NotificationTypeColumnFix`(부팅 시 ALTER)가 정리한다. **enum 을 컬럼으로 쓸 땐 항상 varchar 로 못박을 것.**
+
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)

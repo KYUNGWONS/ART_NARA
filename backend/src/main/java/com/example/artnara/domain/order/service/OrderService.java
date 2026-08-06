@@ -54,7 +54,7 @@ public class OrderService {
             }
             amount = artwork.currentBid();
         }
-        if (artwork.sold() || artOrderRepository.existsByArtworkId(artwork.id())) {
+        if (artwork.sold() || artOrderRepository.existsByArtworkIdAndRefundedFalse(artwork.id())) {
             throw new GlobalException(DomainResultCode.ORDER_ALREADY_SOLD);
         }
         // 실 PG(토스) 가 설정돼 있고 결제창을 거쳤으면 서버에서 승인한다.

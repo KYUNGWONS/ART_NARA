@@ -10,7 +10,11 @@ public interface ArtOrderRepository extends JpaRepository<ArtOrder, Long> {
     /** 주문 내역은 반드시 구매자로 스코프한다(남의 주문 노출 방지). */
     List<ArtOrder> findByBuyerIdOrderByIdDesc(Long buyerId);
 
-    boolean existsByArtworkId(Long artworkId);
+    /**
+     * 이미 팔린 작품인지. **환불된 주문은 세지 않는다** —
+     * 환불하면 작품이 다시 매물로 돌아오는데, 지난 주문 기록 때문에 영영 못 팔면 안 된다.
+     */
+    boolean existsByArtworkIdAndRefundedFalse(Long artworkId);
 
     /**
      * 리뷰 작성 자격 확인 — 이 사용자가 그 작품을 결제했고 **환불하지 않았는가**.

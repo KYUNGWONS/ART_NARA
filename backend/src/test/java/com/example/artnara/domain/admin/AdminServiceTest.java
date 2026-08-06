@@ -151,6 +151,18 @@ class AdminServiceTest {
     }
 
     @Test
+    @DisplayName("환불한 작품은 다시 팔 수 있다")
+    void refundedArtworkCanBeSoldAgain() {
+        OrderDto.Response order = buy(2L);
+        adminService.refund(order.orderId(), "재판매 확인");
+
+        // 지난 주문 기록 때문에 막히면 환불한 작품을 영영 못 판다.
+        OrderDto.Response resold = buy(2L);
+        assertThat(resold.orderId()).isNotEqualTo(order.orderId());
+        assertThat(artworkService.getDetail(2L).sold()).isTrue();
+    }
+
+    @Test
     @DisplayName("환불하면 구매자의 소유권과 인증서가 회수된다")
     void refundRevokesOwnership() {
         OrderDto.Response order = buy(4L);
