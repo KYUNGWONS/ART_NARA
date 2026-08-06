@@ -56,6 +56,10 @@ auth:
 # 비어 있으면 mock 결제로 동작한다(로컬 개발 기본값).
 # 아래 기본값은 토스 공개 문서의 테스트 키라 실제 돈이 빠지지 않는다.
 # 운영에서는 반드시 TOSS_SECRET_KEY 환경변수로 계약 키를 주입할 것.
+# 푸시 알림. 서비스 계정 JSON 경로를 주면 켜지고, 없으면 앱 내 알림만 쌓인다.
+fcm:
+  credentials-path: ${FCM_CREDENTIALS:}
+
 toss:
   secret-key: ${TOSS_SECRET_KEY:}
   client-key: ${TOSS_CLIENT_KEY:test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm}

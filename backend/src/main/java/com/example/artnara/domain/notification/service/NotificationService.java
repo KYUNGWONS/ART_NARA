@@ -4,6 +4,7 @@ import com.example.artnara.domain.notification.dto.NotificationDto;
 import com.example.artnara.domain.notification.entity.Notification;
 import com.example.artnara.domain.notification.entity.NotificationType;
 import com.example.artnara.domain.notification.repository.NotificationRepository;
+import com.example.artnara.domain.push.service.PushService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class NotificationService {
     private static final int MAX_ITEMS = 100;
 
     private final NotificationRepository notificationRepository;
+    private final PushService pushService;
 
     public NotificationDto.ListResponse list(Long userId) {
         return new NotificationDto.ListResponse(
@@ -58,5 +60,9 @@ public class NotificationService {
                 .message(message)
                 .targetId(targetId)
                 .build());
+        // 앱이 꺼져 있어도 닿도록 푸시를 곁들인다. 시스템 알림(userId=null)은 대상이 없어 건너뛴다.
+        pushService.sendToUser(userId, title, message, java.util.Map.of(
+                "type", type.name(),
+                "targetId", targetId == null ? "" : targetId.toString()));
     }
 }
