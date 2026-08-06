@@ -185,9 +185,18 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - **고친 것**: 구간 매출이 0이면 막대가 전부 2px 로 그려져 깨진 화면처럼 보였다 → 안내 문구로 대체.
 - 태블릿(768px)에서도 표가 영역 안에 들어가고 패널이 세로로 접힌다(가로 스크롤 없음).
 
+## 실 결제 연동 — 토스페이먼츠 (2026-08-06)
+
+- **계약 없이 실제 PG 연동이 된다**: 토스 공개 문서 테스트 키(`test_gck_docs_...` / `test_gsk_docs_...`)로 결제 전 과정을 실제 API 로 돌려볼 수 있다(돈은 안 빠진다).
+- **켜는 법**: `TOSS_SECRET_KEY=test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6 ./gradlew bootRun`. 안 주면 시크릿 키가 비어 mock 결제로 동작한다(`TossPaymentClient.isEnabled()`).
+- **흐름**: 앱이 `GET /api/payments/config` 로 실 PG 여부를 확인 → 켜져 있으면 `TossPaymentScreen`(WebView + `assets/toss_checkout.html` 결제위젯) → 결제 완료 시 토스가 `https://artnara.app/payment/success` 로 이동하는 걸 NavigationDelegate 가 가로채 paymentKey 획득 → `POST /api/orders` 에 실어 보내면 **서버가 `/v1/payments/confirm` 으로 승인**.
+- **보안 원칙**: 승인은 반드시 서버에서. 토스가 확정한 금액과 주문 금액이 다르면 `PAYMENT_422` 로 거절한다(클라이언트 금액 위조 차단). 실측: 위조 paymentKey → 402 + 주문 미생성 + 작품 판매잠금 안 걸림.
+- **환불**: 주문에 paymentKey 가 있으면 관리자 환불이 토스 취소를 **먼저** 호출하고 성공해야 환불 상태로 바꾼다(PG 와 장부가 어긋나지 않게).
+- 운영 전환은 가맹 계약 후 `TOSS_SECRET_KEY`/`TOSS_CLIENT_KEY` 만 교체하면 된다. successUrl 인터셉트 주소(`artnara.app`)는 실제 도메인이 아니라 WebView 가 가로채는 용도라 그대로 둬도 된다.
+
 ## 남은 작업 후보
 
-- 실제 PG SDK 연동 (가맹 계약 필요 — 프로토타입은 mock 유지)
+- 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)
 
 ## 로컬 실행 (에뮬레이터)
 
