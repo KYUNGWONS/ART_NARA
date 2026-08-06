@@ -17,4 +17,7 @@ public interface ArtOrderRepository extends JpaRepository<ArtOrder, Long> {
 
     /** 작가 포트폴리오의 판매 수 */
     long countByArtistName(String artistName);
+
+    /** 작가 정산 — 내가 판 작품의 주문만 (활동명 기준) */
+    List<ArtOrder> findByArtistNameOrderByIdDesc(String artistName);
 }
