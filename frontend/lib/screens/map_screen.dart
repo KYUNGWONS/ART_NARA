@@ -90,6 +90,20 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  /// 버튼으로 한 단계씩 확대·축소한다(핀치 대신 쓰는 경로).
+  Future<void> _zoom({required bool zoomIn}) async {
+    final controller = _mapController;
+    if (controller == null) return;
+    try {
+      await controller.moveCamera(
+        zoomIn ? CameraUpdate.zoomIn() : CameraUpdate.zoomOut(),
+        animation: const CameraAnimation(200),
+      );
+    } catch (error) {
+      debugPrint('[Map] 줌 실패: $error');
+    }
+  }
+
   Future<void> _openNearbySheet() async {
     double latitude = _defaultCenter.latitude;
     double longitude = _defaultCenter.longitude;
@@ -189,6 +203,28 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
           ),
+
+        // 우측: 줌 버튼.
+        // 핀치 줌은 손가락 두 개가 필요해서 한 손 조작·에뮬레이터에서는 쓸 수 없다.
+        Positioned(
+          right: ArtSpacing.md,
+          bottom: _selected != null ? 220 : 90,
+          child: Column(
+            children: [
+              _ZoomButton(
+                icon: Icons.add,
+                tooltip: '확대',
+                onTap: () => _zoom(zoomIn: true),
+              ),
+              const SizedBox(height: 1),
+              _ZoomButton(
+                icon: Icons.remove,
+                tooltip: '축소',
+                onTap: () => _zoom(zoomIn: false),
+              ),
+            ],
+          ),
+        ),
 
         // 하단: 선택 작품 카드 or 집 주변 작품 버튼
         Positioned(
@@ -383,6 +419,40 @@ class _ArtworkMapCard extends StatelessWidget {
                     size: 18, color: ArtColors.textSecondary),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 지도 우측의 확대·축소 버튼. 두 개를 붙여 하나의 컨트롤처럼 보이게 한다.
+class _ZoomButton extends StatelessWidget {
+  const _ZoomButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: ArtColors.bgSurface,
+      elevation: 2,
+      borderRadius: BorderRadius.circular(ArtRadius.sm),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(ArtRadius.sm),
+        onTap: onTap,
+        child: Tooltip(
+          message: tooltip,
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(icon, size: 20, color: ArtColors.textPrimary),
+          ),
         ),
       ),
     );

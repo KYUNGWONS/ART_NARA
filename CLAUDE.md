@@ -244,6 +244,19 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 - **네이버 지도로 바꿀 이유는 없다**: 카카오맵이 에뮬레이터에서 확인되므로, 키 두 벌 관리(로그인=카카오 / 지도=네이버)를 되살릴 필요가 없다. 네이버 SDK 의 x86_64 지원 여부는 이번에 검증하지 못했다(메이븐 저장소 응답 404).
 - 릴리스(AOT) 빌드는 이 경로(OneDrive)에서 `app.dill` 을 못 읽어 실패한다 — 필요하면 레포를 OneDrive 밖으로 복사해 빌드할 것.
 
+## 소셜 로그인: 구글 → 네이버 (2026-08-07, 사용자 지시)
+
+- 백엔드: `NaverTokenVerifier` 추가(앱이 준 액세스 토큰으로 `https://openapi.naver.com/v1/nid/me` 조회 → `resultcode == "00"` + `response.id` 확인). **신원 확인은 서버가 한다**(카카오와 동일). `GoogleTokenVerifier` 삭제, `oauth.google.client-id` 설정 제거.
+- `OAuthProvider.GOOGLE` **상수는 남겼다** — 구글로 가입한 기존 회원 행을 읽어야 하기 때문. 검증기가 없어 그 값으로는 새 로그인이 안 된다(UNSUPPORTED_PROVIDER).
+- 프론트: `google_sign_in` → `flutter_naver_login`, `naver_auth_service.dart`, 로그인 버튼 '네이버로 시작하기'(N 글리프만 네이버 그린 `#03C75A`, 면적 색은 ArtColors 유지). 로그아웃 시 네이버 세션도 끊고 푸시 기기도 해제한다.
+- **MainActivity 를 `FlutterFragmentActivity` 로 바꿔야 한다**(네이버 SDK 가 프래그먼트를 띄운다).
+- 키: `android/local.properties` 의 `naverClientId` / `naverClientSecret` / `naverClientName`(기본 "ART NARA") → `build.gradle.kts` 가 매니페스트 메타데이터로 주입한다. **커밋 금지.** 네이버 SDK 는 규격상 클라이언트 시크릿을 앱에 요구한다.
+- **남은 계정 작업**: 네이버 개발자센터에서 앱 등록(패키지 `com.artnara.artnara`) → 클라이언트 ID/시크릿 발급 → local.properties 기입. 그 전에는 버튼을 눌러도 로그인 창이 뜨지 않는다.
+
+## 지도 줌 버튼 (2026-08-07)
+
+- 핀치 줌은 손가락 두 개가 필요해 **에뮬레이터(마우스 1점)·한 손 조작에서는 쓸 수 없다** — SDK 문제가 아니다. 지도 우측에 확대/축소 버튼(`_ZoomButton` + `CameraUpdate.zoomIn/zoomOut`)을 달아 어느 환경에서든 줌이 되게 했다. 선택 카드가 떠 있으면 버튼이 위로 비켜난다.
+
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)

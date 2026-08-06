@@ -4,7 +4,8 @@ import '../constants/app_strings.dart';
 import '../constants/art_tokens.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
-import '../services/google_auth_service.dart';
+import '../services/naver_auth_service.dart';
+import '../services/push_service.dart';
 import '../services/kakao_auth_service.dart';
 import '../services/notification_api_service.dart';
 import 'chat_list_screen.dart';
@@ -203,9 +204,10 @@ class _MainScreenState extends State<MainScreen>
     // 1) 백엔드 로그아웃 (실패해도 클라이언트 로그아웃은 진행)
     await AuthApiService.logout();
 
-    // 2) 카카오/구글 SDK 로그아웃
+    // 2) 소셜 SDK 로그아웃 + 이 기기로 오는 푸시 해제
     await KakaoAuthService.logout();
-    await GoogleAuthService.signOut();
+    await NaverAuthService.signOut();
+    await PushService.unregisterDevice();
 
     if (!mounted) return;
 

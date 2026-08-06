@@ -6,11 +6,14 @@ import '../widgets/artnara_wordmark.dart';
 import '../providers/locale_provider.dart';
 import '../services/auth_api_service.dart';
 import '../services/push_service.dart';
-import '../services/google_auth_service.dart';
+import '../services/naver_auth_service.dart';
 import '../services/kakao_auth_service.dart';
 import 'main_screen.dart';
 import 'profile_setup_screen.dart';
 import 'role_selection_screen.dart';
+
+/// 네이버 브랜드 그린 — 버튼 글리프에만 쓴다(면적 색은 ArtColors 유지).
+const Color _naverGreen = Color(0xFF03C75A);
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   bool _isKakaoLoading = false;
-  bool _isGoogleLoading = false;
+  bool _isNaverLoading = false;
 
   @override
   void initState() {
@@ -108,36 +111,29 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Future<void> _handleGoogleLogin() async {
-    if (_isGoogleLoading) return;
+  Future<void> _handleNaverLogin() async {
+    if (_isNaverLoading) return;
 
-    setState(() => _isGoogleLoading = true);
-    debugPrint('[Google] 로그인 시작');
+    setState(() => _isNaverLoading = true);
+    debugPrint('[Naver] 로그인 시작');
 
     final locale = context.read<LocaleProvider>();
-    final result = await GoogleAuthService.signIn();
+    final result = await NaverAuthService.signIn();
 
     if (!mounted) return;
 
     if (result == null) {
-      setState(() => _isGoogleLoading = false);
+      setState(() => _isNaverLoading = false);
       _showLoginError(locale);
       return;
     }
 
-    final idToken = result.idToken;
-    if (idToken == null || idToken.isEmpty) {
-      debugPrint('[Login] 구글 OAuth 실패 (idToken 없음)');
-      setState(() => _isGoogleLoading = false);
-      _showLoginError(locale);
-      return;
-    }
-
-    debugPrint('[Login] 구글 OAuth idToken 획득 (${idToken.length}자) → /auth/login 요청');
-    final loginResponse = await AuthApiService.login('GOOGLE', idToken);
+    debugPrint('[Login] 네이버 액세스 토큰 획득 → /auth/login 요청');
+    final loginResponse =
+        await AuthApiService.login('NAVER', result.accessToken);
 
     if (!mounted) return;
-    setState(() => _isGoogleLoading = false);
+    setState(() => _isNaverLoading = false);
 
     if (loginResponse == null ||
         loginResponse.code != 'SUCCESS' ||
@@ -151,9 +147,6 @@ class _LoginScreenState extends State<LoginScreen>
       _showLoginError(locale);
       return;
     }
-
-    // 회원가입(POST /api/users) body에 사용할 이메일 캡처
-    AuthApiService.userEmail = result.email;
 
     _navigateAfterLogin(
       isNewUser: data.isNewUser,
@@ -351,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen>
                             width: double.infinity,
                             height: 54,
                             child: ElevatedButton(
-                              onPressed: (_isKakaoLoading || _isGoogleLoading)
+                              onPressed: (_isKakaoLoading || _isNaverLoading)
                                   ? null
                                   : _handleKakaoLogin,
                               style: ElevatedButton.styleFrom(
@@ -400,14 +393,14 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Google 로그인 버튼
+                          // 네이버 로그인 버튼 (구글 로그인 대체, 2026-08-07)
                           SizedBox(
                             width: double.infinity,
                             height: 54,
                             child: OutlinedButton(
-                              onPressed: (_isKakaoLoading || _isGoogleLoading)
+                              onPressed: (_isKakaoLoading || _isNaverLoading)
                                   ? null
-                                  : _handleGoogleLogin,
+                                  : _handleNaverLogin,
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: ArtColors.textPrimary,
                                 side: const BorderSide(
@@ -418,7 +411,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              child: _isGoogleLoading
+                              child: _isNaverLoading
                                   ? const SizedBox(
                                       width: 22,
                                       height: 22,
@@ -431,22 +424,24 @@ class _LoginScreenState extends State<LoginScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        // 로컬 아이콘. 예전엔 google.com/favicon.ico 를
-                                        // Image.network 로 받았는데, 받아오기 전까지
-                                        // 버튼이 빈 칸으로 보이고(실측) 로그인 화면에서
-                                        // 외부 요청이 나가는 문제가 있었다.
-                                        const Icon(
-                                          Icons.g_mobiledata_rounded,
-                                          size: 24,
-                                          color: ArtColors.textSecondary,
+                                        // 네이버 워드마크 대신 로컬 글리프를 쓴다 —
+                                        // 로그인 화면에서 외부 이미지 요청이 나가면
+                                        // 받아오기 전까지 버튼이 빈 칸으로 보인다(실측).
+                                        const Text(
+                                          'N',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w900,
+                                            color: _naverGreen,
+                                          ),
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
-                                          locale.tr(AppStrings.loginWithGoogle),
+                                          locale.tr(AppStrings.loginWithNaver),
                                           style: const TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
-                                            color: ArtColors.textSecondary,
+                                            color: ArtColors.textPrimary,
                                           ),
                                         ),
                                       ],

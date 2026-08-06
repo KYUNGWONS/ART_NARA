@@ -26,11 +26,11 @@ class AppStrings {
     AppLanguage.zh: '使用Kakao登录',
   };
 
-  static const Map<AppLanguage, String> loginWithGoogle = {
-    AppLanguage.ko: 'Google로 시작하기',
-    AppLanguage.en: 'Continue with Google',
-    AppLanguage.ja: 'Googleでログイン',
-    AppLanguage.zh: '使用Google登录',
+  static const Map<AppLanguage, String> loginWithNaver = {
+    AppLanguage.ko: '네이버로 시작하기',
+    AppLanguage.en: 'Continue with Naver',
+    AppLanguage.ja: 'NAVERでログイン',
+    AppLanguage.zh: '使用NAVER登录',
   };
 
   static const Map<AppLanguage, String> loginError = {

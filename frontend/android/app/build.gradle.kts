@@ -26,6 +26,16 @@ val kakaoNativeAppKey: String = localProperties.getProperty("kakaoNativeAppKey")
     ?: System.getenv("KAKAO_NATIVE_APP_KEY")
     ?: ""
 
+// 네이버 로그인 SDK 는 매니페스트 메타데이터로 앱 정보를 읽는다.
+// 클라이언트 시크릿까지 필요하므로(네이버 SDK 규격) 같은 미추적 파일에서 읽어 주입한다.
+//   naverClientId=xxxx / naverClientSecret=xxxx / naverClientName=ART NARA
+fun localOrEnv(key: String, env: String, fallback: String = ""): String =
+    localProperties.getProperty(key) ?: System.getenv(env) ?: fallback
+
+val naverClientId: String = localOrEnv("naverClientId", "NAVER_CLIENT_ID")
+val naverClientSecret: String = localOrEnv("naverClientSecret", "NAVER_CLIENT_SECRET")
+val naverClientName: String = localOrEnv("naverClientName", "NAVER_CLIENT_NAME", "ART NARA")
+
 android {
     namespace = "com.artnara.artnara"
     compileSdk = flutter.compileSdkVersion
@@ -52,6 +62,9 @@ android {
 
         // AndroidManifest 의 카카오 로그인 리다이렉트 스킴에 주입된다.
         manifestPlaceholders["kakaoNativeAppKey"] = kakaoNativeAppKey
+        manifestPlaceholders["naverClientId"] = naverClientId
+        manifestPlaceholders["naverClientSecret"] = naverClientSecret
+        manifestPlaceholders["naverClientName"] = naverClientName
     }
 
     buildTypes {
