@@ -28,6 +28,7 @@ class AdminServiceTest {
     @Autowired AdminAuthService adminAuthService;
     @Autowired OrderService orderService;
     @Autowired ArtworkService artworkService;
+    @Autowired com.example.artnara.domain.certificate.service.CertificateService certificateService;
     @Autowired UserRepository userRepository;
 
     /** test 프로필은 test.sql 을 실행하지 않으므로 회원은 테스트가 직접 만든다. */
@@ -147,6 +148,21 @@ class AdminServiceTest {
         assertThat(refunded.totalRevenue()).isEqualTo(paid.totalRevenue() - order.amount());
         assertThat(refunded.refundedAmount()).isEqualTo(paid.refundedAmount() + order.amount());
         assertThat(refunded.refundCount()).isEqualTo(paid.refundCount() + 1);
+    }
+
+    @Test
+    @DisplayName("환불하면 구매자의 소유권과 인증서가 회수된다")
+    void refundRevokesOwnership() {
+        OrderDto.Response order = buy(4L);
+        User user = buyer();
+        assertThat(certificateService.listOwnerships(user.getId()).ownerships())
+                .anyMatch(o -> o.certificateNo().equals(order.certificateNo()));
+
+        adminService.refund(order.orderId(), "환불 회수 확인");
+
+        // '내 소유권' 목록에서 사라진다 — 작품이 다시 팔리는데 소유자가 둘이면 안 된다.
+        assertThat(certificateService.listOwnerships(user.getId()).ownerships())
+                .noneMatch(o -> o.certificateNo().equals(order.certificateNo()));
     }
 
     @Test

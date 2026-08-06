@@ -53,6 +53,16 @@ public class Certificate extends BaseTimeEntity {
 
     private String note;
 
+    /** 환불로 무효가 된 인증서인지. QR 로 조회하면 무효임을 알려준다. */
+    @Column(columnDefinition = "boolean default false")
+    private boolean revoked = false;
+
+    public void revoke() {
+        this.revoked = true;
+        this.verified = false;
+        this.note = "환불로 무효 처리된 인증서입니다.";
+    }
+
     @Builder
     public Certificate(String qrCode, String certificateNo, String artworkTitle,
                        String artistName, String ownerName, String issuedDate,

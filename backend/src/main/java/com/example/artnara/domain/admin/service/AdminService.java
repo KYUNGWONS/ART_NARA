@@ -3,6 +3,7 @@ package com.example.artnara.domain.admin.service;
 import com.example.artnara.domain.admin.dto.AdminDto;
 import com.example.artnara.domain.artwork.repository.ArtworkRepository;
 import com.example.artnara.domain.artwork.service.ArtworkService;
+import com.example.artnara.domain.certificate.service.CertificateService;
 import com.example.artnara.domain.order.entity.ArtOrder;
 import com.example.artnara.domain.order.repository.ArtOrderRepository;
 import com.example.artnara.domain.user.entity.User;
@@ -40,6 +41,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final ArtworkRepository artworkRepository;
     private final ArtworkService artworkService;
+    private final CertificateService certificateService;
     private final TossPaymentClient tossPaymentClient;
 
     @Transactional(readOnly = true)
@@ -196,6 +198,8 @@ public class AdminService {
         }
         order.refund(resolved, LocalDate.now().toString());
         artworkService.markUnsold(order.getArtworkId());
+        // 작품이 다시 팔릴 수 있게 됐으므로 이전 구매자의 소유권·인증서도 회수한다.
+        certificateService.revoke(order.getCertificateNo());
     }
 
     private static String normalize(String value) {

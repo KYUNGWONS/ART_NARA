@@ -41,6 +41,18 @@ public class Ownership extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean qrIssued;
 
+    /**
+     * 환불로 회수된 소유권인지. 기록은 남기되 '내 소유권' 목록에서는 빠진다.
+     * (ddl-auto=update 는 기존 행이 있는 테이블에 기본값 없는 NOT NULL 컬럼을 못 만든다 — 기본값 필수)
+     */
+    @Column(columnDefinition = "boolean default false")
+    private boolean revoked = false;
+
+    /** 환불 처리 시 호출. 소유권을 회수한다. */
+    public void revoke() {
+        this.revoked = true;
+    }
+
     @Builder
     public Ownership(Long ownerId, String certificateNo, String artworkTitle, String artistName,
                      String acquiredDate, boolean qrIssued) {

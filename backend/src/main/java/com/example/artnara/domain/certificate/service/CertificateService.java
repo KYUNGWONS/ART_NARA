@@ -25,7 +25,7 @@ public class CertificateService {
     @Transactional(readOnly = true)
     public CertificateDto.ListResponse listOwnerships(Long ownerId) {
         return new CertificateDto.ListResponse(
-                ownershipRepository.findByOwnerIdOrderByIdDesc(ownerId).stream()
+                ownershipRepository.findByOwnerIdAndRevokedFalseOrderByIdDesc(ownerId).stream()
                         .map(ownership -> new CertificateDto.Ownership(
                                 ownership.getCertificateNo(), ownership.getArtworkTitle(),
                                 ownership.getArtistName(), ownership.getAcquiredDate(),
@@ -80,6 +80,19 @@ public class CertificateService {
     }
 
     /** ARTNARA-2026-0001 → ARTNARA-QR-0001 */
+    /**
+     * 환불된 주문의 소유권·인증서를 회수한다.
+     *
+     * 회수하지 않으면 작품은 다시 판매 가능해지는데 이전 구매자에게도 소유권이 남아
+     * 같은 작품의 소유자가 둘이 된다. 기록은 지우지 않고 무효 표시만 한다.
+     */
+    @Transactional
+    public void revoke(String certificateNo) {
+        if (certificateNo == null || certificateNo.isBlank()) return;
+        ownershipRepository.findByCertificateNo(certificateNo).forEach(Ownership::revoke);
+        certificateRepository.findByCertificateNo(certificateNo).ifPresent(Certificate::revoke);
+    }
+
     public static String qrCodeOf(String certificateNo) {
         int idx = certificateNo.lastIndexOf('-');
         return "ARTNARA-QR-" + certificateNo.substring(idx + 1);
