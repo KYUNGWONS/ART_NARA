@@ -35,6 +35,7 @@ public class SecurityConstant {
             // "/api/sales/**" 도 공개하지 않는다 — '내 판매 작품' 목록이라 로그인 스코프가 필요하다.
             // (마켓에 노출되는 작품은 /api/artworks 로 따로 공개된다.)
             "/api/commissions/**",
+            "/api/payments/config",
             // "/api/certificates/**" 는 공개하지 않는다 — 목록은 내 소유권이라 로그인 스코프가 필요하고,
             // 누구나 확인해야 하는 QR 검증만 PUBLIC_ANY_METHOD_URLS 로 따로 연다.
             "/images/**",

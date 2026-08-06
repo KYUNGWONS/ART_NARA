@@ -9,6 +9,7 @@ import com.example.artnara.domain.user.entity.User;
 import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
+import com.example.artnara.global.payment.TossPaymentClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final ArtworkRepository artworkRepository;
     private final ArtworkService artworkService;
+    private final TossPaymentClient tossPaymentClient;
 
     @Transactional(readOnly = true)
     public AdminDto.Dashboard dashboard() {
@@ -178,8 +180,9 @@ public class AdminService {
     }
 
     /**
-     * 환불 처리 — 주문을 환불 상태로 바꾸고 작품 판매 잠금을 풀어 다시 팔 수 있게 한다.
-     * mock PG 라 결제 취소 호출은 없다(실 PG 연동 시 이 지점에 취소 API 를 붙인다).
+     * 환불 처리 — 실 PG 로 결제된 주문이면 토스 취소를 먼저 호출하고,
+     * 성공한 뒤에 주문을 환불 상태로 바꾸고 작품 판매 잠금을 푼다.
+     * (PG 취소가 실패하면 예외가 나가 주문 상태는 그대로 남는다 — 장부와 PG 가 어긋나지 않는다.)
      */
     public void refund(Long orderId, String reason) {
         ArtOrder order = artOrderRepository.findById(orderId)
@@ -187,7 +190,11 @@ public class AdminService {
         if (order.isRefunded()) {
             throw new GlobalException(DomainResultCode.ORDER_ALREADY_REFUNDED);
         }
-        order.refund(blank(reason) ? "관리자 환불" : reason.trim(), LocalDate.now().toString());
+        String resolved = blank(reason) ? "관리자 환불" : reason.trim();
+        if (order.getPaymentKey() != null && !order.getPaymentKey().isBlank()) {
+            tossPaymentClient.cancel(order.getPaymentKey(), resolved);
+        }
+        order.refund(resolved, LocalDate.now().toString());
         artworkService.markUnsold(order.getArtworkId());
     }
 

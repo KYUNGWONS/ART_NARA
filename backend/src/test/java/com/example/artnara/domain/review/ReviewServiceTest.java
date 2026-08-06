@@ -24,7 +24,7 @@ class ReviewServiceTest {
     @Autowired OrderService orderService;
 
     private void buy(long artworkId) {
-        orderService.create(new OrderDto.CreateRequest(artworkId, "CARD"), BUYER_ID, BUYER);
+        orderService.create(new OrderDto.CreateRequest(artworkId, "CARD", null, null), BUYER_ID, BUYER);
     }
 
     private ReviewDto.CreateRequest request(int rating) {

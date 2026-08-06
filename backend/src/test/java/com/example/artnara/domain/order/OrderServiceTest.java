@@ -28,7 +28,7 @@ class OrderServiceTest {
     CertificateService certificateService;
 
     private OrderDto.CreateRequest request(Long artworkId) {
-        return new OrderDto.CreateRequest(artworkId, "CARD");
+        return new OrderDto.CreateRequest(artworkId, "CARD", null, null);
     }
 
     @Test
@@ -119,7 +119,7 @@ class OrderServiceTest {
     @Test
     @DisplayName("지원하지 않는 결제 수단이면 400")
     void createInvalidPaymentMethod() {
-        var invalid = new OrderDto.CreateRequest(1L, "BITCOIN");
+        var invalid = new OrderDto.CreateRequest(1L, "BITCOIN", null, null);
         assertThatThrownBy(() -> orderService.create(invalid, 1L, "나"))
                 .isInstanceOf(GlobalException.class)
                 .extracting(e -> ((GlobalException) e).getResultCode())

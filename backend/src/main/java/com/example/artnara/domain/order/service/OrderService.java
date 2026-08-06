@@ -12,6 +12,7 @@ import com.example.artnara.domain.notification.service.NotificationService;
 import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
+import com.example.artnara.global.payment.TossPaymentClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class OrderService {
     private final CertificateService certificateService;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final TossPaymentClient tossPaymentClient;
 
     public OrderDto.Response create(OrderDto.CreateRequest request, Long buyerId, String buyerName) {
         validate(request);
@@ -55,10 +57,27 @@ public class OrderService {
         if (artwork.sold() || artOrderRepository.existsByArtworkId(artwork.id())) {
             throw new GlobalException(DomainResultCode.ORDER_ALREADY_SOLD);
         }
+        // 실 PG(토스) 가 설정돼 있고 결제창을 거쳤으면 서버에서 승인한다.
+        // 클라이언트가 보낸 금액을 그대로 믿지 않고, 토스가 확정한 금액과 주문 금액을 대조한다.
+        String paymentKey = blankToNull(request.paymentKey());
+        if (paymentKey != null) {
+            if (!tossPaymentClient.isEnabled()) {
+                throw new GlobalException(DomainResultCode.PAYMENT_FAILED,
+                        "결제 서버가 설정되지 않았습니다.");
+            }
+            String tossOrderId = blankToNull(request.tossOrderId());
+            if (tossOrderId == null) {
+                throw new GlobalException(DomainResultCode.PAYMENT_FAILED, "주문번호가 없습니다.");
+            }
+            int approved = tossPaymentClient.confirm(paymentKey, tossOrderId, amount);
+            if (approved != amount) {
+                throw new GlobalException(DomainResultCode.PAYMENT_AMOUNT_MISMATCH);
+            }
+        }
+
         // 결제가 확정되는 즉시 작품을 잠근다 — 피드·상세가 '판매 완료' 로 바뀐다.
         artworkService.markSold(artwork.id());
 
-        // mock PG 승인 → 결제 완료 처리
         String today = LocalDate.now().toString();
         ArtOrder order = artOrderRepository.save(ArtOrder.builder()
                 .artworkId(artwork.id())
@@ -74,6 +93,7 @@ public class OrderService {
                 .build());
         String certificateNo = "ARTNARA-2026-" + (100 + order.getId());
         order.issueCertificate(certificateNo);
+        if (paymentKey != null) order.linkPayment(paymentKey);
 
         // 거래 완료 → 디지털 소유권 자동 이전
         certificateService.register(new CertificateDto.IssueRequest(
@@ -111,6 +131,10 @@ public class OrderService {
                 order.getId(), order.getArtworkId(), order.getArtworkTitle(),
                 order.getArtistName(), order.getAmount(), order.getPaymentMethod(),
                 order.getStatus(), order.getCertificateNo(), order.getOrderedDate());
+    }
+
+    private static String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value.trim();
     }
 
     private void validate(OrderDto.CreateRequest request) {

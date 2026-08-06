@@ -7,6 +7,7 @@ import '../models/artwork_detail.dart';
 import '../models/order.dart';
 import '../services/order_api_service.dart';
 import 'certificate_screen.dart';
+import 'toss_payment_screen.dart';
 
 const _paymentMethods = [
   ('CARD', '신용·체크카드'),
@@ -38,9 +39,37 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Future<void> _pay() async {
     setState(() => _paying = true);
     try {
+      // 실 PG 가 켜져 있으면 토스 결제창을 먼저 거치고, 거기서 받은 키로 서버가 승인한다.
+      final config = await _api.fetchPaymentConfig();
+      String? paymentKey;
+      String? tossOrderId;
+
+      if (config.enabled && config.clientKey != null) {
+        if (!mounted) return;
+        tossOrderId = _newOrderId();
+        final result = await Navigator.of(context).push<TossPaymentResult>(
+          MaterialPageRoute(
+            builder: (_) => TossPaymentScreen(
+              clientKey: config.clientKey!,
+              orderId: tossOrderId!,
+              orderName: widget.artwork.title,
+              amount: _price,
+            ),
+          ),
+        );
+        if (!mounted) return;
+        if (result == null || !result.isSuccess) {
+          _showMessage(result?.message ?? '결제를 취소했어요');
+          return;
+        }
+        paymentKey = result.paymentKey;
+      }
+
       final order = await _api.create(
         artworkId: widget.artwork.id,
         paymentMethod: _paymentMethod,
+        paymentKey: paymentKey,
+        tossOrderId: paymentKey == null ? null : tossOrderId,
       );
       if (!mounted) return;
       await _showCompleteDialog(order);
@@ -50,6 +79,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       if (mounted) setState(() => _paying = false);
     }
   }
+
+  /// 토스 주문번호는 6~64자여야 하고 결제마다 달라야 한다.
+  String _newOrderId() =>
+      'artnara-${widget.artwork.id}-${DateTime.now().millisecondsSinceEpoch}';
 
   Future<void> _showCompleteDialog(Order order) async {
     await showDialog<void>(

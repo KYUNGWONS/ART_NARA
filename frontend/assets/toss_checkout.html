@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>결제</title>
+  <script src="https://js.tosspayments.com/v1/payment-widget"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #f8f3e8; /* ArtColors.bgCanvas */
+      font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #141413;
+    }
+    #wrap { padding: 12px; }
+    #status { padding: 40px 16px; text-align: center; font-size: 14px; color: #6b665e; }
+    #pay {
+      width: 100%;
+      padding: 15px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 999px;         /* ArtRadius.full — 앱 CTA 와 같은 pill */
+      background: #07524e;          /* ArtColors.brandPrimary */
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    #pay:disabled { opacity: .5; }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="status">결제 수단을 불러오는 중…</div>
+    <div id="payment-method"></div>
+    <div id="agreement"></div>
+    <button id="pay" disabled>결제하기</button>
+  </div>
+
+<script>
+  /**
+   * 토스페이먼츠 결제위젯 호스트 페이지.
+   *
+   * Flutter 가 쿼리스트링으로 clientKey·amount·orderId·orderName 을 넘겨준다.
+   * 결제가 끝나면 토스가 successUrl/failUrl 로 이동하고, 그 이동을 Flutter 의
+   * NavigationDelegate 가 가로채 paymentKey 를 서버 승인으로 넘긴다.
+   * (승인은 반드시 서버에서 — 여기서 성공 처리하면 금액 위조가 가능하다.)
+   */
+  const params = new URLSearchParams(location.search);
+  const clientKey = params.get('clientKey');
+  const amount = Number(params.get('amount') || 0);
+  const orderId = params.get('orderId');
+  const orderName = params.get('orderName') || '작품 결제';
+
+  const status = document.getElementById('status');
+  const payButton = document.getElementById('pay');
+
+  function fail(message) {
+    status.textContent = message;
+    location.href = 'https://artnara.app/payment/fail?message=' + encodeURIComponent(message);
+  }
+
+  if (!clientKey || !orderId || !amount) {
+    fail('결제 정보가 올바르지 않습니다.');
+  } else {
+    try {
+      // ANONYMOUS: 비회원 결제. 회원별 카드 저장이 필요해지면 고객 키를 넘긴다.
+      const widget = PaymentWidget(clientKey, PaymentWidget.ANONYMOUS);
+      widget.renderPaymentMethods('#payment-method', { value: amount });
+      widget.renderAgreement('#agreement');
+      status.style.display = 'none';
+      payButton.disabled = false;
+
+      payButton.addEventListener('click', () => {
+        payButton.disabled = true;
+        widget.requestPayment({
+          orderId: orderId,
+          orderName: orderName,
+          successUrl: 'https://artnara.app/payment/success',
+          failUrl: 'https://artnara.app/payment/fail',
+        }).catch((error) => {
+          payButton.disabled = false;
+          fail(error && error.message ? error.message : '결제를 취소했습니다.');
+        });
+      });
+    } catch (error) {
+      fail('결제창을 불러오지 못했습니다.');
+    }
+  }
+</script>
+</body>
+</html>

@@ -39,6 +39,8 @@ dependencies:
   provider: ^6.1.5+1
   kakao_flutter_sdk: ^1.10.0
   kakao_map_sdk: ^1.2.6
+  # 토스 결제창(결제위젯)을 띄우는 데 쓴다.
+  webview_flutter: ^4.13.0
   google_sign_in: ^6.2.2
   http: ^1.2.0
   geolocator: ^13.0.0
@@ -72,6 +74,8 @@ flutter:
 
   assets:
     - assets/images/
+    # 토스 결제위젯 호스트 페이지
+    - assets/toss_checkout.html
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -52,6 +52,9 @@ public class ArtOrder extends BaseTimeEntity {
 
     private String buyerName;
 
+    /** 토스 결제 키 — 환불(취소) 호출에 필요하다. mock 결제면 비어 있다. */
+    private String paymentKey;
+
     /**
      * 관리자 환불 처리 여부 — 환불하면 작품 판매 잠금도 함께 풀린다.
      * 기본값을 DB 에도 남긴다: ddl-auto=update 는 기존 행이 있는 테이블에
@@ -87,6 +90,11 @@ public class ArtOrder extends BaseTimeEntity {
         this.refundReason = reason;
         this.refundedAt = at;
         this.status = "환불 완료";
+    }
+
+    /** 실 PG 로 승인된 결제의 키를 남긴다. */
+    public void linkPayment(String paymentKey) {
+        this.paymentKey = paymentKey;
     }
 
     public void issueCertificate(String certificateNo) {

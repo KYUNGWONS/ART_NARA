@@ -28,6 +28,8 @@ public enum DomainResultCode implements ResultCode {
     CERTIFICATE_QR_REQUIRED("CERTIFICATE_400", "QR 코드를 입력해주세요.", HttpStatus.BAD_REQUEST),
     CERTIFICATE_NOT_FOUND("CERTIFICATE_404", "인증 정보를 찾을 수 없는 QR 코드입니다.", HttpStatus.NOT_FOUND),
     ORDER_INVALID_PAYMENT_METHOD("ORDER_400_PAYMENT", "지원하지 않는 결제 수단입니다.", HttpStatus.BAD_REQUEST),
+    PAYMENT_FAILED("PAYMENT_402", "결제에 실패했습니다.", HttpStatus.PAYMENT_REQUIRED),
+    PAYMENT_AMOUNT_MISMATCH("PAYMENT_422", "결제 금액이 주문 금액과 다릅니다.", HttpStatus.UNPROCESSABLE_ENTITY),
     ORDER_AUCTION_NOT_BUYABLE("ORDER_400_AUCTION", "경매 작품은 입찰로만 구매할 수 있습니다.", HttpStatus.BAD_REQUEST),
     ORDER_ALREADY_SOLD("ORDER_409", "이미 판매 완료된 작품입니다.", HttpStatus.CONFLICT),
     AUCTION_ALREADY_CLOSED("AUCTION_409", "이미 마감된 경매입니다.", HttpStatus.CONFLICT),

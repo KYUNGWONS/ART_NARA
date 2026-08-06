@@ -9,9 +9,29 @@ import '../models/order.dart';
 class OrderApiService {
   const OrderApiService();
 
+  /// 실 PG 사용 여부와 결제창용 클라이언트 키. 실패하면 mock 결제로 진행한다.
+  Future<({bool enabled, String? clientKey})> fetchPaymentConfig() async {
+    try {
+      final response = await http.get(Uri.parse('$apiBaseUrl/api/payments/config'));
+      if (response.statusCode != 200) return (enabled: false, clientKey: null);
+      final body =
+          jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      final data = body['data'] as Map<String, dynamic>? ?? const {};
+      return (
+        enabled: data['enabled'] as bool? ?? false,
+        clientKey: data['clientKey'] as String?,
+      );
+    } catch (_) {
+      return (enabled: false, clientKey: null);
+    }
+  }
+
   Future<Order> create({
     required int artworkId,
     required String paymentMethod,
+    /// 토스 결제창을 거쳤을 때만 채운다. 서버가 이 값으로 승인을 호출한다.
+    String? paymentKey,
+    String? tossOrderId,
   }) async {
     final response = await http.post(
       Uri.parse('$apiBaseUrl/api/orders'),
@@ -19,6 +39,8 @@ class OrderApiService {
       body: jsonEncode({
         'artworkId': artworkId,
         'paymentMethod': paymentMethod,
+        if (paymentKey != null) 'paymentKey': paymentKey,
+        if (tossOrderId != null) 'tossOrderId': tossOrderId,
       }),
     );
     final body = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;

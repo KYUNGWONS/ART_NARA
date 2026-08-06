@@ -42,7 +42,7 @@ class AdminServiceTest {
     private OrderDto.Response buy(long artworkId) {
         User user = buyer();
         return orderService.create(
-                new OrderDto.CreateRequest(artworkId, "CARD"), user.getId(), user.getNickname());
+                new OrderDto.CreateRequest(artworkId, "CARD", null, null), user.getId(), user.getNickname());
     }
 
     @Test
