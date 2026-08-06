@@ -73,6 +73,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         }
         break;
       case 'ORDER_COMPLETED':
+      case 'ORDER_REFUNDED':
         Navigator.of(context).push(MaterialPageRoute<void>(
           builder: (_) => const OrderHistoryScreen(),
         ));
@@ -111,6 +112,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return Icons.gavel_rounded;
       case 'ORDER_COMPLETED':
         return Icons.verified_outlined;
+      case 'ORDER_REFUNDED':
+        return Icons.undo_rounded;
       case 'CHAT_MESSAGE':
         return Icons.chat_bubble_outline_rounded;
       default:
