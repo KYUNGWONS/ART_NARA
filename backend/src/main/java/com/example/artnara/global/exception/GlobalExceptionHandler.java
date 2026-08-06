@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -32,6 +34,35 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(DomainResultCode.REQUEST_BODY_INVALID.getStatus())
                 .body(BaseResponse.error(DomainResultCode.REQUEST_BODY_INVALID, cause.getMessage()));
+    }
+
+    /**
+     * 없는 경로 요청. 오타난 API 를 부르면 "서버 오류(500)" 로 보여 원인을 엉뚱한 데서 찾게 되고,
+     * 스택까지 로그에 쌓인다. 클라이언트 잘못이므로 404 로 돌려주고 로그는 한 줄만 남긴다.
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<BaseResponse<Void>> handleNotFound(NoResourceFoundException ex) {
+        log.warn("존재하지 않는 경로 요청: {}", ex.getResourcePath());
+
+        return ResponseEntity
+                .status(DomainResultCode.ENDPOINT_NOT_FOUND.getStatus())
+                .body(BaseResponse.error(DomainResultCode.ENDPOINT_NOT_FOUND,
+                        DomainResultCode.ENDPOINT_NOT_FOUND.getMessage()));
+    }
+
+    /**
+     * 잘못된 HTTP 메서드(예: POST 전용 API 를 GET 으로 호출).
+     * 이것도 클라이언트 잘못이라 500 이 아니라 405 로 알려줘야 원인을 바로 찾는다.
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<BaseResponse<Void>> handleMethodNotAllowed(
+            HttpRequestMethodNotSupportedException ex) {
+        log.warn("허용되지 않은 메서드: {}", ex.getMethod());
+
+        return ResponseEntity
+                .status(DomainResultCode.METHOD_NOT_ALLOWED.getStatus())
+                .body(BaseResponse.error(DomainResultCode.METHOD_NOT_ALLOWED,
+                        DomainResultCode.METHOD_NOT_ALLOWED.getMessage()));
     }
 
     /**

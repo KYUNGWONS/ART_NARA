@@ -55,6 +55,8 @@ public enum DomainResultCode implements ResultCode {
     USER_BLOCKED("USER_403_BLOCKED", "이용이 제한된 계정입니다. 고객센터에 문의해주세요.", HttpStatus.FORBIDDEN),
     AUTH_REQUIRED("COMMON_401", "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
     REQUEST_BODY_INVALID("COMMON_400_BODY", "요청 본문을 해석할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    ENDPOINT_NOT_FOUND("COMMON_404", "존재하지 않는 요청 경로입니다.", HttpStatus.NOT_FOUND),
+    METHOD_NOT_ALLOWED("COMMON_405", "허용되지 않은 요청 방식입니다.", HttpStatus.METHOD_NOT_ALLOWED),
     INTERNAL_ERROR("COMMON_500", "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.",
             HttpStatus.INTERNAL_SERVER_ERROR);
 
