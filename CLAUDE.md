@@ -310,6 +310,16 @@ Chrome DevTools 프로토콜(`adb forward tcp:9222 localabstract:chrome_devtools
 - 환경: x86_64 에뮬레이터(Android 15), Chrome 124. **카카오 로그인은 intent:// 가 아니라 커스텀 스킴 리다이렉트라 영향이 없다** — 그래서 카카오만 정상 동작한다.
 - **결론: 코드·콘솔 설정 문제가 아니라 이 에뮬레이터의 커스텀탭 인텐트 전달 문제로 보인다. 실기기(arm64 실제 폰)에서 재확인이 필요하다.** 실기기에서도 같으면 그때 `flutter_naver_login` 대신 웹 OAuth(앱 자체 WebView + `/auth/login`) 경로를 검토한다.
 
+## 네이버 로그인 웹 OAuth 전환 (2026-08-07 저녁) — 코드 완료, 콘솔에 웹 환경 등록 필요
+
+위 결론대로 SDK 를 걷어내고 **앱 자체 WebView + 서버 코드 교환**으로 전환했다(토스 결제창과 같은 인터셉트 패턴).
+
+- 흐름: 앱 `GET /auth/naver/config?state=` → 동의 화면 URL 수신 → `NaverLoginScreen`(WebView) → `https://artnara.app/oauth/naver` 리다이렉트를 NavigationDelegate 가 가로채 인가 코드 획득 → `POST /auth/naver/code {code, state}` → **서버(`NaverOAuthClient`)가 토큰 교환 + `NaverTokenVerifier` 프로필 검증** → 앱 JWT 발급. `flutter_naver_login` 의존성·매니페스트 메타데이터(클라이언트 시크릿 포함) 삭제 — **시크릿은 이제 서버 환경변수(`NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`)로만 존재**한다. state 는 앱이 `Random.secure()` 로 만들어 콜백에서 대조.
+- 서버 기동: `NAVER_CLIENT_ID=... NAVER_CLIENT_SECRET=... ./gradlew bootRun`. 안 주면 config 가 `enabled=false` 를 내리고 앱은 실패 스낵바(빌드는 안 깨짐). redirect_uri 는 `URLEncoder` 로 퍼센트 인코딩해 내린다(스프링 `encode()`/`UriUtils` 는 쿼리의 `:`·`/` 를 합법 문자로 봐서 안 바꾼다).
+- 검증: `./gradlew test`/`flutter test` 통과, config 공개 응답·오류 코드 401(빈/위조 코드) 실측. `AuthService.loginWithNaverCode` 는 `@Transactional` 유지 — `login()` 자기호출이라 프록시를 안 타므로 여기서 트랜잭션을 열어야 조회+가입 저장이 원자적이다.
+- **막힌 지점(사용자 계정 작업)**: 동의 화면 요청이 `disp_stat=207`("ART_NARA_DEV 관련 설정에 문제가 있어 로그인할 수 없습니다")로 거절된다. **redirect_uri 를 아무 값으로 바꿔도 같은 207** → URI 검증 이전의 앱 설정 문제, 즉 **네이버 개발자센터에 웹 서비스 환경이 등록돼 있지 않다**(현재 Android 환경만 등록됨). 가짜 client_id 는 다른 오류("client info invalid")를 내므로 키 자체는 유효하다.
+  - 조치: 개발자센터 > 내 애플리케이션 > API 설정 > **로그인 오픈 API 서비스 환경에 "모바일웹" 추가** → 서비스 URL `https://artnara.app`, **Callback URL `https://artnara.app/oauth/naver`** 등록. 등록만 되면 코드 변경 없이 동작해야 한다.
+
 ## 알려진 한계 (미해결, 판단 필요)
 
 - **활동명(닉네임)을 바꾸면 과거 판매 이력과 끊어진다.** 작품·주문·소유권이 작가를 **활동명 문자열**로 들고 있어서, 마이페이지에서 닉네임을 바꾸면 `GET /api/settlements`(활동명 기준)에서 이전 판매가 사라지고 포트폴리오도 옛 이름으로 남는다.
