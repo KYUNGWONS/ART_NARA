@@ -300,6 +300,16 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 
 - **함정(중요)**: 알림 종류를 새로 추가했더니 저장이 500 으로 실패했다. 기존 스키마의 `notifications.type` 이 **enum 목록 CHECK 제약**으로 만들어져 있는데 `ddl-auto=update` 는 그 제약을 갱신하지 않는다. → 엔티티에 `columnDefinition = "varchar(40)"` 을 주고, 이미 만들어진 개발 DB 는 `NotificationTypeColumnFix`(부팅 시 ALTER)가 정리한다. **enum 을 컬럼으로 쓸 땐 항상 varchar 로 못박을 것.**
 
+## 네이버 로그인 진단 결과 (2026-08-07) — 설정은 정상, 에뮬레이터에서 콜백이 안 돌아온다
+
+Chrome DevTools 프로토콜(`adb forward tcp:9222 localabstract:chrome_devtools_remote`)로 커스텀탭 내부를 직접 읽어 확인했다.
+
+- **네이버는 동의를 받아들이고 인가 코드까지 발급한다.** 동의 폼(`POST https://nid.naver.com/login/noauth/allow_oauth`) 응답이 `location.replace("intent://authorize/#Intent;package=com.artnara.artnara;scheme=naver3rdpartylogin;S.code=…;S.state=…;end")` 였다. → **client id·패키지명·동의항목 설정은 모두 정상**이라는 뜻.
+- 앱에도 콜백 인텐트 필터가 있다: `NidOAuthCustomTabActivity`, scheme `naver3rdpartylogin`, host `authorize`, path `/`(dumpsys 로 확인).
+- 그런데 **커스텀탭이 그 intent:// 를 앱으로 넘기지 않고** 동의 페이지를 다시 그린다. 그래서 SDK 는 결과를 못 받고 `NaverLoginStatus.loggedOut` 을 돌려준다. 수동으로 인텐트를 던져도 SDK 는 `getDecodedString() | str : null`(state 불일치로 폐기된 것으로 보임).
+- 환경: x86_64 에뮬레이터(Android 15), Chrome 124. **카카오 로그인은 intent:// 가 아니라 커스텀 스킴 리다이렉트라 영향이 없다** — 그래서 카카오만 정상 동작한다.
+- **결론: 코드·콘솔 설정 문제가 아니라 이 에뮬레이터의 커스텀탭 인텐트 전달 문제로 보인다. 실기기(arm64 실제 폰)에서 재확인이 필요하다.** 실기기에서도 같으면 그때 `flutter_naver_login` 대신 웹 OAuth(앱 자체 WebView + `/auth/login`) 경로를 검토한다.
+
 ## 알려진 한계 (미해결, 판단 필요)
 
 - **활동명(닉네임)을 바꾸면 과거 판매 이력과 끊어진다.** 작품·주문·소유권이 작가를 **활동명 문자열**로 들고 있어서, 마이페이지에서 닉네임을 바꾸면 `GET /api/settlements`(활동명 기준)에서 이전 판매가 사라지고 포트폴리오도 옛 이름으로 남는다.
