@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final com.example.artnara.global.auth.oauth.NaverOAuthClient naverOAuthClient;
 
     @PostMapping("/login")
     @Operation(summary = "OAuth 로그인",
@@ -33,6 +36,28 @@ public class AuthController {
     })
     public BaseResponse<AuthDto.LoginResponse> login(@RequestBody AuthDto.LoginRequest request) {
         return BaseResponse.success(null, authService.login(request));
+    }
+
+    @GetMapping("/naver/config")
+    @Operation(summary = "네이버 로그인 설정",
+            description = "앱이 WebView 로 열 네이버 동의 화면 주소를 만들어 돌려줍니다. "
+                    + "클라이언트 시크릿은 서버에만 있으므로 내려보내지 않습니다.")
+    public BaseResponse<NaverConfig> naverConfig(@RequestParam String state) {
+        return BaseResponse.success("네이버 로그인 설정", new NaverConfig(
+                naverOAuthClient.isConfigured(),
+                naverOAuthClient.isConfigured() ? naverOAuthClient.authorizeUrl(state) : null,
+                naverOAuthClient.redirectUri()));
+    }
+
+    public record NaverConfig(boolean enabled, String authorizeUrl, String redirectUri) {}
+
+    @PostMapping("/naver/code")
+    @Operation(summary = "네이버 인가 코드 로그인",
+            description = "앱 WebView 가 콜백에서 가로챈 인가 코드를 넘기면, 서버가 액세스 토큰으로 교환하고 "
+                    + "네이버 프로필로 신원을 확인한 뒤 앱 JWT 를 발급합니다.")
+    public BaseResponse<AuthDto.LoginResponse> naverCodeLogin(
+            @RequestBody AuthDto.NaverCodeRequest request) {
+        return BaseResponse.success(null, authService.loginWithNaverCode(request));
     }
 
     @PostMapping("/refresh")

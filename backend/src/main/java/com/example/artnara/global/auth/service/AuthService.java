@@ -5,6 +5,7 @@ import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.auth.dto.AuthDto;
 import com.example.artnara.global.auth.exception.AuthErrorCode;
 import com.example.artnara.global.auth.jwt.JwtProvider;
+import com.example.artnara.global.auth.oauth.NaverOAuthClient;
 import com.example.artnara.global.auth.oauth.OAuthProvider;
 import com.example.artnara.global.auth.oauth.OAuthTokenVerifier;
 import com.example.artnara.global.auth.oauth.OAuthUserInfo;
@@ -28,16 +29,38 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final Map<OAuthProvider, OAuthTokenVerifier> verifiers;
+    private final NaverOAuthClient naverOAuthClient;
 
     public AuthService(UserRepository userRepository,
                        JwtProvider jwtProvider,
-                       List<OAuthTokenVerifier> verifierList) {
+                       List<OAuthTokenVerifier> verifierList,
+                       NaverOAuthClient naverOAuthClient) {
         this.userRepository = userRepository;
         this.jwtProvider = jwtProvider;
+        this.naverOAuthClient = naverOAuthClient;
         this.verifiers = new EnumMap<>(OAuthProvider.class);
         for (OAuthTokenVerifier verifier : verifierList) {
             this.verifiers.put(verifier.getProvider(), verifier);
         }
+    }
+
+    /**
+     * 네이버 인가 코드로 로그인한다(앱 WebView 흐름).
+     *
+     * 앱은 동의 화면에서 받은 코드만 넘기고 **토큰 교환과 신원 확인은 서버가** 한다 —
+     * 클라이언트 시크릿이 앱에 남지 않는다.
+     *
+     * {@code @Transactional} 을 유지한다 — {@link #login} 은 같은 빈의 메서드라 자기호출이면
+     * 프록시를 타지 않아 거기 붙은 트랜잭션이 적용되지 않는다(조회+가입 저장의 원자성이 깨진다).
+     */
+    @Transactional
+    public AuthDto.LoginResponse loginWithNaverCode(AuthDto.NaverCodeRequest request) {
+        if (request == null || request.code() == null || request.code().isBlank()) {
+            throw new GlobalException(AuthErrorCode.OAUTH_VERIFICATION_FAILED);
+        }
+        String accessToken = naverOAuthClient.exchangeCodeForAccessToken(
+                request.code().trim(), request.state());
+        return login(new AuthDto.LoginRequest(OAuthProvider.NAVER, accessToken));
     }
 
     /**

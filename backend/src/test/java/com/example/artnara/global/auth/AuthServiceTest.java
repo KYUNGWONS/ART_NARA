@@ -6,6 +6,7 @@ import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.auth.dto.AuthDto;
 import com.example.artnara.global.auth.exception.AuthErrorCode;
 import com.example.artnara.global.auth.jwt.JwtProvider;
+import com.example.artnara.global.auth.oauth.NaverOAuthClient;
 import com.example.artnara.global.auth.oauth.OAuthProvider;
 import com.example.artnara.global.auth.oauth.OAuthTokenVerifier;
 import com.example.artnara.global.auth.oauth.OAuthUserInfo;
@@ -33,6 +34,7 @@ class AuthServiceTest {
     private UserRepository userRepository;
     private JwtProvider jwtProvider;
     private OAuthTokenVerifier kakaoVerifier;
+    private NaverOAuthClient naverOAuthClient;
     private AuthService authService;
 
     @BeforeEach
@@ -40,11 +42,13 @@ class AuthServiceTest {
         userRepository = mock(UserRepository.class);
         jwtProvider = mock(JwtProvider.class);
         kakaoVerifier = mock(OAuthTokenVerifier.class);
+        naverOAuthClient = mock(NaverOAuthClient.class);
         given(kakaoVerifier.getProvider()).willReturn(OAuthProvider.KAKAO);
         given(jwtProvider.generateAccessToken(any(), any())).willReturn("access-jwt");
         given(jwtProvider.generateRefreshToken(any(), any())).willReturn("refresh-jwt");
 
-        authService = new AuthService(userRepository, jwtProvider, List.of(kakaoVerifier));
+        authService = new AuthService(
+                userRepository, jwtProvider, List.of(kakaoVerifier), naverOAuthClient);
     }
 
     @Test
