@@ -321,8 +321,10 @@ Chrome DevTools 프로토콜(`adb forward tcp:9222 localabstract:chrome_devtools
   - 배제 완료(전부 동일하게 207): 웹 콜백 / **앱 스킴 콜백(`naver3rdpartylogin://authorize`)** / 엉뚱한 도메인 콜백 / UA 4종(PC·안드로이드·아이폰·curl) / 쿠키·리퍼러 유무 / SDK 흉내 파라미터(`oauth_os=android` 등). 대조군으로 일반 네이버 로그인 페이지는 curl 에도 정상 폼을 주므로 테스트 방법 자체는 유효하다. 가짜 client_id 는 다른 오류("client info invalid")를 내므로 앱은 인식은 된다.
   - **결정적 증거: 예전에 동의+인가코드 발급까지 성공했던 앱 스킴 콜백도 지금은 207.** 그 경로를 코드에서 건드린 적이 없으므로 **콘솔 쪽 앱 상태가 그 사이 망가진 것**으로 판단했다. "모바일웹 미등록이 원인"이라는 초기 추정은 앱 스킴도 똑같이 막히는 것으로 **반증됐다**(2026-08-07 저녁 정정).
   - 조치(사용자 선택): **네이버 개발자센터에서 애플리케이션을 새로 만들어 키 재발급**. 밖에서는 기존 앱이 왜 막혔는지 볼 수 없고 예전엔 되던 것이라, 새로 만드는 편이 빠르다.
+  - **→ 해결됨(2026-08-07 밤).** 새 앱(client_id `mpu67h…`)으로 바꾸자 같은 요청이 **정상 로그인 화면**을 반환한다. 에뮬레이터 앱에서도 웹뷰에 "ART_NARA 로그인 중" 네이버 로그인 폼이 뜨는 것까지 실측. **기존 앱이 콘솔 단에서 망가져 있었던 게 확정** — 코드는 처음부터 정상이었다. 앱은 설정을 서버에서 받아오므로 **재빌드 없이 키 교체만으로 적용**된다.
 - **콜백은 앱 스킴으로도 된다(웹 환경 불필요)**: 우리 WebView 는 `NavigationDelegate` 로 **어떤 URL이든 가로챈다** — 커스텀탭이 못 하던 `naver3rdpartylogin://` 도 잡는다. 즉 모바일웹 등록이나 `artnara.app` 같은 도메인 없이 **이미 등록된 안드로이드 환경만으로 충분**하다. 서버의 `NAVER_REDIRECT_URI` 환경변수만 바꾸면 코드 수정 없이 전환된다.
-- **재검증 방법(10초)**: 서버를 띄운 뒤 `curl -s "http://localhost:8080/auth/naver/config?state=t1"` 로 authorize URL 을 받아 그대로 curl 하면 된다. **로그인 폼이 나오면 해결, `disp_stat=207` 이면 여전히 앱 설정 문제.**
+- **재검증 방법(10초)**: `backend/check-naver.sh` — 인자 없이 실행하면 띄워둔 서버 설정으로, `./check-naver.sh <client_id>` 면 서버 없이 키만으로 검사한다. **로그인 폼이 나오면 정상, `disp_stat=207` 이면 네이버 콘솔의 앱 설정 문제**(코드와 무관).
+- **서버 비밀값은 `backend/local.properties`(git 미추적, `**/local.properties` 규칙)**. `./run-dev.sh [--bg]` 가 읽어 `NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`/`TOSS_SECRET_KEY` 로 넘기고, **8080 을 잡고 있는 옛 프로세스를 먼저 죽인다**(구버전 서버가 계속 응답해 "코드가 반영 안 된다"로 보이던 함정 차단). 네이버 키는 이제 서버 전용이라 `frontend/android/local.properties` 에서는 제거했다(앱에 시크릿 없음).
 
 ## 알려진 한계 (미해결, 판단 필요)
 

@@ -16,3 +16,6 @@
 **/settings.local.json
 **/_to_delete/
 .tmp-*/
+
+# 개발 서버 실행 로그
+backend/boot.log
