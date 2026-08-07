@@ -49,9 +49,16 @@ class _NaverLoginScreenState extends State<NaverLoginScreen> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      // 로그인이 실패하면 어디서 막혔는지 알아야 한다. 인증 정보가 새지 않도록
+      // 주소는 경로까지만(쿼리에 코드·토큰이 실린다) 남긴다.
+      ..setOnConsoleMessage((msg) => debugPrint('[Naver][web] ${msg.message}'))
       ..setNavigationDelegate(NavigationDelegate(
-        onPageFinished: (_) {
+        onPageFinished: (url) {
+          debugPrint('[Naver] 페이지 로드: ${_safe(url)}');
           if (mounted) setState(() => _loading = false);
+        },
+        onWebResourceError: (error) {
+          debugPrint('[Naver] 로드 실패: ${error.errorCode} ${error.description}');
         },
         onNavigationRequest: (request) {
           if (!request.url.startsWith(widget.redirectUri)) {
@@ -73,6 +80,12 @@ class _NaverLoginScreenState extends State<NaverLoginScreen> {
         },
       ))
       ..loadRequest(Uri.parse(widget.authorizeUrl));
+  }
+
+  /// 로그에 남길 주소. 쿼리에는 인가 코드가 실리므로 잘라낸다.
+  static String _safe(String url) {
+    final parsed = Uri.tryParse(url);
+    return parsed == null ? '(파싱 실패)' : '${parsed.origin}${parsed.path}';
   }
 
   /// 결과는 한 번만 돌려준다(리다이렉트가 중복될 수 있다).
