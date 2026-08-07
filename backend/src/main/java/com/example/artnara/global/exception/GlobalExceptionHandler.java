@@ -5,9 +5,11 @@ import com.example.artnara.global.common.DomainResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -34,6 +36,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(DomainResultCode.REQUEST_BODY_INVALID.getStatus())
                 .body(BaseResponse.error(DomainResultCode.REQUEST_BODY_INVALID, cause.getMessage()));
+    }
+
+    /**
+     * 쿼리 파라미터가 빠졌거나 타입이 안 맞는 요청(`?latitude=abc`, 필수값 누락 등).
+     * 본문·경로·메서드와 같은 이유로 클라이언트 잘못이므로 400 으로 돌려준다 —
+     * 500 으로 나가면 서버 장애로 오인해 원인을 엉뚱한 데서 찾게 된다.
+     */
+    @ExceptionHandler({MissingServletRequestParameterException.class,
+            MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<BaseResponse<Void>> handleInvalidParam(Exception ex) {
+        String detail = ex instanceof MissingServletRequestParameterException missing
+                ? "필수 파라미터가 없습니다: " + missing.getParameterName()
+                : "파라미터 형식이 올바르지 않습니다: "
+                        + ((MethodArgumentTypeMismatchException) ex).getName();
+        log.warn("잘못된 요청 파라미터: {}", detail);
+        return ResponseEntity
+                .status(DomainResultCode.REQUEST_PARAM_INVALID.getStatus())
+                .body(BaseResponse.error(DomainResultCode.REQUEST_PARAM_INVALID, detail));
     }
 
     /**
