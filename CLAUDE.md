@@ -298,7 +298,8 @@ API 27케이스 전건 통과: 공개 조회 6(피드·페이징·상한·상세
 2. **환불 후에도 리뷰를 쓸 수 있었다** — 자격 확인이 주문 존재 여부만 봤다(사서 리뷰 쓰고 환불하면 리뷰가 남는다). → `existsByArtworkIdAndBuyerIdAndRefundedFalse`. 앱은 주문 응답의 `refunded` 로 리뷰 버튼을 감추고 '환불되어 디지털 소유권이 회수되었습니다' 로 표시한다.
 3. **환불 사실을 구매자가 알 수 없었다**(관리자가 처리하므로) → `ORDER_REFUNDED` 알림 추가, 탭하면 주문 내역으로 이동.
 
-- **함정(중요)**: 알림 종류를 새로 추가했더니 저장이 500 으로 실패했다. 기존 스키마의 `notifications.type` 이 **enum 목록 CHECK 제약**으로 만들어져 있는데 `ddl-auto=update` 는 그 제약을 갱신하지 않는다. → 엔티티에 `columnDefinition = "varchar(40)"` 을 주고, 이미 만들어진 개발 DB 는 `NotificationTypeColumnFix`(부팅 시 ALTER)가 정리한다. **enum 을 컬럼으로 쓸 땐 항상 varchar 로 못박을 것.**
+- **함정(중요)**: 알림 종류를 새로 추가했더니 저장이 500 으로 실패했다. 기존 스키마의 `notifications.type` 이 **enum 목록 CHECK 제약**으로 만들어져 있는데 `ddl-auto=update` 는 그 제약을 갱신하지 않는다. → 엔티티에 `columnDefinition = "varchar(40)"` 을 주고, 이미 만들어진 개발 DB 는 `EnumColumnConstraintFix`(부팅 시 ALTER)가 정리한다. **enum 을 컬럼으로 쓸 땐 항상 varchar 로 못박을 것.**
+  - **2026-08-07 같은 함정 재발**: `users.provider` 가 `('GOOGLE','KAKAO')` CHECK 로 굳어 있어 네이버 최초 로그인이 500 으로 깨졌다(OAuth 는 다 성공하고 회원 저장에서만 실패). 러너를 `EnumColumnConstraintFix` 로 일반화해 두 컬럼을 함께 처리한다 — **새 enum 값을 추가할 땐 이 목록에 한 줄 추가할 것.**
 
 ## 네이버 로그인 진단 결과 (2026-08-07) — 설정은 정상, 에뮬레이터에서 콜백이 안 돌아온다
 

@@ -23,7 +23,11 @@ public class User extends BaseTimeEntity {
     private Long id;
 
     // OAuth 제공자 신원 (안정적인 식별자). 로그인 시점에 저장된다.
+    // varchar 로 못박는다 — 기본 매핑은 제공자 목록을 CHECK 제약으로 박아 버리는데,
+    // `ddl-auto=update` 가 그 제약을 갱신하지 않아 제공자를 추가하면 저장이 500 으로 깨진다
+    // (NAVER 추가 때 실제로 겪었다. 알림 type 컬럼과 같은 함정).
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(20)")
     private OAuthProvider provider;
 
     private String providerId;
