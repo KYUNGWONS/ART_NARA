@@ -17,6 +17,16 @@ export NAVER_CLIENT_ID="$(prop naverClientId)"
 export NAVER_CLIENT_SECRET="$(prop naverClientSecret)"
 export TOSS_SECRET_KEY="$(prop tossSecretKey)"
 
+# FCM 서비스 계정 JSON 경로. 파일이 실제로 있을 때만 넘긴다 —
+# 경로만 있고 파일이 없으면 서버가 켜진 줄 알고 발송을 시도한다.
+fcm="$(prop fcmCredentialsPath)"
+if [ -n "$fcm" ] && [ -f "$fcm" ]; then
+    export FCM_CREDENTIALS="$fcm"
+    echo "FCM 푸시 사용: $fcm"
+elif [ -n "$fcm" ]; then
+    echo "경고: fcmCredentialsPath 가 가리키는 파일이 없다 ($fcm) — 푸시 없이 뜬다"
+fi
+
 [ -n "$NAVER_CLIENT_ID" ] || echo "경고: naverClientId 없음 — 네이버 로그인은 꺼진 채로 뜬다"
 
 # 이전 서버가 8080 을 잡고 있으면 새 코드가 반영되지 않은 채 계속 응답한다(과거에 겪은 함정).
