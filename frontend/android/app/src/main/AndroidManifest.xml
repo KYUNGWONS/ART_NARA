@@ -9,11 +9,6 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:networkSecurityConfig="@xml/network_security_config">
-        <!-- 네이버 로그인 SDK 설정. 값은 build.gradle.kts 가 local.properties 에서 주입한다. -->
-        <meta-data android:name="com.naver.sdk.clientId" android:value="${naverClientId}" />
-        <meta-data android:name="com.naver.sdk.clientSecret" android:value="${naverClientSecret}" />
-        <meta-data android:name="com.naver.sdk.clientName" android:value="${naverClientName}" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true"

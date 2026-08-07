@@ -97,6 +97,39 @@ class AuthApiService {
     }
   }
 
+  /// 네이버 WebView 로그인: 인가 코드를 서버에 넘겨 앱 JWT 를 받는다.
+  /// 토큰 저장·userId 파싱은 [login] 과 같은 경로를 탄다.
+  static Future<LoginResponse?> loginWithNaverCode(String code, String state) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiBaseUrl/auth/naver/code'),
+        headers: <String, String>{'Content-Type': 'application/json'},
+        body: jsonEncode(<String, String>{'code': code, 'state': state}),
+      );
+      debugPrint('[AuthAPI] POST /auth/naver/code 응답 statusCode: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        debugPrint('[AuthAPI] 네이버 로그인 실패: ${response.body}');
+        return null;
+      }
+      final map = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>?;
+      if (map == null) return null;
+      final loginResponse = LoginResponse.fromJson(map);
+      final data = loginResponse.data;
+      if (loginResponse.code == 'SUCCESS' && data != null && data.accessToken.isNotEmpty) {
+        accessToken = data.accessToken;
+        refreshToken = data.refreshToken;
+        userId = _userIdFromJwt(data.accessToken);
+        await TokenStorage.save(data.accessToken, data.refreshToken);
+        debugPrint('[AuthAPI] 네이버 로그인 성공 (isNewUser: ${data.isNewUser}, userId: $userId)');
+        return loginResponse;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[AuthAPI] 네이버 로그인 요청 실패: $e');
+      return null;
+    }
+  }
+
   /// 저장된 refresh token 으로 자동 로그인을 시도한다.
   ///
   /// 성공 시 새 토큰 쌍을 메모리·보안 저장소에 반영하고

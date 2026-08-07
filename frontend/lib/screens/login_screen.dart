@@ -118,19 +118,8 @@ class _LoginScreenState extends State<LoginScreen>
     debugPrint('[Naver] 로그인 시작');
 
     final locale = context.read<LocaleProvider>();
-    final result = await NaverAuthService.signIn();
-
-    if (!mounted) return;
-
-    if (result == null) {
-      setState(() => _isNaverLoading = false);
-      _showLoginError(locale);
-      return;
-    }
-
-    debugPrint('[Login] 네이버 액세스 토큰 획득 → /auth/login 요청');
-    final loginResponse =
-        await AuthApiService.login('NAVER', result.accessToken);
+    // 동의 화면(WebView) → 인가 코드 → 서버 교환까지 서비스가 처리한다.
+    final loginResponse = await NaverAuthService.signIn(context);
 
     if (!mounted) return;
     setState(() => _isNaverLoading = false);
@@ -152,8 +141,6 @@ class _LoginScreenState extends State<LoginScreen>
       isNewUser: data.isNewUser,
       profileCompleted: data.profileCompleted,
       userType: data.userType,
-      profileImageUrl: result.profileImageUrl,
-      nickname: result.nickname,
     );
   }
 
