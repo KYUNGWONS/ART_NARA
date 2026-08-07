@@ -334,6 +334,25 @@ Chrome DevTools 프로토콜(`adb forward tcp:9222 localabstract:chrome_devtools
 - **재검증 방법(10초)**: `backend/check-naver.sh` — 인자 없이 실행하면 띄워둔 서버 설정으로, `./check-naver.sh <client_id>` 면 서버 없이 키만으로 검사한다. **로그인 폼이 나오면 정상, `disp_stat=207` 이면 네이버 콘솔의 앱 설정 문제**(코드와 무관).
 - **서버 비밀값은 `backend/local.properties`(git 미추적, `**/local.properties` 규칙)**. `./run-dev.sh [--bg]` 가 읽어 `NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET`/`TOSS_SECRET_KEY` 로 넘기고, **8080 을 잡고 있는 옛 프로세스를 먼저 죽인다**(구버전 서버가 계속 응답해 "코드가 반영 안 된다"로 보이던 함정 차단). 네이버 키는 이제 서버 전용이라 `frontend/android/local.properties` 에서는 제거했다(앱에 시크릿 없음).
 
+## FCM 푸시 실측 완료 (2026-08-08) — 켜짐
+
+Firebase 프로젝트 `art-nara` 로 **실제 기기 도착까지 확인**했다. 알림함에 `ART NARA · 환불이 처리되었어요 / '고요한 파도' 주문이 환불되었습니다…` 표시.
+
+- **켜는 법**: 앱 `frontend/android/app/google-services.json`(git 미추적) + 서버 `backend/local.properties` 의 `fcmCredentialsPath=` 에 서비스 계정 JSON 경로. `./run-dev.sh` 가 **파일이 실제로 있을 때만** `FCM_CREDENTIALS` 로 넘긴다(경로만 있고 파일이 없으면 켜진 줄 알고 발송을 시도하므로).
+- 서비스 계정 키는 레포 밖(`C:/Users/worms/keys/artnara-fcm.json`)에 둔다.
+- **콘솔의 "Firebase SDK 추가"(Gradle 플러그인) 단계는 할 필요 없다** — `settings.gradle.kts` 에 선언돼 있고 `app/build.gradle.kts` 가 google-services.json 존재 시에만 적용한다. 문서대로 `plugins {}` 에 무조건 넣으면 파일 없는 환경에서 빌드가 깨진다. Firebase SDK 의존성도 firebase_core/messaging 플러그인이 가져온다.
+- **푸시가 가는 알림은 `publishTo(userId, …)` 뿐이다.** `publish(…)` 는 `userId=null` 시스템 알림이라 대상이 없어 건너뛴다 — 제작 의뢰·작가 제안 계열이 여기 해당하므로 **푸시 테스트에 쓰면 안 된다**(실제로 헛다리 짚었다). 푸시가 나가는 경로는 환불(AdminService)·채팅(ChatService, STOMP 전용)·주문완료(OrderService) 셋.
+- **앱이 포그라운드면 알림함에 안 뜬다**(안드로이드 규칙). 백그라운드로 내리고 테스트할 것. 페이로드에 `notification` 블록이 있어 백그라운드면 자동 표시된다.
+- 자격증명만 따로 검증하려면: 서비스 계정으로 구글 OAuth 토큰을 받아 FCM `messages:send` 에 더미 토큰으로 쏴 본다. **`INVALID_ARGUMENT`(가짜 토큰 거절)면 인증 정상, 401/403 이면 자격증명 문제.**
+
+## 회귀 스위프 (2026-08-08) — 34케이스 전건 통과
+
+공개 조회 8(피드 `/api/feed/home`·목록·상세·의뢰·주변·결제설정·네이버설정·size 클램프), 비로그인 차단 6(결제·하트·소유권·주문·정산·기기등록), 신원 스코프 7, 토큰 1, 관리자 격리 2, 하트 토글 2, QR 4, 오류 매핑 4. `flutter test` 17건 / `./gradlew test` 통과.
+
+- **고친 것**: 쿼리 파라미터 누락·타입 오류가 **500** 으로 나갔다(클라이언트 잘못인데 서버 장애로 보인다). `MissingServletRequestParameterException`/`MethodArgumentTypeMismatchException` → **400**(`COMMON_400_PARAM`). 본문·경로·메서드는 이미 400/404/405 였는데 파라미터만 빠져 있었다.
+- **스위프 짤 때 헛디딘 것(다음에 반복하지 말 것)**: 피드는 `/api/feed` 가 아니라 **`/api/feed/home`**, 주변 작품 파라미터는 `lat/lng` 가 아니라 **`latitude/longitude`**, QR 스캔은 인증서 번호(`ARTNARA-2026-261`)가 아니라 **QR 값(`ARTNARA-QR-261`)** 으로 조회한다. 환불된 인증서는 404 가 아니라 **200 + `verified:false` + note** 로 응답하는 게 정상이다.
+- JWT 를 직접 만들어 검증할 때 **클레임 이름은 `roles`, 값은 `USER`**(`ROLE_USER` 아님). 시크릿은 `application.yml` 의 base64 기본값.
+
 ## 알려진 한계 (미해결, 판단 필요)
 
 - **활동명(닉네임)을 바꾸면 과거 판매 이력과 끊어진다.** 작품·주문·소유권이 작가를 **활동명 문자열**로 들고 있어서, 마이페이지에서 닉네임을 바꾸면 `GET /api/settlements`(활동명 기준)에서 이전 판매가 사라지고 포트폴리오도 옛 이름으로 남는다.
@@ -343,6 +362,7 @@ Chrome DevTools 프로토콜(`adb forward tcp:9222 localabstract:chrome_devtools
 ## 남은 작업 후보
 
 - 실 결제 라이브 전환 (가맹 계약 + 키 교체만 남음 — 코드는 완료)
+- ~~FCM 푸시 키 발급~~ — 2026-08-08 완료(실기기 도착 확인)
 
 ## 로컬 실행 (에뮬레이터)
 
