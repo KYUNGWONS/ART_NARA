@@ -5,6 +5,7 @@ import com.example.artnara.domain.review.service.ReviewService;
 import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -40,6 +41,7 @@ public class ReviewController {
                 artworkId, request, currentUser.idOf(principal), currentUser.nicknameOf(principal)));
     }
 
+    @SecurityRequirements
     @GetMapping("/api/artists/{artistName}/reviews")
     @Operation(summary = "작가 리뷰 목록",
             description = "작가가 받은 리뷰를 최신순으로 조회합니다(최대 100건). 평균 평점도 함께 내려줍니다.")

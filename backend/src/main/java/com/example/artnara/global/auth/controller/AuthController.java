@@ -5,6 +5,7 @@ import com.example.artnara.global.auth.dto.AuthDto;
 import com.example.artnara.global.auth.service.AuthService;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,7 @@ public class AuthController {
     private final com.example.artnara.global.auth.oauth.NaverOAuthClient naverOAuthClient;
     private final CurrentUser currentUser;
 
+    @SecurityRequirements
     @PostMapping("/login")
     @Operation(summary = "OAuth 로그인",
             description = "클라이언트에서 발급받은 OAuth 토큰(KAKAO/NAVER: access token)을 검증하고 " +
@@ -42,6 +44,7 @@ public class AuthController {
         return BaseResponse.success(null, authService.login(request));
     }
 
+    @SecurityRequirements
     @GetMapping("/naver/config")
     @Operation(summary = "네이버 로그인 설정",
             description = "앱이 WebView 로 열 네이버 동의 화면 주소를 만들어 돌려줍니다. "
@@ -55,6 +58,7 @@ public class AuthController {
 
     public record NaverConfig(boolean enabled, String authorizeUrl, String redirectUri) {}
 
+    @SecurityRequirements
     @PostMapping("/naver/code")
     @Operation(summary = "네이버 인가 코드 로그인",
             description = "앱 WebView 가 콜백에서 가로챈 인가 코드를 넘기면, 서버가 액세스 토큰으로 교환하고 "
@@ -64,6 +68,7 @@ public class AuthController {
         return BaseResponse.success(null, authService.loginWithNaverCode(request));
     }
 
+    @SecurityRequirements
     @PostMapping("/logout")
     @Operation(summary = "로그아웃",
             description = "이 계정으로 지금까지 발급된 토큰을 모두 무효로 만듭니다. "
@@ -76,6 +81,7 @@ public class AuthController {
         return BaseResponse.success("로그아웃", null);
     }
 
+    @SecurityRequirements
     @PostMapping("/refresh")
     @Operation(summary = "토큰 재발급",
             description = "refresh token 으로 새 access/refresh 쌍을 발급합니다. 자동 로그인과 " +

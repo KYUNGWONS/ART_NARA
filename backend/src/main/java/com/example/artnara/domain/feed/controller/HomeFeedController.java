@@ -4,6 +4,7 @@ import com.example.artnara.domain.feed.dto.HomeFeedDto;
 import com.example.artnara.domain.feed.service.HomeFeedService;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +22,7 @@ public class HomeFeedController {
 
     private final HomeFeedService homeFeedService;
 
+    @SecurityRequirements
     @GetMapping("/home")
     @Operation(summary = "홈 피드 조회", description = "검색어가 있으면 작품명과 작가명으로 홈 피드를 필터링합니다.")
     public BaseResponse<HomeFeedDto> home(

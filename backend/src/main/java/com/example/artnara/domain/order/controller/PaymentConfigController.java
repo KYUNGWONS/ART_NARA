@@ -3,6 +3,7 @@ package com.example.artnara.domain.order.controller;
 import com.example.artnara.global.common.BaseResponse;
 import com.example.artnara.global.payment.TossPaymentClient;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,7 @@ public class PaymentConfigController {
     @Value("${toss.client-key:}")
     private String clientKey;
 
+    @SecurityRequirements
     @GetMapping("/config")
     @Operation(summary = "결제 설정 조회",
             description = "실 PG(토스) 사용 여부와 결제창용 클라이언트 키를 알려줍니다. "

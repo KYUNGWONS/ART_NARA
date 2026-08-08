@@ -5,6 +5,7 @@ import com.example.artnara.domain.certificate.service.CertificateService;
 import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,7 @@ public class CertificateController {
                 certificateService.listOwnerships(currentUser.idOf(principal)));
     }
 
+    @SecurityRequirements
     @PostMapping("/scan")
     @Operation(summary = "소유권 인증 QR 스캔", description = "작품 뒤에 부착된 QR 코드를 스캔하면 디지털 인증서를 조회합니다.")
     public BaseResponse<CertificateDto.Certificate> scan(

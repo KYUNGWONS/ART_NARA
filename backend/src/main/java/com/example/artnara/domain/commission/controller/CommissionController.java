@@ -4,6 +4,7 @@ import com.example.artnara.domain.commission.dto.CommissionDto;
 import com.example.artnara.domain.commission.service.CommissionService;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,7 @@ public class CommissionController {
         return BaseResponse.success("제작 의뢰 등록", commissionService.create(request));
     }
 
+    @SecurityRequirements
     @GetMapping
     @Operation(summary = "제작 의뢰 목록 조회", description = "등록한 제작 의뢰와 작가 제안 현황을 최신순으로 조회합니다.")
     public BaseResponse<CommissionDto.ListResponse> list() {

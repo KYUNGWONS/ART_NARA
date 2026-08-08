@@ -6,6 +6,7 @@ import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,7 @@ public class ArtworkController {
     private final ArtworkService artworkService;
     private final CurrentUser currentUser;
 
+    @SecurityRequirements
     @GetMapping("/nearby")
     @Operation(summary = "집 주변 작품 매칭", description = "기준 좌표에서 가까운 순으로 판매 중인 작품을 조회합니다.")
     public BaseResponse<NearbyArtworkDto> nearby(
@@ -35,6 +37,7 @@ public class ArtworkController {
         return BaseResponse.success("집 주변 작품 매칭", artworkService.getNearby(latitude, longitude));
     }
 
+    @SecurityRequirements
     @GetMapping
     @Operation(summary = "작품 목록(페이징)",
             description = "판매 중인 작품을 최신순으로 페이지 조회합니다. '더보기' 화면에서 사용합니다. "
@@ -54,6 +57,7 @@ public class ArtworkController {
                 artworkService.listLiked(currentUser.idOf(principal)));
     }
 
+    @SecurityRequirements
     @GetMapping("/{artworkId}")
     @Operation(summary = "작품 상세 조회", description = "작품 정보, 작가 소개, 경매 작품이면 입찰 내역까지 조회합니다.")
     public BaseResponse<ArtworkDetailDto> detail(@PathVariable Long artworkId, Principal principal) {
