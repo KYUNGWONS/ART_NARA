@@ -27,6 +27,9 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   int _currentTab = 0; // 홈이 기본 선택 (디자인 bottom-navigation 순서)
+
+  /// 알림에서 의뢰 탭으로 넘어올 때 지목된 의뢰 id
+  int? _focusCommissionId;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   int _unreadNotifications = 0;
   late AnimationController _fadeController;
@@ -54,8 +57,12 @@ class _MainScreenState extends State<MainScreen>
     setState(() => _unreadNotifications = result.unread);
   }
 
-  void _selectTab(int index) {
-    setState(() => _currentTab = index);
+  /// [targetId] 는 그 탭 안에서 보여줄 항목(알림이 지목한 의뢰 등).
+  void _selectTab(int index, {int? targetId}) {
+    setState(() {
+      _currentTab = index;
+      _focusCommissionId = index == 3 ? targetId : null;
+    });
     _loadUnread();
   }
 
@@ -405,7 +412,9 @@ class _MainScreenState extends State<MainScreen>
       case 2: // 지도
         return const MapScreen();
       case 3: // 제작 의뢰 (역경매)
-        return const CommissionScreen();
+        // key 를 함께 바꿔야 이미 떠 있던 화면이 새 대상으로 다시 만들어진다.
+        return CommissionScreen(
+            key: ValueKey(_focusCommissionId), focusCommissionId: _focusCommissionId);
       case 4: // 알림
         return NotificationScreen(
           onOpenTab: _selectTab,

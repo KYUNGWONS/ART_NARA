@@ -17,20 +17,22 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 ///
 /// targetId 는 종류마다 다른 것을 가리킨다 — 의뢰 id · 작품 id · 주문 id · 채팅방 id.
 /// [onOpenTab] 은 하단 탭으로 이동해야 하는 경우 MainScreen 이 넘겨준다. 푸시 경로에는 없다.
+/// 탭 안에서 어느 항목을 보여줄지는 targetId 로 함께 넘긴다.
 Future<void> openNotificationTarget(
   BuildContext context, {
   required String type,
   int? targetId,
-  void Function(int tabIndex)? onOpenTab,
+  void Function(int tabIndex, {int? targetId})? onOpenTab,
 }) async {
   final navigator = Navigator.of(context);
 
   switch (type) {
     case 'COMMISSION_CREATED':
     case 'COMMISSION_OFFER':
-      // 의뢰는 탭 자체가 목록이라 탭 전환으로 충분하다. 탭 전환 수단이 없는
-      // 푸시 경로에서는 앱을 열어 주는 것까지만 한다(홈에서 의뢰 탭이 한 번에 보인다).
-      onOpenTab?.call(3);
+      // 의뢰 목록은 등록 폼 아래에 있어서, 탭만 바꾸면 화면이 그대로인 것처럼 보인다.
+      // 어느 의뢰인지 함께 넘겨 그 카드까지 스크롤되게 한다. 탭 전환 수단이 없는
+      // 푸시 경로에서는 앱을 열어 주는 것까지만 한다.
+      onOpenTab?.call(3, targetId: targetId);
       break;
 
     case 'AUCTION_CLOSED':

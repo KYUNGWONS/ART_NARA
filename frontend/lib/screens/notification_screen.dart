@@ -9,7 +9,7 @@ import '../utils/notification_navigation.dart';
 /// GET /api/notifications — 제작 의뢰·경매 마감·결제 완료 등 도메인 이벤트가 쌓인다.
 class NotificationScreen extends StatefulWidget {
   /// 알림을 눌렀을 때 다른 탭으로 이동해야 하는 경우 MainScreen 이 넘겨준다.
-  final void Function(int tabIndex)? onOpenTab;
+  final void Function(int tabIndex, {int? targetId})? onOpenTab;
 
   /// 안읽음 수가 바뀌면 상위(헤더 배지)에 알린다.
   final void Function(int unread)? onUnreadChanged;

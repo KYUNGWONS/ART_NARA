@@ -18,7 +18,11 @@ const _categories = ['회화', '조각', '일러스트', '디지털 아트', '�
 
 /// 제작 의뢰 신청 — Figma 23:67 디자인.
 class CommissionScreen extends StatefulWidget {
-  const CommissionScreen({super.key});
+  const CommissionScreen({super.key, this.focusCommissionId});
+
+  /// 알림에서 넘어온 의뢰 id. 목록이 폼 아래에 있어서, 탭만 바꾸면 화면에
+  /// 아무 변화가 없어 보인다 — 해당 카드까지 스크롤해준다.
+  final int? focusCommissionId;
 
   @override
   State<CommissionScreen> createState() => _CommissionScreenState();
@@ -48,6 +52,9 @@ class _CommissionScreenState extends State<CommissionScreen> {
   /// 제안 등록 시 표시할 내 활동명(프로필에서 조회)
   String? _profileNickname;
 
+  /// 알림에서 지목한 의뢰 카드로 스크롤하기 위한 키
+  final _focusedCardKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -74,10 +81,23 @@ class _CommissionScreenState extends State<CommissionScreen> {
   Future<void> _loadCommissions() async {
     try {
       final commissions = await _api.fetchCommissions();
-      if (mounted) setState(() => _commissions = commissions);
+      if (!mounted) return;
+      setState(() => _commissions = commissions);
+      _scrollToFocused();
     } catch (_) {
       // 목록 조회 실패는 등록 폼 사용을 막지 않는다.
     }
+  }
+
+  /// 알림으로 지목된 의뢰가 목록에 있으면 그 카드를 화면에 보여준다.
+  void _scrollToFocused() {
+    if (widget.focusCommissionId == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _focusedCardKey.currentContext;
+      if (target == null) return;
+      Scrollable.ensureVisible(target,
+          duration: const Duration(milliseconds: 400), alignment: 0.1);
+    });
   }
 
   Future<void> _pickImage() async {
@@ -455,17 +475,22 @@ class _CommissionScreenState extends State<CommissionScreen> {
         ),
         if (_commissions.isNotEmpty) ...[
           const SizedBox(height: ArtSpacing.lg * 1.5),
-          const Text('내 의뢰 현황',
+          // 이 목록은 GET /api/commissions — 작가가 제안하려면 남의 의뢰도 봐야 하므로
+          // 공개 목록이다. '내 의뢰 현황' 이라고 부르면 작가 화면에서 남의 의뢰가
+          // 자기 것처럼 보인다.
+          const Text('등록된 의뢰',
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: ArtColors.textPrimary)),
           const SizedBox(height: ArtSpacing.sm),
-          ..._commissions
-              .map((commission) => _CommissionCard(
-                    commission: commission,
-                    onOffer: () => _showOfferSheet(commission),
-                  )),
+          ..._commissions.map((commission) => _CommissionCard(
+                key: commission.id == widget.focusCommissionId
+                    ? _focusedCardKey
+                    : null,
+                commission: commission,
+                onOffer: () => _showOfferSheet(commission),
+              )),
         ],
       ],
     );
@@ -575,7 +600,8 @@ class _ReferenceImageRow extends StatelessWidget {
 }
 
 class _CommissionCard extends StatelessWidget {
-  const _CommissionCard({required this.commission, required this.onOffer});
+  const _CommissionCard(
+      {super.key, required this.commission, required this.onOffer});
 
   /// 작가 제안 등록(역경매)
   final VoidCallback onOffer;
