@@ -1,5 +1,6 @@
 package com.example.artnara.global.auth.config;
 
+import com.example.artnara.global.auth.jwt.AppTokenGuard;
 import com.example.artnara.global.auth.jwt.JwtAuthenticationFilter;
 import com.example.artnara.global.auth.jwt.JwtProvider;
 import com.example.artnara.global.config.SecurityConstant;
@@ -28,6 +29,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final AppTokenGuard appTokenGuard;
 
     // 로컬 테스트 전용 우회 스위치. 비워두면(기본값) 평소처럼 JWT를 정상 검증한다.
     @Value("${auth.dev-bypass-user-id:}")
@@ -36,7 +38,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, devBypassUserId),
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtProvider, appTokenGuard, devBypassUserId),
                         UsernamePasswordAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
                 // H2 콘솔은 iframe 사용하므로 frameOptions 해제
