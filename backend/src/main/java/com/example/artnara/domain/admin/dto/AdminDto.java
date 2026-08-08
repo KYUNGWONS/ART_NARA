@@ -63,7 +63,12 @@ public class AdminDto {
             String orderedDate,
             boolean refunded,
             String refundReason,
-            String refundedAt
+            String refundedAt,
+            /** 직거래 단계 — 환불은 결제(paid)된 건에만 의미가 있다. */
+            boolean paid,
+            boolean cancelled,
+            boolean sellerConfirmed,
+            boolean buyerConfirmed
     ) {}
 
     public record OrderList(List<OrderRow> orders, long total) {}

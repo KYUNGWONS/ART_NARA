@@ -182,7 +182,9 @@ public class AdminService {
                         order.getArtistName(), order.getBuyerName(), order.getAmount(),
                         order.getPaymentMethod(), order.getStatus(), order.getCertificateNo(),
                         order.getOrderedDate(), order.isRefunded(),
-                        order.getRefundReason(), order.getRefundedAt()))
+                        order.getRefundReason(), order.getRefundedAt(),
+                        order.isPaid(), order.isCancelled(),
+                        order.isSellerConfirmed(), order.isBuyerConfirmed()))
                 .toList();
         return new AdminDto.OrderList(rows, rows.size());
     }
