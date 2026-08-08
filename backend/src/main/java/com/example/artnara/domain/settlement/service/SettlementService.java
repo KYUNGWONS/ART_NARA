@@ -45,7 +45,9 @@ public class SettlementService {
         }).toList();
 
         for (ArtOrder order : orders) {
-            if (order.isRefunded()) continue;
+            // 결제까지 끝난 건만 정산 대상이다. 예약·수령확인 단계는 아직 돈이 오가지 않았고,
+            // 환불된 건은 이력에만 남긴다.
+            if (!order.isPaid() || order.isRefunded()) continue;
             totalSales += order.getAmount();
             feeAmount += feeOf(order.getAmount());
             saleCount++;

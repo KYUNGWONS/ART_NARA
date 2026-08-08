@@ -68,7 +68,7 @@ public class HomeFeedService {
                 artwork.id(), artwork.title(), artwork.artistName(),
                 artwork.price(), artwork.imageUrl(), liked,
                 artwork.auction(), artwork.currentBid(), artwork.remainingTime(),
-                artwork.sold());
+                artwork.sold(), artwork.reserved());
     }
 
     private List<HomeFeedDto.Artist> filterArtists(String query) {

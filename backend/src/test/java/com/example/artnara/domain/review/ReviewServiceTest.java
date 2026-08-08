@@ -22,10 +22,18 @@ class ReviewServiceTest {
 
     @Autowired ReviewService reviewService;
     @Autowired OrderService orderService;
+    @Autowired com.example.artnara.domain.artwork.service.ArtworkService artworkService;
     @Autowired com.example.artnara.domain.admin.service.AdminService adminService;
 
+    /** 직거래라 예약 → 양쪽 수령 확인 → 결제까지 마쳐야 리뷰 자격이 생긴다. */
     private void buy(long artworkId) {
-        orderService.create(new OrderDto.CreateRequest(artworkId, "CARD", null, null), BUYER_ID, BUYER);
+        String artistName = artworkService.getDetail(artworkId).artistName();
+        var order = orderService.reserve(
+                new OrderDto.CreateRequest(artworkId), BUYER_ID, BUYER);
+        orderService.confirmHandover(order.orderId(), BUYER_ID, BUYER);
+        orderService.confirmHandover(order.orderId(), -1L, artistName);
+        orderService.pay(order.orderId(),
+                new OrderDto.PayRequest("CARD", null, null), BUYER_ID, BUYER);
     }
 
     private ReviewDto.CreateRequest request(int rating) {

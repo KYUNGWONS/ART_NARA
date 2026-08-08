@@ -50,7 +50,10 @@ public class AdminService {
     @Transactional(readOnly = true)
     public AdminDto.Dashboard dashboard() {
         List<ArtOrder> orders = artOrderRepository.findAll();
-        List<ArtOrder> paid = orders.stream().filter(order -> !order.isRefunded()).toList();
+        // 매출은 결제까지 끝난 건만 센다 — 예약·수령확인 단계는 아직 돈이 오가지 않았다.
+        List<ArtOrder> paid = orders.stream()
+                .filter(order -> order.isPaid() && !order.isRefunded())
+                .toList();
 
         String today = LocalDate.now().toString();
         String monthPrefix = today.substring(0, 7);
@@ -125,7 +128,7 @@ public class AdminService {
         // 주문을 한 번만 돌아 회원별 구매액을 만든다(회원마다 조회하면 N+1).
         Map<Long, long[]> spentByBuyer = new LinkedHashMap<>();
         for (ArtOrder order : artOrderRepository.findAll()) {
-            if (order.getBuyerId() == null || order.isRefunded()) continue;
+            if (order.getBuyerId() == null || !order.isPaid() || order.isRefunded()) continue;
             long[] slot = spentByBuyer.computeIfAbsent(
                     order.getBuyerId(), key -> new long[] {0, 0});
             slot[0] += order.getAmount();
@@ -194,6 +197,11 @@ public class AdminService {
                 .orElseThrow(() -> new GlobalException(DomainResultCode.ORDER_NOT_FOUND));
         if (order.isRefunded()) {
             throw new GlobalException(DomainResultCode.ORDER_ALREADY_REFUNDED);
+        }
+        // 결제 전(예약·수령확인)에는 돌려줄 돈이 없다. 그건 예약 취소로 처리한다.
+        if (!order.isPaid()) {
+            throw new GlobalException(DomainResultCode.ORDER_HANDOVER_REQUIRED,
+                    "아직 결제되지 않은 예약입니다. 예약 취소로 처리해주세요.");
         }
         String resolved = blank(reason) ? "관리자 환불" : reason.trim();
         if (order.getPaymentKey() != null && !order.getPaymentKey().isBlank()) {

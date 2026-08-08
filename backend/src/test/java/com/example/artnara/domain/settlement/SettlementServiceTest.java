@@ -29,11 +29,21 @@ class SettlementServiceTest {
                 price, false, null, null, "", "회화"));
     }
 
+    /** 직거래라 예약 → 양쪽 수령 확인 → 결제까지 마쳐야 정산 대상이 된다. */
+    private void sell(Long artworkId, String artist) {
+        var order = orderService.reserve(
+                new OrderDto.CreateRequest(artworkId), 99L, "구매자");
+        orderService.confirmHandover(order.orderId(), 99L, "구매자");
+        orderService.confirmHandover(order.orderId(), -1L, artist);
+        orderService.pay(order.orderId(),
+                new OrderDto.PayRequest("CARD", null, null), 99L, "구매자");
+    }
+
     @Test
     @DisplayName("판매 금액에서 수수료를 뺀 금액이 정산 예정액이 된다")
     void settlementForArtist() {
         Long artworkId = registerArtwork("정산작가", 200000);
-        orderService.create(new OrderDto.CreateRequest(artworkId, "CARD", null, null), 99L, "구매자");
+        sell(artworkId, "정산작가");
 
         SettlementDto settlement = settlementService.forArtist("정산작가");
 
@@ -49,7 +59,7 @@ class SettlementServiceTest {
     @DisplayName("다른 작가의 판매는 섞이지 않는다")
     void scopedToArtist() {
         Long artworkId = registerArtwork("남의작가", 300000);
-        orderService.create(new OrderDto.CreateRequest(artworkId, "CARD", null, null), 99L, "구매자");
+        sell(artworkId, "남의작가");
 
         assertThat(settlementService.forArtist("정산작가").totalSales()).isZero();
         assertThat(settlementService.forArtist("남의작가").totalSales()).isEqualTo(300000);

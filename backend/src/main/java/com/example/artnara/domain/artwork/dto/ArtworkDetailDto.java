@@ -24,6 +24,8 @@ public record ArtworkDetailDto(
         boolean certified,
         /** 결제 완료로 판매된 작품인지 — 구매 버튼을 잠그는 근거 */
         boolean sold,
+        /** 예약된 작품인지 — 결제 전이라 판매 완료와는 다르게 표시한다(예약이 풀리면 다시 살 수 있다) */
+        boolean reserved,
         String category,
         List<Bid> bidHistory
 ) {

@@ -41,7 +41,8 @@ public class ReviewService {
         if (content.isEmpty()) {
             throw new GlobalException(DomainResultCode.REVIEW_CONTENT_REQUIRED);
         }
-        if (!artOrderRepository.existsByArtworkIdAndBuyerIdAndRefundedFalse(artworkId, authorId)) {
+        if (!artOrderRepository.existsByArtworkIdAndBuyerIdAndPaidTrueAndRefundedFalse(
+                artworkId, authorId)) {
             throw new GlobalException(DomainResultCode.REVIEW_NOT_PURCHASED);
         }
         if (reviewRepository.existsByAuthorIdAndArtworkId(authorId, artworkId)) {

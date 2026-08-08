@@ -74,6 +74,16 @@ public class ArtworkService {
         find(artworkId).markSold();
     }
 
+    /** 예약되면 남이 못 사게 잠근다(결제 전이라 판매 완료는 아니다). */
+    public void markReserved(Long artworkId) {
+        find(artworkId).markReserved();
+    }
+
+    /** 예약이 취소되면 다시 판매 가능하게 한다. */
+    public void releaseReservation(Long artworkId) {
+        find(artworkId).releaseReservation();
+    }
+
     /** 관리자 환불 시 판매 잠금을 푼다. */
     public void markUnsold(Long artworkId) {
         find(artworkId).markUnsold();
@@ -308,7 +318,7 @@ public class ArtworkService {
                 remainingTimeOf(artwork),
                 artwork.isAuctionClosed(), artwork.getWinnerName(),
                 viewerNickname != null && viewerNickname.equals(artwork.getWinnerName()),
-                true, artwork.isSold(), artwork.getCategory(), bids);
+                true, artwork.isSold(), artwork.isReserved(), artwork.getCategory(), bids);
     }
 
     private String remainingTimeOf(Artwork artwork) {

@@ -69,6 +69,13 @@ public class Artwork extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean sold;
 
+    /**
+     * 예약된 작품인지. 직거래라 결제가 만난 뒤에 일어나므로, 예약 시점부터 남이 못 사게 잠근다.
+     * 판매 완료({@link #sold})와 구분해야 한다 — 예약은 취소되면 다시 풀린다.
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean reserved;
+
     @Builder
     public Artwork(String title, String artistName, String artistIntroduction,
                    String description, String medium, String sizeInfo, int yearCreated,
@@ -99,13 +106,25 @@ public class Artwork extends BaseTimeEntity {
         this.winnerName = winnerName;
     }
 
-    /** 결제가 완료되면 판매 완료로 잠근다. */
+    /** 결제가 완료되면 판매 완료로 잠근다. 예약 상태는 여기서 끝난다. */
     public void markSold() {
         this.sold = true;
+        this.reserved = false;
     }
 
     /** 환불되면 잠금을 풀어 다시 판매 가능하게 한다. */
     public void markUnsold() {
         this.sold = false;
+        this.reserved = false;
+    }
+
+    /** 구매자가 예약하면 남이 못 사게 잠근다(결제 전이라 판매 완료는 아니다). */
+    public void markReserved() {
+        this.reserved = true;
+    }
+
+    /** 예약이 취소되면 다시 판매 가능하게 한다. */
+    public void releaseReservation() {
+        this.reserved = false;
     }
 }

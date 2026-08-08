@@ -67,6 +67,33 @@ public class ArtOrder extends BaseTimeEntity {
 
     private String refundedAt;
 
+    /**
+     * 직거래 흐름: 예약 → (만나서 전달) → 양쪽 수령 확인 → 결제.
+     *
+     * 배송이 없는 서비스라 결제를 만난 뒤로 미룬다. 판매자·구매자가 각각 확인해야
+     * 결제가 열리므로 어느 한쪽 주장만으로 거래가 확정되지 않는다.
+     * enum 대신 boolean 을 쓰는 이유: enum 컬럼은 값 목록이 CHECK 제약으로 굳어
+     * 나중에 단계를 추가할 때 기존 DB 에서 저장이 깨진다(실제로 두 번 겪었다).
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean sellerConfirmed = false;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean buyerConfirmed = false;
+
+    /** 결제까지 끝난 주문인지. 정산·소유권은 이게 true 인 것만 센다. */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean paid = false;
+
+    /** 예약이 취소된 주문인지(작품 잠금이 풀린다). */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean cancelled = false;
+
+    /** 양쪽이 모두 확인해야 결제할 수 있다. */
+    public boolean isHandoverConfirmed() {
+        return sellerConfirmed && buyerConfirmed;
+    }
+
     @Builder
     public ArtOrder(Long artworkId, String artworkTitle, String artistName,
                     int amount, String paymentMethod, String status,
@@ -99,5 +126,34 @@ public class ArtOrder extends BaseTimeEntity {
 
     public void issueCertificate(String certificateNo) {
         this.certificateNo = certificateNo;
+    }
+
+    /** 판매자가 '전달했어요' 를 눌렀다. */
+    public void confirmBySeller() {
+        this.sellerConfirmed = true;
+        refreshStage();
+    }
+
+    /** 구매자가 '받았어요' 를 눌렀다. */
+    public void confirmByBuyer() {
+        this.buyerConfirmed = true;
+        refreshStage();
+    }
+
+    /** 결제 완료. 여기서부터 소유권·정산 대상이 된다. */
+    public void markPaid(String paymentMethod) {
+        this.paid = true;
+        this.paymentMethod = paymentMethod;
+        this.status = "거래 완료";
+    }
+
+    /** 만나기 전에 예약을 무른다. 작품 잠금은 서비스가 함께 푼다. */
+    public void cancel() {
+        this.cancelled = true;
+        this.status = "예약 취소";
+    }
+
+    private void refreshStage() {
+        this.status = isHandoverConfirmed() ? "결제 대기" : "수령 확인 중";
     }
 }

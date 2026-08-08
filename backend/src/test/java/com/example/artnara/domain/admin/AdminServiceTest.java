@@ -39,11 +39,19 @@ class AdminServiceTest {
                         "andrew@test.com", BUYER, null)));
     }
 
-    /** 즉시 판매 작품(id 1~4)만 결제할 수 있다 — 5~8 은 경매다. */
+    /**
+     * 즉시 판매 작품(id 1~4)만 결제할 수 있다 — 5~8 은 경매다.
+     * 직거래라 예약 → 양쪽 수령 확인 → 결제 순서를 모두 거쳐야 결제가 끝난다.
+     */
     private OrderDto.Response buy(long artworkId) {
         User user = buyer();
-        return orderService.create(
-                new OrderDto.CreateRequest(artworkId, "CARD", null, null), user.getId(), user.getNickname());
+        String artistName = artworkService.getDetail(artworkId).artistName();
+        OrderDto.Response order = orderService.reserve(
+                new OrderDto.CreateRequest(artworkId), user.getId(), user.getNickname());
+        orderService.confirmHandover(order.orderId(), user.getId(), user.getNickname());
+        orderService.confirmHandover(order.orderId(), -1L, artistName);
+        return orderService.pay(order.orderId(), new OrderDto.PayRequest("CARD", null, null),
+                user.getId(), user.getNickname());
     }
 
     @Test

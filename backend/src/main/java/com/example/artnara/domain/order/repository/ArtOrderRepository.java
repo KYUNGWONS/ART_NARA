@@ -11,16 +11,16 @@ public interface ArtOrderRepository extends JpaRepository<ArtOrder, Long> {
     List<ArtOrder> findByBuyerIdOrderByIdDesc(Long buyerId);
 
     /**
-     * 이미 팔린 작품인지. **환불된 주문은 세지 않는다** —
-     * 환불하면 작품이 다시 매물로 돌아오는데, 지난 주문 기록 때문에 영영 못 팔면 안 된다.
+     * 살아 있는 예약이 있는 작품인지. 취소·환불된 건은 세지 않는다 —
+     * 그러면 예약을 무른 작품이 영영 다시 예약되지 못한다.
      */
-    boolean existsByArtworkIdAndRefundedFalse(Long artworkId);
+    boolean existsByArtworkIdAndCancelledFalseAndRefundedFalse(Long artworkId);
 
     /**
-     * 리뷰 작성 자격 확인 — 이 사용자가 그 작품을 결제했고 **환불하지 않았는가**.
-     * 환불 건까지 인정하면 결제 후 환불해도 리뷰가 남는다.
+     * 리뷰 작성 자격 확인 — 이 사용자가 그 작품을 **결제까지 마쳤고** 환불하지 않았는가.
+     * 예약만 하고 결제하지 않은 건은 자격이 없다.
      */
-    boolean existsByArtworkIdAndBuyerIdAndRefundedFalse(Long artworkId, Long buyerId);
+    boolean existsByArtworkIdAndBuyerIdAndPaidTrueAndRefundedFalse(Long artworkId, Long buyerId);
 
     /** 작가 포트폴리오의 판매 수 */
     long countByArtistName(String artistName);
