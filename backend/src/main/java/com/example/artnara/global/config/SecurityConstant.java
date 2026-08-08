@@ -52,6 +52,8 @@ public class SecurityConstant {
 
     public static final String[] SWAGGER_URLS = {
             "/v3/api-docs/**",
+            // 확장자가 붙은 경로는 위 패턴에 걸리지 않아 따로 열어 준다(YAML 로 받는 도구가 있다)
+            "/v3/api-docs.yaml",
             "/swagger-ui/**",
             "/swagger-ui.html"
     };
