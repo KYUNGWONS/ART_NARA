@@ -12,6 +12,7 @@ import '../widgets/auction_countdown.dart';
 import '../widgets/won_input_formatter.dart';
 import '../services/artwork_api_service.dart';
 import '../services/order_api_service.dart';
+import 'order_history_screen.dart';
 import 'artist_portfolio_screen.dart';
 
 class ArtworkDetailScreen extends StatefulWidget {
@@ -208,6 +209,15 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                 ),
                 if (detail.sold)
                   const _ClosedBar(message: '판매 완료된 작품입니다')
+                // 내 예약이면 결제까지 갈 길을 알려준다 — 같은 문구를 쓰면
+                // 정작 예약한 본인에게 남이 채간 것처럼 읽힌다.
+                else if (detail.reserved && detail.reservedByViewer)
+                  _ReservedByMeBar(
+                    onOpenOrders: () =>
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (_) => const OrderHistoryScreen(),
+                    )),
+                  )
                 else if (detail.reserved)
                   const _ClosedBar(message: '예약 중인 작품입니다')
                 else if (detail.auction && !detail.auctionClosed)
@@ -616,6 +626,42 @@ class _ClosedBar extends StatelessWidget {
         message,
         textAlign: TextAlign.center,
         style: const TextStyle(fontSize: 13, color: ArtColors.textSecondary),
+      ),
+    );
+  }
+}
+
+/// 내가 예약해 둔 작품 — 만나서 받은 뒤 결제하는 자리로 안내한다.
+class _ReservedByMeBar extends StatelessWidget {
+  const _ReservedByMeBar({required this.onOpenOrders});
+
+  final VoidCallback onOpenOrders;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: ArtColors.borderSoft)),
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text('내가 예약한 작품이에요',
+                style: TextStyle(fontSize: 13, color: ArtColors.textSecondary)),
+          ),
+          OutlinedButton(
+            onPressed: onOpenOrders,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: ArtColors.brandPrimary,
+              side: const BorderSide(color: ArtColors.brandPrimary),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(ArtRadius.full)),
+            ),
+            child: const Text('주문 내역'),
+          ),
+        ],
       ),
     );
   }
