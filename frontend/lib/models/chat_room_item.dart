@@ -1,3 +1,5 @@
+import '../utils/server_time.dart';
+
 /// 참여 중인 채팅방 목록 아이템 (GET /api/chat/rooms/my 응답 항목)
 ///
 /// 백엔드 ChatRoomResponse 가 상대 프로필과 마지막 메시지를 함께 내려주므로
@@ -43,7 +45,7 @@ class ChatRoomItem {
       opponentNickname: json['opponentNickname'] as String? ?? '대화 상대 대기 중',
       opponentUserType: json['opponentUserType'] as String?,
       lastMessage: json['lastMessage'] as String?,
-      lastMessageAt: lastAt is String ? DateTime.tryParse(lastAt) : null,
+      lastMessageAt: parseServerTime(lastAt),
       status: json['status'] as String?,
       unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
     );

@@ -1,3 +1,5 @@
+import '../utils/server_time.dart';
+
 /// 알림 (GET /api/notifications 응답 항목)
 class AppNotification {
   final int id;
@@ -29,7 +31,7 @@ class AppNotification {
       message: json['message'] as String? ?? '',
       targetId: json['targetId'] as int?,
       read: json['read'] as bool? ?? false,
-      createdAt: createdAt is String ? DateTime.tryParse(createdAt) : null,
+      createdAt: parseServerTime(createdAt),
     );
   }
 }

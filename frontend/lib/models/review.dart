@@ -1,3 +1,5 @@
+import '../utils/server_time.dart';
+
 /// 작품 리뷰 (GET /api/artists/{name}/reviews 응답 항목)
 class Review {
   final int id;
@@ -27,7 +29,7 @@ class Review {
       authorNickname: json['authorNickname'] as String? ?? '',
       rating: json['rating'] as int? ?? 0,
       content: json['content'] as String? ?? '',
-      createdAt: createdAt is String ? DateTime.tryParse(createdAt) : null,
+      createdAt: parseServerTime(createdAt),
     );
   }
 }

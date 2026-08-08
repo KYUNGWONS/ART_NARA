@@ -79,22 +79,11 @@ class _ChatListScreenState extends State<ChatListScreen> {
     return const Padding(
       padding: EdgeInsets.fromLTRB(
           ArtSpacing.lg, ArtSpacing.md, ArtSpacing.lg, ArtSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text('작품 문의', style: ArtText.section),
-          SizedBox(width: ArtSpacing.xs),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 4),
-              child: Text(
-                '작가와 직접 이야기해보세요',
-                style: ArtText.caption,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ],
+      // 화면 제목은 헤더(앱바)에서만 그린다 — 본문에 또 쓰면 '작품 문의' 가 두 줄로 겹쳐 보인다.
+      child: Text(
+        '작가와 직접 이야기해보세요',
+        style: ArtText.caption,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

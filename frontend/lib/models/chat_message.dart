@@ -1,3 +1,5 @@
+import '../utils/server_time.dart';
+
 /// 채팅 메시지 (백엔드 ChatMessageResponse 대응)
 class ChatMessage {
   final int? id;
@@ -24,7 +26,7 @@ class ChatMessage {
       id: json['id'] as int?,
       text: json['content'] as String? ?? '',
       isMe: myUserId != null && senderId == myUserId,
-      sentAt: createdAt is String ? DateTime.tryParse(createdAt) : null,
+      sentAt: parseServerTime(createdAt),
       messageType: json['messageType'] as String? ?? 'TEXT',
     );
   }
