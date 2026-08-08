@@ -421,13 +421,14 @@ DB 초기화 뒤 5556 을 켜자 **5554 의 계정으로 자동 로그인**되�
 
 기획·기술 문서는 **Notion** 에 둔다. Confluence 는 조직 설정이 API 토큰을 차단해(모든 인증이 403) 포기했다 — 되살리려면 admin.atlassian.com > 보안에서 "사용자 API 토큰" 을 허용해야 한다.
 
-- **DB 2개** (부모 페이지 `NOTION_PARENT_PAGE`):
+- **사이드바 최상위 「🎨 ART NARA」 페이지** 아래에 DB 2개를 둔다(부모 id 는 `NOTION_PARENT_PAGE`). 처음엔 Getting Started 안에 만들었다가 옮겼다 — 최상위 생성은 `parent: {workspace: true}` 로 된다.
   - **ART NARA 앱 기획 DB** — 화면 26개. 화면 ID·Figma URL·노드·시나리오·완료 기준·구현 파일. 본문은 화면 설명/구성/주요 기능/완료 기준/개발 참고.
   - **ART NARA 기술 문서** — 20건. 아키텍처 2 · 개요 1 · 도메인 5 · 인증보안 3 · 외부연동 3 · 관리자 1 · 개발환경 3 · QA 2.
 - **원본은 코드다**: `docs/notion/screens.py`(화면) · `docs/notion/tech_docs.py`(문서). 내용을 고치고 `build_notion_db.py` / `build_notion_docs.py` 를 다시 돌리면 **ID 로 매칭해 갱신**한다(중복 생성 안 됨).
 - 토큰은 `.claude/settings.local.json` 의 `NOTION_TOKEN`(git 미추적). 통합 이름은 `ART_NARA`.
 - **함정**: Notion `status` 타입은 API 로 옵션을 만들 수 없다(기본 옵션만 존재) — 상태류 속성은 `select` 로 만들 것.
 - Figma URL 은 `https://www.figma.com/design/{fileKey}/?node-id={1-549}` 형식(콜론 대신 하이픈). 디자인이 없는 화면(웹뷰·셸·정산 등 7개)은 **비워 뒀다**.
+- **스크린샷은 넣지 않는다(사용자 지시).** Figma 렌더를 붙여 봤으나 요청 제한(429)이 잦고, 렌더 URL 이 임시라 업로드까지 해야 해서 비용 대비 이득이 없었다. `setup_workspace.py` 는 최상위 페이지 생성·기존 DB 아카이브용으로 남겨 둔다.
 
 ## 알려진 한계 (미해결, 판단 필요)
 

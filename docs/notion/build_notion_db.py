@@ -4,9 +4,9 @@
 여러 번 실행해도 안전하다: 화면 ID 로 기존 페이지를 찾아 있으면 갱신, 없으면 생성한다.
 토큰은 git 미추적 .claude/settings.local.json 에서 읽는다.
 """
-import io, json, sys, urllib.request, urllib.error
+import io, json, os, sys, urllib.request, urllib.error
 
-sys.path.insert(0, __file__.rsplit('\\', 1)[0].rsplit('/', 1)[0])
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from screens import SCREENS  # noqa: E402
 
 _cfg = json.load(io.open(
