@@ -325,7 +325,9 @@ public class ArtworkService {
                 artwork.isAuctionClosed(), artwork.getWinnerName(),
                 viewerNickname != null && viewerNickname.equals(artwork.getWinnerName()),
                 true, artwork.isSold(), artwork.isReserved(),
-                reservedBy(artwork, viewerId), artwork.getCategory(), bids);
+                reservedBy(artwork, viewerId),
+                viewerNickname != null && viewerNickname.equals(artwork.getArtistName()),
+                artwork.getCategory(), bids);
     }
 
     /**

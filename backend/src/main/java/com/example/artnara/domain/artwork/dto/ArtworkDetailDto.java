@@ -28,6 +28,8 @@ public record ArtworkDetailDto(
         boolean reserved,
         /** 그 예약을 건 사람이 지금 보고 있는 사용자인지 — 본인 예약이면 결제로 안내한다 */
         boolean reservedByViewer,
+        /** 지금 보고 있는 사용자가 이 작품을 등록한 작가인지 — 자기 작품은 사거나 입찰할 수 없다 */
+        boolean ownedByViewer,
         String category,
         List<Bid> bidHistory
 ) {
