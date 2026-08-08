@@ -7,6 +7,9 @@ import io, json, os, sys, urllib.request, urllib.error
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from tech_docs import DOCS  # noqa: E402
+from tech_docs_ref import EXTRA_DOCS  # noqa: E402
+
+DOCS = DOCS + EXTRA_DOCS
 
 _cfg = json.load(io.open(
     'C:/Users/worms/OneDrive/문서/guide/.claude/settings.local.json',

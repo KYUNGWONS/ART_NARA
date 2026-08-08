@@ -423,7 +423,9 @@ DB 초기화 뒤 5556 을 켜자 **5554 의 계정으로 자동 로그인**되�
 
 - **사이드바 최상위 「🎨 ART NARA」 페이지** 아래에 DB 2개를 둔다(부모 id 는 `NOTION_PARENT_PAGE`). 처음엔 Getting Started 안에 만들었다가 옮겼다 — 최상위 생성은 `parent: {workspace: true}` 로 된다.
   - **ART NARA 앱 기획 DB** — 화면 26개. 화면 ID·Figma URL·노드·시나리오·완료 기준·구현 파일. 본문은 화면 설명/구성/주요 기능/완료 기준/개발 참고.
-  - **ART NARA 기술 문서** — 20건. 아키텍처 2 · 개요 1 · 도메인 5 · 인증보안 3 · 외부연동 3 · 관리자 1 · 개발환경 3 · QA 2.
+  - **ART NARA 기술 문서** — 26건. 아키텍처 3 · 개요 1 · 도메인 6 · 인증보안 3 · 외부연동 3 · 관리자 1 · 개발환경 4 · QA 2 · 레퍼런스 3(API 61개·알림 9종·오류 코드).
+    - 서비스 아키텍처와 직거래 상태 전이는 **mermaid 다이어그램**으로 그렸다(Notion 코드블록 language='mermaid' 로 렌더된다).
+    - 문서 원본은 `tech_docs.py` + `tech_docs_ref.py`(레퍼런스·보강분) 두 파일로 나뉘어 있고 빌더가 합친다.
 - **원본은 코드다**: `docs/notion/screens.py`(화면) · `docs/notion/tech_docs.py`(문서). 내용을 고치고 `build_notion_db.py` / `build_notion_docs.py` 를 다시 돌리면 **ID 로 매칭해 갱신**한다(중복 생성 안 됨).
 - 토큰은 `.claude/settings.local.json` 의 `NOTION_TOKEN`(git 미추적). 통합 이름은 `ART_NARA`.
 - **함정**: Notion `status` 타입은 API 로 옵션을 만들 수 없다(기본 옵션만 존재) — 상태류 속성은 `select` 로 만들 것.

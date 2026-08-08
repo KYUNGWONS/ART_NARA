@@ -13,6 +13,39 @@ DOCS = [
         summary='앱·백엔드·관리자 콘솔과 외부 연동(카카오/네이버/토스/FCM/카카오맵)의 전체 구성.',
         body=[
             ('c', '한 문장 요약: Flutter 앱과 정적 웹 관리자 콘솔이 같은 Spring Boot 백엔드를 바라보고, 실시간(STOMP)과 푸시(FCM)로 사용자에게 사건을 알린다.'),
+            ('h', '시스템 구성도'),
+            ('code', ('mermaid', '''graph TB
+  subgraph client["클라이언트"]
+    APP["Flutter 앱<br/>com.artnara.artnara"]
+    ADM["관리자 콘솔<br/>정적 웹"]
+  end
+
+  subgraph server["백엔드 · Spring Boot 3"]
+    REST["REST API<br/>JWT 인증"]
+    WS["STOMP /ws<br/>채팅 · 경매"]
+    SCH["스케줄러<br/>경매 자동 마감"]
+    DB[("H2 / MySQL")]
+  end
+
+  subgraph ext["외부 서비스"]
+    KAKAO["카카오<br/>로그인 · 지도"]
+    NAVER["네이버 로그인"]
+    TOSS["토스페이먼츠"]
+    FCM["FCM"]
+  end
+
+  APP -->|HTTPS| REST
+  APP <-->|WebSocket| WS
+  ADM -->|관리자 토큰| REST
+  REST --> DB
+  WS --> DB
+  SCH --> DB
+  REST -->|토큰 검증| KAKAO
+  REST -->|코드 교환| NAVER
+  REST -->|결제 승인 · 취소| TOSS
+  REST -->|푸시 발송| FCM
+  FCM -.->|알림| APP
+  APP -->|SDK| KAKAO''')),
             ('h', '구성 요소'),
             ('t', [
                 ['구성', '스택', '역할'],
@@ -115,6 +148,19 @@ DOCS = [
         summary='예약 → 만나서 전달 → 양쪽 수령 확인 → 결제 → 소유권 발급. 배송이 없어 결제를 만난 뒤로 미룬다.',
         body=[
             ('c', '왜 이렇게 설계했나: 배송이 없는 서비스라 주문 시점에 결제하면 구매자가 실물을 보기 전에 돈을 내게 된다. 그래서 주문은 예약만 하고, 만나서 주고받은 뒤 양쪽이 확인해야 결제가 열린다.'),
+            ('h', '상태 전이'),
+            ('code', ('mermaid', '''stateDiagram-v2
+  [*] --> 예약중: POST /api/orders
+  예약중 --> 수령확인중: 한쪽이 handover
+  수령확인중 --> 결제대기: 나머지 한쪽도 handover
+  결제대기 --> 거래완료: POST /pay (구매자만)
+  예약중 --> 예약취소: cancel
+  수령확인중 --> 예약취소: cancel
+  결제대기 --> 예약취소: cancel
+  거래완료 --> 환불완료: 관리자 환불
+  예약취소 --> [*]: 작품 잠금 해제
+  환불완료 --> [*]: 소유권 회수 · 재판매 가능
+  거래완료 --> [*]''')),
             ('h', '단계'),
             ('t', [
                 ['단계', '표시', '무슨 일이 일어나나'],
