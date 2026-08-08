@@ -8,6 +8,7 @@ import io, json, os, sys, urllib.request, urllib.error
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from screens import SCREENS  # noqa: E402
+from screen_api_map import SCREEN_API  # noqa: E402
 
 _cfg = json.load(io.open(
     'C:/Users/worms/OneDrive/문서/guide/.claude/settings.local.json',
@@ -68,11 +69,29 @@ def figma_url(s):
         s['file'], s['node'].replace(':', '-'))
 
 
+def api_table(screen_id):
+    """이 화면이 실제로 호출하는 API 표. 호출이 없는 화면(로컬 상태만)은 생략."""
+    calls = SCREEN_API.get(screen_id) or []
+    if not calls:
+        return []
+    rows = [['메서드', '경로', '용도']] + [list(c) for c in calls]
+    return [
+        heading('호출 API'),
+        {'object': 'block', 'type': 'table',
+         'table': {'table_width': 3, 'has_column_header': True, 'has_row_header': False,
+                   'children': [
+                       {'object': 'block', 'type': 'table_row',
+                        'table_row': {'cells': [rt(c) for c in row]}}
+                       for row in rows]}},
+    ]
+
+
 def body_blocks(s):
     blocks = [callout(s['summary']), heading('사용자 시나리오'), para(s['scenario']),
               heading('화면 구성')]
     blocks += [bullet(x) for x in s['layout']]
     blocks += [heading('주요 기능')] + [bullet(x) for x in s['features']]
+    blocks += api_table(s['id'])
     blocks += [heading('완료 기준')] + [bullet(x) for x in s['done']]
     if s.get('notes'):
         blocks += [heading('개발 참고')] + [bullet(x) for x in s['notes']]
@@ -194,7 +213,14 @@ def main():
     for s in SCREENS:
         props = properties(s)
         if s['id'] in existing:
-            st, res = api('PATCH', '/pages/' + existing[s['id']], {'properties': props})
+            page_id = existing[s['id']]
+            api('PATCH', '/pages/' + page_id, {'properties': props})
+            # 본문도 최신으로 갈아끼운다(호출 API 표가 추가되는 등 구성이 바뀌므로)
+            st0, old = api('GET', '/blocks/%s/children?page_size=100' % page_id)
+            for blk in old.get('results', []):
+                api('DELETE', '/blocks/' + blk['id'])
+            st, res = api('PATCH', '/blocks/%s/children' % page_id,
+                          {'children': body_blocks(s)})
             tag = '갱신'
             updated += 1
         else:
