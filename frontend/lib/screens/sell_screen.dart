@@ -10,6 +10,7 @@ import '../utils/image_url.dart';
 import 'art_home_feed_screen.dart' show formatPrice;
 import '../models/sale.dart';
 import '../services/image_api_service.dart';
+import '../services/order_api_service.dart';
 import '../services/sale_api_service.dart';
 
 // 디자인(작품 판매 등록)의 스텝은 작품 정보·상세 정보·가격 설정·배송 정보·등록 완료지만,
@@ -48,6 +49,20 @@ class _SellScreenState extends State<SellScreen> {
   String? _localImagePath;
   String? _imageUrl;
   bool _uploadingImage = false;
+
+  /// 판매 수수료율(%) — 서버 설정에서 받아온다(정산과 어긋나지 않게).
+  int _feeRatePercent = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFeeRate();
+  }
+
+  Future<void> _loadFeeRate() async {
+    final config = await const OrderApiService().fetchPaymentConfig();
+    if (mounted) setState(() => _feeRatePercent = config.feeRatePercent);
+  }
 
   @override
   void dispose() {
@@ -186,7 +201,10 @@ class _SellScreenState extends State<SellScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_completed) return _CompletedView(sales: _sales, onReset: _reset);
+    if (_completed) {
+      return _CompletedView(
+          sales: _sales, onReset: _reset, feeRatePercent: _feeRatePercent);
+    }
 
     return Column(
       children: [
@@ -357,7 +375,7 @@ class _SellScreenState extends State<SellScreen> {
             ('경매', _auctionEnabled
                 ? '최저가 ₩${formatPrice(WonInputFormatter.digitsOf(_auctionStartController.text) ?? 0)} · ~${_auctionEndDate?.toIso8601String().substring(0, 10) ?? ''}'
                 : '사용 안 함'),
-            ('판매 수수료', '8%'),
+            ('판매 수수료', '$_feeRatePercent%'),
           ]),
         ];
     }
@@ -589,10 +607,12 @@ class _SummaryCard extends StatelessWidget {
 
 /// 등록 완료 뷰 — 체크 + 내 판매 작품 목록
 class _CompletedView extends StatelessWidget {
-  const _CompletedView({required this.sales, required this.onReset});
+  const _CompletedView(
+      {required this.sales, required this.onReset, required this.feeRatePercent});
 
   final List<Sale> sales;
   final VoidCallback onReset;
+  final int feeRatePercent;
 
   @override
   Widget build(BuildContext context) {
@@ -610,9 +630,9 @@ class _CompletedView extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: ArtColors.textPrimary)),
         const SizedBox(height: 6),
-        const Text('검수 후 홈 피드에 노출됩니다 · 판매 수수료 8%',
+        Text('검수 후 홈 피드에 노출됩니다 · 판매 수수료 $feeRatePercent%',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
+            style: const TextStyle(fontSize: 12, color: ArtColors.textSecondary)),
         const SizedBox(height: ArtSpacing.lg),
         Center(
           child: FilledButton(

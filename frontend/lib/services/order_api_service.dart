@@ -9,22 +9,32 @@ import '../models/order.dart';
 class OrderApiService {
   const OrderApiService();
 
-  /// 실 PG 사용 여부와 결제창용 클라이언트 키. 실패하면 mock 결제로 진행한다.
-  Future<({bool enabled, String? clientKey})> fetchPaymentConfig() async {
+  /// 실 PG 사용 여부·결제창 키와 판매 수수료율. 실패하면 mock 결제로 진행한다.
+  ///
+  /// 수수료율은 서버 상수를 그대로 받는다 — 화면에 따로 적어두면 정산과 어긋난다
+  /// (판매 등록 화면이 8% 라고 안내하는데 실제로는 10% 를 떼던 적이 있다).
+  Future<({bool enabled, String? clientKey, int feeRatePercent})>
+      fetchPaymentConfig() async {
     try {
       final response = await http.get(Uri.parse('$apiBaseUrl/api/payments/config'));
-      if (response.statusCode != 200) return (enabled: false, clientKey: null);
+      if (response.statusCode != 200) return _paymentConfigFallback;
       final body =
           jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
       final data = body['data'] as Map<String, dynamic>? ?? const {};
       return (
         enabled: data['enabled'] as bool? ?? false,
         clientKey: data['clientKey'] as String?,
+        feeRatePercent: (data['feeRatePercent'] as num?)?.toInt() ??
+            _paymentConfigFallback.feeRatePercent,
       );
     } catch (_) {
-      return (enabled: false, clientKey: null);
+      return _paymentConfigFallback;
     }
   }
+
+  /// 서버에 못 물었을 때 쓰는 값. 수수료율은 서버 기본값과 같게 둔다.
+  static const _paymentConfigFallback =
+      (enabled: false, clientKey: null, feeRatePercent: 10);
 
   /// 작품을 예약한다. 직거래라 결제는 만나서 수령을 확인한 뒤에 한다.
   Future<Order> reserve({required int artworkId}) async {
