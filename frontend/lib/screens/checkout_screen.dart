@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/art_tokens.dart';
-import '../utils/image_url.dart';
 
-import '../models/artwork_detail.dart';
 import '../models/order.dart';
 import '../services/order_api_service.dart';
 import 'certificate_screen.dart';
@@ -16,13 +14,21 @@ const _paymentMethods = [
   ('TOSS', '토스페이'),
 ];
 
+/// 예약한 거래를 결제하는 화면.
+///
+/// 직거래라 결제는 **만나서 양쪽이 수령을 확인한 뒤**에만 열린다.
+/// 그래서 여기서 주문을 만들지 않고, 이미 있는 예약([orderId])을 결제한다.
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({super.key, required this.artwork, this.priceOverride});
+  const CheckoutScreen({
+    super.key,
+    required this.orderId,
+    required this.artworkTitle,
+    required this.price,
+  });
 
-  final ArtworkDetail artwork;
-
-  /// 경매 낙찰 결제 시 낙찰가. null 이면 즉시 판매가로 결제한다.
-  final int? priceOverride;
+  final int orderId;
+  final String artworkTitle;
+  final int price;
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -34,7 +40,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String _paymentMethod = _paymentMethods.first.$1;
   bool _paying = false;
 
-  int get _price => widget.priceOverride ?? widget.artwork.price;
+  int get _price => widget.price;
 
   Future<void> _pay() async {
     setState(() => _paying = true);
@@ -52,7 +58,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             builder: (_) => TossPaymentScreen(
               clientKey: config.clientKey!,
               orderId: tossOrderId!,
-              orderName: widget.artwork.title,
+              orderName: widget.artworkTitle,
               amount: _price,
             ),
           ),
@@ -65,8 +71,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         paymentKey = result.paymentKey;
       }
 
-      final order = await _api.create(
-        artworkId: widget.artwork.id,
+      final order = await _api.pay(
+        orderId: widget.orderId,
         paymentMethod: _paymentMethod,
         paymentKey: paymentKey,
         tossOrderId: paymentKey == null ? null : tossOrderId,
@@ -82,7 +88,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   /// 토스 주문번호는 6~64자여야 하고 결제마다 달라야 한다.
   String _newOrderId() =>
-      'artnara-${widget.artwork.id}-${DateTime.now().millisecondsSinceEpoch}';
+      'artnara-${widget.orderId}-${DateTime.now().millisecondsSinceEpoch}';
 
   Future<void> _showCompleteDialog(Order order) async {
     await showDialog<void>(
@@ -143,7 +149,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final artwork = widget.artwork;
     return Scaffold(
       backgroundColor: ArtColors.bgCanvas,
       appBar: AppBar(
@@ -161,14 +166,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
         children: [
-          _ArtworkSummary(artwork: artwork, price: _price),
-          if (widget.priceOverride != null) ...[
-            const SizedBox(height: 8),
-            const Text(
-              '🎉 낙찰을 축하합니다! 낙찰가로 결제가 진행됩니다.',
-              style: TextStyle(fontSize: 12, color: ArtColors.success),
-            ),
-          ],
+          _ArtworkSummary(title: widget.artworkTitle, price: _price),
           const SizedBox(height: 24),
           const Text('결제 수단',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -213,9 +211,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 }
 
 class _ArtworkSummary extends StatelessWidget {
-  const _ArtworkSummary({required this.artwork, required this.price});
+  const _ArtworkSummary({required this.title, required this.price});
 
-  final ArtworkDetail artwork;
+  final String title;
   final int price;
 
   @override
@@ -233,28 +231,25 @@ class _ArtworkSummary extends StatelessWidget {
             width: 56,
             height: 56,
             alignment: Alignment.center,
-            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: ArtColors.borderSoft),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: artwork.imageUrl.isEmpty
-                ? const Icon(Icons.image_outlined,
-                    size: 22, color: ArtColors.textSecondary)
-                : Image.network(resolveImageUrl(artwork.imageUrl), fit: BoxFit.cover),
+            child: const Icon(Icons.verified_outlined,
+                size: 22, color: ArtColors.brandPrimary),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(artwork.title,
+                Text(title,
                     style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
-                Text('${artwork.artistName} · ${artwork.size}',
-                    style: const TextStyle(
+                const Text('수령 확인 완료 · 결제만 남았어요',
+                    style: TextStyle(
                         fontSize: 11, color: ArtColors.textSecondary)),
                 const SizedBox(height: 4),
                 Text('₩${_formatPrice(price)}',

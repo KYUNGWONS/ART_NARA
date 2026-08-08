@@ -170,9 +170,20 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           builder: (_) => const OrderHistoryScreen()),
                     ),
                   ),
-                  // 정산은 파는 쪽 화면이라 작가일 때만 노출한다(역할 전환 시 함께 바뀐다).
+                  // 파는 쪽 화면이라 작가일 때만 노출한다(역할 전환 시 함께 바뀐다).
                   if (_profile!.userType != null &&
                       !_profile!.userType!.toUpperCase().startsWith('FOREIGN')) ...[
+                    const SizedBox(height: ArtSpacing.sm),
+                    _buildMenuTile(
+                      icon: Icons.handshake_outlined,
+                      title: '내 작품 거래',
+                      subtitle: '예약된 작품을 전달하고 수령을 확인하세요',
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                            builder: (_) =>
+                                const OrderHistoryScreen(selling: true)),
+                      ),
+                    ),
                     const SizedBox(height: ArtSpacing.sm),
                     _buildMenuTile(
                       icon: Icons.account_balance_wallet_outlined,

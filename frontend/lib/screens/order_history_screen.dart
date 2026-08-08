@@ -5,10 +5,14 @@ import 'art_home_feed_screen.dart' show formatPrice;
 
 import '../models/order.dart';
 import '../services/order_api_service.dart';
+import 'checkout_screen.dart';
 import '../services/review_api_service.dart';
 
+/// 주문 내역. [selling] 이면 내 작품에 걸린 거래(판매자 입장)를 보여준다.
 class OrderHistoryScreen extends StatefulWidget {
-  const OrderHistoryScreen({super.key});
+  const OrderHistoryScreen({super.key, this.selling = false});
+
+  final bool selling;
 
   @override
   State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
@@ -21,7 +25,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    _ordersFuture = _api.fetchOrders();
+    _ordersFuture = _fetch();
+  }
+
+  Future<List<Order>> _fetch() =>
+      widget.selling ? _api.fetchSellingOrders() : _api.fetchOrders();
+
+  Future<void> _reload() async {
+    if (!mounted) return;
+    setState(() {
+      _ordersFuture = _fetch();
+    });
   }
 
   @override
@@ -35,7 +49,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           icon: const Icon(Icons.chevron_left, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('주문 내역',
+        title: Text(widget.selling ? '내 작품 거래' : '주문 내역',
             style: TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
         centerTitle: true,
@@ -49,10 +63,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           if (snapshot.hasError) {
             return Center(
               child: OutlinedButton(
-                onPressed: () =>
-                    setState(() {
-                      _ordersFuture = _api.fetchOrders();
-                    }),
+                onPressed: _reload,
                 child: const Text('다시 시도'),
               ),
             );
@@ -60,13 +71,14 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           final orders = snapshot.data ?? const <Order>[];
           if (orders.isEmpty) {
             return const Center(
-              child: Text('아직 주문 내역이 없습니다', style: TextStyle(fontSize: 12)),
+              child: Text('아직 거래 내역이 없습니다', style: TextStyle(fontSize: 12)),
             );
           }
           return ListView.builder(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
             itemCount: orders.length,
-            itemBuilder: (context, index) => _OrderCard(order: orders[index]),
+            itemBuilder: (context, index) =>
+                _OrderCard(order: orders[index], onChanged: _reload),
           );
         },
       ),
@@ -75,9 +87,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 }
 
 class _OrderCard extends StatefulWidget {
-  const _OrderCard({required this.order});
+  const _OrderCard({required this.order, this.onChanged});
 
   final Order order;
+
+  /// 확인·결제·취소로 상태가 바뀌면 목록을 다시 읽게 한다.
+  final Future<void> Function()? onChanged;
 
   @override
   State<_OrderCard> createState() => _OrderCardState();
@@ -88,6 +103,9 @@ class _OrderCardState extends State<_OrderCard> {
   // 시트 종료 시점에 dispose 하면 '_dependents.isEmpty' assertion 으로 죽는다(실측).
   // 화면이 사라질 때 State 가 정리한다.
   final TextEditingController _contentController = TextEditingController();
+
+  /// 확인·결제·취소 요청 중 중복 탭 방지.
+  bool _busy = false;
 
   Order get order => widget.order;
 
@@ -200,6 +218,108 @@ class _OrderCardState extends State<_OrderCard> {
     );
   }
 
+  /// 결제 전에는 소유권이 없다. 단계에 맞는 안내를 보여준다.
+  String _ownershipLine() {
+    if (order.cancelled) return '예약이 취소되었습니다';
+    if (order.refunded) return '환불되어 디지털 소유권이 회수되었습니다';
+    if (order.paid) return '디지털 소유권 ${order.certificateNo}';
+    if (order.readyToPay) return '수령 확인 완료 — 결제하면 소유권이 발급됩니다';
+    final mine = order.viewerIsSeller ? order.sellerConfirmed : order.buyerConfirmed;
+    final other = order.viewerIsSeller ? order.buyerConfirmed : order.sellerConfirmed;
+    if (mine && !other) return '상대의 확인을 기다리는 중입니다';
+    return order.viewerIsSeller
+        ? '만나서 전달한 뒤 확인해주세요'
+        : '작가님과 만나 작품을 받은 뒤 확인해주세요';
+  }
+
+  /// 직거래 단계 버튼: 수령 확인 → (양쪽 끝나면) 결제. 결제 전에는 취소할 수 있다.
+  Widget _tradeActions() {
+    final canConfirm = order.needsMyConfirmation;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: _busy ? null : _cancel,
+          style: TextButton.styleFrom(
+            foregroundColor: ArtColors.textSecondary,
+            padding: const EdgeInsets.symmetric(horizontal: ArtSpacing.sm),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: const Text('예약 취소', style: TextStyle(fontSize: 12)),
+        ),
+        const SizedBox(width: ArtSpacing.xs),
+        if (canConfirm)
+          FilledButton(
+            onPressed: _busy ? null : _confirmHandover,
+            style: FilledButton.styleFrom(
+              backgroundColor: ArtColors.brandPrimary,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: ArtSpacing.md, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(order.viewerIsSeller ? '전달했어요' : '받았어요',
+                style: const TextStyle(fontSize: 12)),
+          )
+        // 결제는 구매자만 한다.
+        else if (order.readyToPay && !order.viewerIsSeller)
+          FilledButton(
+            onPressed: _busy ? null : _pay,
+            style: FilledButton.styleFrom(
+              backgroundColor: ArtColors.brandPrimary,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: ArtSpacing.md, vertical: 6),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text('결제하기', style: TextStyle(fontSize: 12)),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _confirmHandover() async {
+    setState(() => _busy = true);
+    try {
+      await const OrderApiService().confirmHandover(order.orderId);
+      await widget.onChanged?.call();
+    } catch (error) {
+      _snack(error is StateError ? error.message : '수령 확인에 실패했습니다');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _cancel() async {
+    setState(() => _busy = true);
+    try {
+      await const OrderApiService().cancel(order.orderId);
+      await widget.onChanged?.call();
+    } catch (error) {
+      _snack(error is StateError ? error.message : '예약 취소에 실패했습니다');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _pay() async {
+    await Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => CheckoutScreen(
+        orderId: order.orderId,
+        artworkTitle: order.artworkTitle,
+        price: order.amount,
+      ),
+    ));
+    await widget.onChanged?.call();
+  }
+
+  void _snack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -239,31 +359,27 @@ class _OrderCardState extends State<_OrderCard> {
           Text('결제 금액 ₩${formatPrice(order.amount)}',
               style: const TextStyle(fontSize: 11, color: ArtColors.textSecondary)),
           const SizedBox(height: 4),
-          Text(
-              order.refunded
-                  // 환불되면 소유권도 회수되므로 인증서 번호를 그대로 두면 오해를 준다.
-                  ? '환불되어 디지털 소유권이 회수되었습니다'
-                  : '디지털 소유권 ${order.certificateNo}',
-              style: const TextStyle(fontSize: 11)),
+          Text(_ownershipLine(), style: const TextStyle(fontSize: 11)),
           const SizedBox(height: ArtSpacing.xs),
-          // 환불한 주문에는 리뷰를 쓸 수 없다(서버도 막는다).
-          if (!order.refunded)
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: () => _showReviewSheet(context),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: ArtColors.brandPrimary,
-                side: const BorderSide(color: ArtColors.borderSoft),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: ArtSpacing.sm, vertical: 6),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          if (!order.paid && !order.cancelled) _tradeActions(),
+          // 결제하고 환불하지 않은 거래에만 리뷰를 쓸 수 있다(서버도 막는다).
+          if (order.paid && !order.refunded)
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: () => _showReviewSheet(context),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: ArtColors.brandPrimary,
+                  side: const BorderSide(color: ArtColors.borderSoft),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: ArtSpacing.sm, vertical: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Icon(Icons.star_border_rounded, size: 15),
+                label: const Text('리뷰 쓰기', style: TextStyle(fontSize: 12)),
               ),
-              icon: const Icon(Icons.star_border_rounded, size: 15),
-              label: const Text('리뷰 쓰기', style: TextStyle(fontSize: 12)),
             ),
-          ),
         ],
       ),
     );

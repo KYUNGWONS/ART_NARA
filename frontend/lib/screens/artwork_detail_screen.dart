@@ -11,8 +11,8 @@ import '../models/artwork_detail.dart';
 import '../widgets/auction_countdown.dart';
 import '../widgets/won_input_formatter.dart';
 import '../services/artwork_api_service.dart';
+import '../services/order_api_service.dart';
 import 'artist_portfolio_screen.dart';
-import 'checkout_screen.dart';
 
 class ArtworkDetailScreen extends StatefulWidget {
   const ArtworkDetailScreen({super.key, required this.artworkId});
@@ -28,6 +28,7 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
   final _bidController = TextEditingController();
   late Future<ArtworkDetail> _detailFuture;
   bool _bidding = false;
+  bool _reserving = false;
 
   /// 경매 작품일 때만 연결한다(일반 판매 작품은 갱신할 게 없다).
   StompClient? _auctionClient;
@@ -109,13 +110,40 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
     }
   }
 
-  void _openCheckout(ArtworkDetail detail, {int? priceOverride}) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) =>
-            CheckoutScreen(artwork: detail, priceOverride: priceOverride),
-      ),
-    );
+  /// 예약한다. 직거래라 여기서 결제하지 않는다 —
+  /// 만나서 작품을 주고받고 양쪽이 확인한 뒤에 주문 내역에서 결제한다.
+  Future<void> _reserve(ArtworkDetail detail) async {
+    if (_reserving) return;
+    setState(() => _reserving = true);
+    try {
+      await const OrderApiService().reserve(artworkId: detail.id);
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: const Text('예약되었어요', style: TextStyle(fontSize: 16)),
+          content: Text(
+            "'${detail.title}' 을(를) 예약했습니다.\n\n"
+            '작가님과 만나 작품을 받은 뒤, 주문 내역에서 '
+            "'받았어요' 를 누르면 결제할 수 있어요.",
+            style: const TextStyle(fontSize: 13),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      );
+      if (!mounted) return;
+      setState(_load); // 예약 상태를 화면에 반영
+    } catch (error) {
+      _showMessage(error is StateError ? error.message : '예약에 실패했습니다');
+    } finally {
+      if (mounted) setState(() => _reserving = false);
+    }
   }
 
   Future<void> _placeBid() async {
@@ -180,6 +208,8 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                 ),
                 if (detail.sold)
                   const _ClosedBar(message: '판매 완료된 작품입니다')
+                else if (detail.reserved)
+                  const _ClosedBar(message: '예약 중인 작품입니다')
                 else if (detail.auction && !detail.auctionClosed)
                   _BidBar(
                     controller: _bidController,
@@ -193,16 +223,15 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                 else if (detail.auction && detail.wonByViewer)
                   _BuyBar(
                     price: detail.currentBid ?? detail.price,
-                    label: '낙찰가 결제하기',
-                    onBuy: () => _openCheckout(detail,
-                        priceOverride: detail.currentBid),
+                    label: '낙찰가로 예약하기',
+                    onBuy: () => _reserve(detail),
                   )
                 else if (detail.auction)
                   const _ClosedBar()
                 else
                   _BuyBar(
                     price: detail.price,
-                    onBuy: () => _openCheckout(detail),
+                    onBuy: () => _reserve(detail),
                   ),
               ],
             );
@@ -593,7 +622,7 @@ class _ClosedBar extends StatelessWidget {
 }
 
 class _BuyBar extends StatelessWidget {
-  const _BuyBar({required this.price, required this.onBuy, this.label = '구매하기'});
+  const _BuyBar({required this.price, required this.onBuy, this.label = '예약하기'});
 
   final int price;
   final VoidCallback onBuy;

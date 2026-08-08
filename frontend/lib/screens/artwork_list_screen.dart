@@ -166,10 +166,11 @@ class _Card extends StatelessWidget {
                               fit: BoxFit.cover),
                         ),
                 ),
-                if (artwork.sold)
-                  const Positioned.fill(
+                if (artwork.sold || artwork.reserved)
+                  Positioned.fill(
                     child: SoldOverlay(
-                      borderRadius: BorderRadius.vertical(
+                      reserved: !artwork.sold,
+                      borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(ArtRadius.md)),
                     ),
                   ),

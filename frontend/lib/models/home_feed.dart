@@ -52,6 +52,7 @@ class Artwork {
     this.currentBid,
     this.remainingTime,
     this.sold = false,
+    this.reserved = false,
   });
 
   final int id;
@@ -67,6 +68,9 @@ class Artwork {
   /// 결제 완료로 판매된 작품인지 — 카드에 '판매 완료' 를 덮어 씌운다.
   final bool sold;
 
+  /// 예약 중인 작품인지. 결제 전이라 풀릴 수 있어 '판매 완료' 와 구분해 표시한다.
+  final bool reserved;
+
   factory Artwork.fromJson(Map<String, dynamic> json) {
     return Artwork(
       id: json['id'] as int? ?? 0,
@@ -79,6 +83,7 @@ class Artwork {
       currentBid: json['currentBid'] as int?,
       remainingTime: json['remainingTime'] as String?,
       sold: json['sold'] as bool? ?? false,
+      reserved: json['reserved'] as bool? ?? false,
     );
   }
 }

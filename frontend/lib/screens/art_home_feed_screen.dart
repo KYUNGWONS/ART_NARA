@@ -336,7 +336,9 @@ class _ArtworkCard extends StatelessWidget {
             Stack(
               children: [
                 _ArtworkThumb(imageUrl: artwork.imageUrl, height: 160),
-                if (artwork.sold) const Positioned.fill(child: SoldOverlay()),
+                if (artwork.sold || artwork.reserved)
+                  Positioned.fill(
+                      child: SoldOverlay(reserved: !artwork.sold)),
                 // 하트는 판매 완료 딤 위에 올린다 — 팔린 뒤에도 담아둔 작품을
                 // 여기서 바로 해제할 수 있어야 한다.
                 Positioned(
