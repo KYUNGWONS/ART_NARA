@@ -20,6 +20,7 @@ class ArtworkDetail {
     this.sold = false,
     this.reserved = false,
     this.reservedByViewer = false,
+    this.ownedByViewer = false,
     this.currentBid,
     this.remainingTime,
   });
@@ -53,6 +54,9 @@ class ArtworkDetail {
 
   /// 그 예약을 건 사람이 나인지 — 서버가 로그인 신원으로 판단해 내려준다.
   final bool reservedByViewer;
+
+  /// 내가 등록한 작품인지 — 자기 작품은 사거나 입찰할 수 없다(서버가 막는다).
+  final bool ownedByViewer;
   final List<ArtworkBid> bidHistory;
 
   factory ArtworkDetail.fromJson(Map<String, dynamic> json) {
@@ -81,6 +85,7 @@ class ArtworkDetail {
       sold: json['sold'] as bool? ?? false,
       reserved: json['reserved'] as bool? ?? false,
       reservedByViewer: json['reservedByViewer'] as bool? ?? false,
+      ownedByViewer: json['ownedByViewer'] as bool? ?? false,
       winnerName: json['winnerName'] as String?,
       wonByViewer: json['wonByViewer'] as bool? ?? false,
       certified: json['certified'] as bool? ?? false,

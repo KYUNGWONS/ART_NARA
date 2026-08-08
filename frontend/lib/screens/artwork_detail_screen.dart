@@ -207,7 +207,11 @@ class _ArtworkDetailScreenState extends State<ArtworkDetailScreen> {
                     onAuctionExpired: () => setState(_load),
                   ),
                 ),
-                if (detail.sold)
+                // 내가 등록한 작품에는 입찰·예약 수단을 아예 보여주지 않는다
+                // (서버도 막지만, 누를 수 있게 두면 눌러 보고 나서야 알게 된다).
+                if (detail.ownedByViewer && !detail.sold)
+                  const _ClosedBar(message: '내가 등록한 작품이에요')
+                else if (detail.sold)
                   const _ClosedBar(message: '판매 완료된 작품입니다')
                 // 내 예약이면 결제까지 갈 길을 알려준다 — 같은 문구를 쓰면
                 // 정작 예약한 본인에게 남이 채간 것처럼 읽힌다.
@@ -314,7 +318,10 @@ class _DetailBody extends StatelessWidget {
         const SizedBox(height: 16),
         _InfoTable(detail: detail),
         const SizedBox(height: 16),
-        _ArtistCard(name: detail.artistName, introduction: detail.artistIntroduction),
+        _ArtistCard(
+            name: detail.artistName,
+            introduction: detail.artistIntroduction,
+            isMe: detail.ownedByViewer),
         if (detail.auction) ...[
           const SizedBox(height: 16),
           _BidHistorySection(bids: detail.bidHistory),
@@ -462,10 +469,14 @@ class _InfoTable extends StatelessWidget {
 }
 
 class _ArtistCard extends StatelessWidget {
-  const _ArtistCard({required this.name, required this.introduction});
+  const _ArtistCard(
+      {required this.name, required this.introduction, this.isMe = false});
 
   final String name;
   final String introduction;
+
+  /// 내가 그 작가일 때. 나에게 문의할 수는 없으므로(서버도 막는다) 버튼을 감춘다.
+  final bool isMe;
 
   @override
   Widget build(BuildContext context) {
@@ -483,14 +494,16 @@ class _ArtistCard extends StatelessWidget {
       leading: const CircleAvatar(backgroundColor: ArtColors.borderSoft),
       title: Text(name, style: const TextStyle(fontSize: 13)),
       subtitle: Text(introduction, style: const TextStyle(fontSize: 11)),
-      trailing: OutlinedButton(
-        onPressed: () => openArtistInquiry(context, name),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: ArtColors.brandPrimary,
-          side: const BorderSide(color: ArtColors.brandPrimary),
-        ),
-        child: const Text('문의하기'),
-      ),
+      trailing: isMe
+          ? null
+          : OutlinedButton(
+              onPressed: () => openArtistInquiry(context, name),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: ArtColors.brandPrimary,
+                side: const BorderSide(color: ArtColors.brandPrimary),
+              ),
+              child: const Text('문의하기'),
+            ),
     );
   }
 }
