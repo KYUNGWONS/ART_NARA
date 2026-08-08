@@ -417,6 +417,18 @@ DB 초기화 뒤 5556 을 켜자 **5554 의 계정으로 자동 로그인**되�
 - `tokenValidFrom` 은 **nullable** 이다. 기존 회원은 기준선이 없어 그대로 통과한다(기존 행이 있는 테이블에 NOT NULL 컬럼을 붙이면 `ddl-auto=update` 가 실패한다 — 늘 겪는 함정).
 - 검증: 엔티티 테스트 4건 + API 8케이스(가입 이전 발급분 401 · 로그아웃 후 같은 초 토큰도 401 · 재로그인 통과 · 위조 토큰으로 남의 세션 못 끊음). 앱에서도 `[AuthAPI] 로그아웃 성공` 확인.
 
+## 문서화 — Notion (2026-08-09)
+
+기획·기술 문서는 **Notion** 에 둔다. Confluence 는 조직 설정이 API 토큰을 차단해(모든 인증이 403) 포기했다 — 되살리려면 admin.atlassian.com > 보안에서 "사용자 API 토큰" 을 허용해야 한다.
+
+- **DB 2개** (부모 페이지 `NOTION_PARENT_PAGE`):
+  - **ART NARA 앱 기획 DB** — 화면 26개. 화면 ID·Figma URL·노드·시나리오·완료 기준·구현 파일. 본문은 화면 설명/구성/주요 기능/완료 기준/개발 참고.
+  - **ART NARA 기술 문서** — 20건. 아키텍처 2 · 개요 1 · 도메인 5 · 인증보안 3 · 외부연동 3 · 관리자 1 · 개발환경 3 · QA 2.
+- **원본은 코드다**: `docs/notion/screens.py`(화면) · `docs/notion/tech_docs.py`(문서). 내용을 고치고 `build_notion_db.py` / `build_notion_docs.py` 를 다시 돌리면 **ID 로 매칭해 갱신**한다(중복 생성 안 됨).
+- 토큰은 `.claude/settings.local.json` 의 `NOTION_TOKEN`(git 미추적). 통합 이름은 `ART_NARA`.
+- **함정**: Notion `status` 타입은 API 로 옵션을 만들 수 없다(기본 옵션만 존재) — 상태류 속성은 `select` 로 만들 것.
+- Figma URL 은 `https://www.figma.com/design/{fileKey}/?node-id={1-549}` 형식(콜론 대신 하이픈). 디자인이 없는 화면(웹뷰·셸·정산 등 7개)은 **비워 뒀다**.
+
 ## 알려진 한계 (미해결, 판단 필요)
 
 - **활동명(닉네임)을 바꾸면 과거 판매 이력과 끊어진다.** 작품·주문·소유권이 작가를 **활동명 문자열**로 들고 있어서, 마이페이지에서 닉네임을 바꾸면 `GET /api/settlements`(활동명 기준)에서 이전 판매가 사라지고 포트폴리오도 옛 이름으로 남는다.
