@@ -66,9 +66,8 @@ public class AdminService {
                 .filter(order -> order.getOrderedDate() != null
                         && order.getOrderedDate().startsWith(monthPrefix))
                 .mapToLong(ArtOrder::getAmount).sum();
-        long refundedAmount = orders.stream()
-                .filter(ArtOrder::isRefunded)
-                .mapToLong(ArtOrder::getAmount).sum();
+        List<ArtOrder> refunded = orders.stream().filter(ArtOrder::isRefunded).toList();
+        long refundedAmount = refunded.stream().mapToLong(ArtOrder::getAmount).sum();
 
         List<User> users = userRepository.findAll();
         long blocked = users.stream().filter(User::isBlocked).count();
@@ -77,7 +76,9 @@ public class AdminService {
 
         return new AdminDto.Dashboard(
                 totalRevenue, todayRevenue, monthRevenue, refundedAmount,
-                paid.size(), orders.size() - paid.size(),
+                // 환불 건수는 실제 환불된 주문만 — 예전에는 '결제 안 된 주문 전부' 를 세서
+                // 예약·취소까지 환불로 잡혔다(환불 5건인데 13건으로 표시됐다).
+                paid.size(), refunded.size(),
                 users.size(), blocked,
                 artworkRepository.count(), soldCount,
                 dailySales(paid), topArtists(paid));

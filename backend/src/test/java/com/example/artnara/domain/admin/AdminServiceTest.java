@@ -159,6 +159,18 @@ class AdminServiceTest {
     }
 
     @Test
+    @DisplayName("예약을 취소해도 환불 건수는 늘지 않는다 — 돈이 오간 적이 없다")
+    void cancelledReservationIsNotARefund() {
+        AdminDto.Dashboard before = adminService.dashboard();
+
+        OrderDto.Response order = orderService.reserve(
+                new OrderDto.CreateRequest(4L), 1L, "나");
+        orderService.cancel(order.orderId(), 1L, "나");
+
+        assertThat(adminService.dashboard().refundCount()).isEqualTo(before.refundCount());
+    }
+
+    @Test
     @DisplayName("환불한 작품은 다시 팔 수 있다")
     void refundedArtworkCanBeSoldAgain() {
         OrderDto.Response order = buy(2L);
