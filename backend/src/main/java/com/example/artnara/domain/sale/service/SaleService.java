@@ -5,6 +5,8 @@ import com.example.artnara.domain.artwork.service.ArtworkService;
 import com.example.artnara.domain.sale.dto.SaleDto;
 import com.example.artnara.domain.sale.entity.Sale;
 import com.example.artnara.domain.sale.repository.SaleRepository;
+import com.example.artnara.domain.user.entity.User;
+import com.example.artnara.domain.user.repository.UserRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class SaleService {
 
     private final SaleRepository saleRepository;
     private final ArtworkService artworkService;
+    private final UserRepository userRepository;
 
     public SaleDto.Response create(SaleDto.CreateRequest request,
                                    Long sellerId, String sellerName) {
@@ -43,7 +46,7 @@ public class SaleService {
 
         // 프로토타입: 검수 절차 없이 바로 작품 저장소에 등록해 홈 피드에 노출한다.
         artworkService.register(new ArtworkCreate(
-                sale.getTitle(), sellerName, "내가 등록한 작품입니다.",
+                sale.getTitle(), sellerName, artistIntroductionOf(sellerId),
                 sale.getDescription(), sale.getMedium(), sale.getSizeInfo(),
                 sale.getYearCreated() == null ? LocalDate.now().getYear() : sale.getYearCreated(),
                 sale.getBuyNowPrice(), sale.isAuctionEnabled(),
@@ -51,6 +54,22 @@ public class SaleService {
                 sale.getAuctionEndDate() == null ? null : sale.getAuctionEndDate().toString(),
                 sale.getImageUrl(), sale.getCategory()));
         return toDto(sale);
+    }
+
+    /**
+     * 작품 상세·피드에 붙는 작가 소개.
+     *
+     * 예전에는 "내가 등록한 작품입니다." 를 그대로 박아 넣었는데, 이 문구는 **판매자 시점**이라
+     * 남이 작품을 볼 때 말이 되지 않았다(실제로 구매자 화면에 그대로 보였다).
+     * 판매자가 프로필에 써 둔 소개를 쓰고, 비어 있으면 문구를 넣지 않는다.
+     */
+    private String artistIntroductionOf(Long sellerId) {
+        if (sellerId == null) return "";
+        return userRepository.findById(sellerId)
+                .map(User::getAboutMe)
+                .filter(about -> about != null && !about.isBlank())
+                .map(String::trim)
+                .orElse("");
     }
 
     @Transactional(readOnly = true)
