@@ -29,7 +29,8 @@ public class ArtistService {
             throw new GlobalException(DomainResultCode.ARTIST_NOT_FOUND);
         }
         // 판매 수는 실제 주문에서 센다. 지역은 같은 활동명으로 가입한 사용자 프로필에서 가져온다.
-        long salesCount = artOrderRepository.countByArtistName(artistName.trim());
+        long salesCount = artOrderRepository
+                .countByArtistNameAndPaidTrueAndRefundedFalse(artistName.trim());
         String location = userRepository.findFirstByNickname(artistName.trim())
                 .map(User::getRegion)
                 .map(Sido::getLabel)

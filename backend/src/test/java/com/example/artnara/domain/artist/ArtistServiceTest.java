@@ -2,6 +2,8 @@ package com.example.artnara.domain.artist;
 
 import com.example.artnara.domain.artist.dto.ArtistDto;
 import com.example.artnara.domain.artist.service.ArtistService;
+import com.example.artnara.domain.order.dto.OrderDto;
+import com.example.artnara.domain.order.service.OrderService;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import com.example.artnara.support.IntegrationTest;
@@ -18,6 +20,9 @@ class ArtistServiceTest {
     @Autowired
     ArtistService artistService;
 
+    @Autowired
+    OrderService orderService;
+
     @Test
     @DisplayName("작가 포트폴리오는 소개·통계·작품 목록을 포함한다")
     void getPortfolio() {
@@ -33,6 +38,14 @@ class ArtistServiceTest {
         assertThat(portfolio.reviewCount()).isPositive();
         // 판매 수는 실제 주문 기준이라 시드 상태에서는 0.
         assertThat(portfolio.salesCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("예약만 하고 결제하지 않은 건은 판매 수에 들어가지 않는다")
+    void reservationIsNotASale() {
+        orderService.reserve(new OrderDto.CreateRequest(1L), 3L, "산 사람");
+
+        assertThat(artistService.getPortfolio("김예진").salesCount()).isZero();
     }
 
     @Test

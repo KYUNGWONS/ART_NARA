@@ -25,8 +25,11 @@ public interface ArtOrderRepository extends JpaRepository<ArtOrder, Long> {
     /** 이 사용자가 이 작품에 걸어 둔 살아 있는 예약이 있는지 (본인 예약 안내용) */
     boolean existsByArtworkIdAndBuyerIdAndCancelledFalseAndRefundedFalse(Long artworkId, Long buyerId);
 
-    /** 작가 포트폴리오의 판매 수 */
-    long countByArtistName(String artistName);
+    /**
+     * 작가 포트폴리오의 판매 수 — 결제까지 끝나고 환불되지 않은 건만.
+     * 예약·취소·환불까지 세면 실제로 팔린 적 없는 작품이 판매 실적으로 보인다.
+     */
+    long countByArtistNameAndPaidTrueAndRefundedFalse(String artistName);
 
     /** 작가 정산 — 내가 판 작품의 주문만 (활동명 기준) */
     List<ArtOrder> findByArtistNameOrderByIdDesc(String artistName);
