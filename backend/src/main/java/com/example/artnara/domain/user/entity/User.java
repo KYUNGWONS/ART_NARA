@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,6 +75,19 @@ public class User extends BaseTimeEntity {
     /** 차단 사유 — 관리자 화면에 표시한다. */
     private String blockedReason;
 
+    /**
+     * 이 시각보다 **먼저 발급된 토큰은 무효**로 본다(무상태 JWT 의 유일한 폐기 수단).
+     *
+     * 두 가지를 막는다:
+     * - 로그아웃한 기기의 refresh token 재사용 — 로그아웃 시 이 값을 현재 시각으로 올린다.
+     * - 남의 토큰이 내 계정에 붙는 것 — 개발 DB 를 비우면 id 가 1부터 다시 발급되는데,
+     *   그 전에 같은 id 로 발급됐던 토큰이 새 회원으로 인증되는 걸 실제로 겪었다.
+     *
+     * nullable 이다: 이 기능 이전에 만들어진 회원은 제한 없이 통과시킨다
+     * (기존 행이 있는 테이블에 NOT NULL 컬럼을 붙이면 ddl-auto=update 가 실패한다).
+     */
+    private LocalDateTime tokenValidFrom;
+
     @Builder
     public User(OAuthProvider provider, String providerId,
                 String email, String nickname, String displayName, Integer age, UserType userType,
@@ -103,6 +117,9 @@ public class User extends BaseTimeEntity {
         user.nickname = (nickname != null && !nickname.isBlank()) ? nickname : defaultNickname(email);
         user.profileImageUrl = profileImageUrl;
         user.profileCompleted = false;
+        // 가입 시각을 기준으로 잡아 둔다 — 이 회원 id 로 예전에 발급됐던 토큰이
+        // (개발 DB 초기화 등으로) 새 회원에게 붙는 것을 막는다.
+        user.startTokenBaseline();
         return user;
     }
 
@@ -123,6 +140,29 @@ public class User extends BaseTimeEntity {
     public void unblock() {
         this.blocked = false;
         this.blockedReason = null;
+    }
+
+    /**
+     * 지금까지 발급된 토큰을 모두 폐기한다(로그아웃).
+     *
+     * JWT 의 iat 는 **초 정밀도**라 기준선을 '지금' 으로 두면 같은 초에 발급된 토큰이
+     * 기준선과 같아져 살아남는다(실측). 다음 초부터 유효하게 잡아 그 틈을 없앤다.
+     */
+    public void invalidateIssuedTokens() {
+        this.tokenValidFrom = LocalDateTime.now().withNano(0).plusSeconds(1);
+    }
+
+    /**
+     * 가입 시점의 기준선. 곧바로 발급할 토큰은 살려야 하므로 '지금' 으로 둔다
+     * (같은 초에 발급된 토큰은 통과). 예전에 같은 id 로 발급됐던 토큰만 걸러낸다.
+     */
+    private void startTokenBaseline() {
+        this.tokenValidFrom = LocalDateTime.now().withNano(0);
+    }
+
+    /** 이 토큰이 폐기 기준 이후에 발급된 것인지. 기준이 없으면(구회원) 통과. */
+    public boolean acceptsTokenIssuedAt(LocalDateTime issuedAt) {
+        return tokenValidFrom == null || issuedAt == null || !issuedAt.isBefore(tokenValidFrom);
     }
 
     public void updateProfile(String nickname, String displayName, Sido region, String aboutMe,

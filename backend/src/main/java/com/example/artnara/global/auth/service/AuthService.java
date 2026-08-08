@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -129,11 +132,50 @@ public class AuthService {
         if (user.isBlocked()) {
             throw new GlobalException(DomainResultCode.USER_BLOCKED);
         }
+        // 로그아웃했거나, 이 id 를 쓰던 예전 회원의 토큰이면 거부한다.
+        // (id 는 재사용될 수 있다 — 개발 DB 를 비우면 1부터 다시 발급된다.)
+        if (!user.acceptsTokenIssuedAt(issuedAtOf(token))) {
+            throw new GlobalException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
 
         String subject = String.valueOf(user.getId());
         return new AuthDto.RefreshResponse(
                 jwtProvider.generateAccessToken(subject, DEFAULT_ROLE),
                 jwtProvider.generateRefreshToken(subject, DEFAULT_ROLE),
                 user.getUserType(), user.isProfileCompleted());
+    }
+
+    /**
+     * 로그아웃. 무상태 JWT 라 서버가 토큰을 회수할 수 없으므로,
+     * **이 시각 이전 발급분을 전부 무효로 만드는 기준선**을 올린다 —
+     * 기기를 잃어버려도 로그아웃하면 남은 refresh token 이 더는 통하지 않는다.
+     *
+     * 이미 로그아웃했거나 토큰이 낡았어도 성공으로 본다(다시 로그아웃할 방법이 없으면 곤란하다).
+     */
+    @Transactional
+    public void logout(Long userId, String refreshToken) {
+        Long target = userId != null ? userId : userIdOfValidToken(refreshToken);
+        if (target == null) return;
+        userRepository.findById(target).ifPresent(User::invalidateIssuedTokens);
+    }
+
+    /** 서명·만료가 멀쩡한 토큰에서만 신원을 읽는다(아무 문자열로 남을 로그아웃시킬 수 없게). */
+    private Long userIdOfValidToken(String token) {
+        if (token == null || token.isBlank()
+                || !jwtProvider.validateSignature(token) || jwtProvider.isExpired(token)) {
+            return null;
+        }
+        try {
+            return Long.parseLong(jwtProvider.getClaims(token).getSubject());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /** refresh token 의 발급 시각(iat). 없으면 null — 구토큰은 기준선 검사를 건너뛴다. */
+    private LocalDateTime issuedAtOf(String token) {
+        Date issuedAt = jwtProvider.getClaims(token).getIssuedAt();
+        return issuedAt == null ? null
+                : LocalDateTime.ofInstant(issuedAt.toInstant(), ZoneId.systemDefault());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.artnara.global.auth.controller;
 
+import com.example.artnara.global.auth.CurrentUser;
 import com.example.artnara.global.auth.dto.AuthDto;
 import com.example.artnara.global.auth.service.AuthService;
 import com.example.artnara.global.common.BaseResponse;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @Tag(name = "Auth", description = "인증 API")
 @RestController
 @RequestMapping("/auth")
@@ -23,6 +26,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final com.example.artnara.global.auth.oauth.NaverOAuthClient naverOAuthClient;
+    private final CurrentUser currentUser;
 
     @PostMapping("/login")
     @Operation(summary = "OAuth 로그인",
@@ -58,6 +62,18 @@ public class AuthController {
     public BaseResponse<AuthDto.LoginResponse> naverCodeLogin(
             @RequestBody AuthDto.NaverCodeRequest request) {
         return BaseResponse.success(null, authService.loginWithNaverCode(request));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃",
+            description = "이 계정으로 지금까지 발급된 토큰을 모두 무효로 만듭니다. "
+                    + "기기를 잃어버렸을 때도 남아 있는 refresh token 이 더는 통하지 않습니다.")
+    public BaseResponse<Void> logout(@RequestBody(required = false) AuthDto.LogoutRequest request,
+                                     Principal principal) {
+        // access token 이 만료된 채 로그아웃하는 경우가 있어 refresh token 으로도 신원을 찾는다.
+        authService.logout(principal != null ? currentUser.idOf(principal) : null,
+                request == null ? null : request.refreshToken());
+        return BaseResponse.success("로그아웃", null);
     }
 
     @PostMapping("/refresh")

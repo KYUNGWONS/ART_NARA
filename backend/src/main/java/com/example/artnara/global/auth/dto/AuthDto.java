@@ -20,6 +20,9 @@ public class AuthDto {
     @Schema(description = "네이버 WebView 로그인 콜백에서 받은 인가 코드")
     public record NaverCodeRequest(String code, String state) {}
 
+    @Schema(description = "로그아웃 요청. access token 이 만료됐을 때 신원을 찾는 수단으로 쓴다.")
+    public record LogoutRequest(String refreshToken) {}
+
     @Schema(description = "토큰 재발급 요청")
     public record RefreshRequest(
             @Schema(description = "로그인 시 발급받은 refresh token")
