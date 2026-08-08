@@ -47,6 +47,14 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("자기 작품은 예약할 수 없다 — 자전 거래로 판매 이력이 부풀려진다")
+    void cannotReserveOwnArtwork() {
+        assertThatThrownBy(() -> orderService.reserve(request(1L), 1L, ARTIST_OF_1))
+                .isInstanceOf(GlobalException.class)
+                .hasMessageContaining("본인이 등록한 작품");
+    }
+
+    @Test
     @DisplayName("예약한 본인에게만 '내 예약'으로 보인다 — 남에게는 그냥 예약 중")
     void reservedByViewerOnlyForTheBuyer() {
         orderService.reserve(request(1L), 1L, "나");

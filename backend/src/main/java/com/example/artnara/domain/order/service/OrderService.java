@@ -57,6 +57,11 @@ public class OrderService {
         ArtworkDetailDto artwork = artworkService.getDetail(request.artworkId());
         int amount = artwork.price();
 
+        // 자기 작품을 자기가 사면 판매 이력·정산이 실제 거래처럼 부풀려진다.
+        if (buyerName != null && buyerName.equals(artwork.artistName())) {
+            throw new GlobalException(DomainResultCode.ORDER_OWN_ARTWORK);
+        }
+
         if (artwork.auction()) {
             // 경매 작품은 마감 후 낙찰자만 낙찰가로 살 수 있다.
             if (!artwork.auctionClosed()) {

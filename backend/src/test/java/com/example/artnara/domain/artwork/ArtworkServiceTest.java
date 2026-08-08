@@ -37,6 +37,17 @@ class ArtworkServiceTest {
     }
 
     @Test
+    @DisplayName("자기 작품에는 입찰할 수 없다 — 스스로 값을 올려 낙찰받는 걸 막는다")
+    void cannotBidOnOwnArtwork() {
+        String artist = artworkService.getDetail(5L).artistName();
+
+        assertThatThrownBy(() -> artworkService.placeBid(
+                5L, new ArtworkDetailDto.BidRequest(2_000_000), artist))
+                .isInstanceOf(GlobalException.class)
+                .hasMessageContaining("본인이 등록한 작품");
+    }
+
+    @Test
     @DisplayName("경매 작품은 현재가와 입찰 내역을 포함한다")
     void getAuctionDetail() {
         ArtworkDetailDto detail = artworkService.getDetail(5L);

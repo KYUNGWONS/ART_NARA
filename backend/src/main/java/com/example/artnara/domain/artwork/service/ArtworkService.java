@@ -144,6 +144,10 @@ public class ArtworkService {
         if (artwork.isAuctionClosed()) {
             throw new GlobalException(DomainResultCode.AUCTION_ALREADY_CLOSED);
         }
+        // 자기 작품에 입찰하면 값만 올려놓고 스스로 낙찰받을 수 있다(자전 거래).
+        if (bidderName != null && bidderName.equals(artwork.getArtistName())) {
+            throw new GlobalException(DomainResultCode.BID_OWN_ARTWORK);
+        }
         int currentBid = artwork.getCurrentBid() == null
                 ? artwork.getPrice() : artwork.getCurrentBid();
         int minimumBid = currentBid + MIN_BID_INCREMENT;
