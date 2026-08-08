@@ -353,6 +353,31 @@ Firebase 프로젝트 `art-nara` 로 **실제 기기 도착까지 확인**했다
 - **스위프 짤 때 헛디딘 것(다음에 반복하지 말 것)**: 피드는 `/api/feed` 가 아니라 **`/api/feed/home`**, 주변 작품 파라미터는 `lat/lng` 가 아니라 **`latitude/longitude`**, QR 스캔은 인증서 번호(`ARTNARA-2026-261`)가 아니라 **QR 값(`ARTNARA-QR-261`)** 으로 조회한다. 환불된 인증서는 404 가 아니라 **200 + `verified:false` + note** 로 응답하는 게 정상이다.
 - JWT 를 직접 만들어 검증할 때 **클레임 이름은 `roles`, 값은 `USER`**(`ROLE_USER` 아님). 시크릿은 `application.yml` 의 base64 기본값.
 
+## 직거래 결제 흐름 (2026-08-08) — 사용자 확정
+
+**배송이 없고 만나서 전달하는 서비스라 결제를 만난 뒤로 미룬다.** 사용자가 고른 설계:
+`예약 → 만나서 전달 → 판매자·구매자 각각 수령 확인 → 결제 → 소유권 발급`.
+
+- `POST /api/orders` 는 **예약**만 한다(결제 없음). `Artwork.reserved` 로 잠기고 다른 사람은 409. **sold 와 구분**해야 한다 — 예약은 취소되면 풀린다.
+- `POST /api/orders/{id}/handover` — JWT 신원으로 판단해 판매자면 `sellerConfirmed`, 구매자면 `buyerConfirmed`. **양쪽 다** 있어야 결제가 열린다(한쪽만이면 `ORDER_400_HANDOVER`). 당사자 아니면 403.
+- `POST /api/orders/{id}/pay` — **구매자만**. 여기서 실 PG 승인 + `markSold` + 소유권·인증서 발급.
+- `POST /api/orders/{id}/cancel` — 결제 전 취소(양쪽 다 가능), 작품 잠금 해제.
+- `GET /api/orders/selling` — 판매자가 자기 작품 거래를 보는 목록(마이페이지 > '내 작품 거래', 작가일 때만 노출).
+- **매출·정산·리뷰 자격은 `paid` 인 건만 센다.** 예약이 매출로 잡히면 안 된다(AdminService·SettlementService·ReviewService 모두 수정).
+- 단계를 **enum 아닌 boolean 4개**(sellerConfirmed/buyerConfirmed/paid/cancelled)로 표현했다 — enum 컬럼은 CHECK 제약이 굳어 값 추가 때 저장이 깨진다(두 번 겪은 함정).
+- 기존 주문은 `PaidOrderBackfill`(부팅 러너)이 인증서 번호 유무로 `paid=true` 를 채운다. 안 하면 지난 매출·정산이 통째로 사라진다.
+- 프론트: 상세 버튼이 '예약하기', 주문 내역 카드에 '받았어요'/'전달했어요'/'결제하기'/'예약 취소'. 피드 카드는 '예약중' 칩(`SoldOverlay(reserved: true)`).
+
+## 2대 에뮬레이터 실측 (2026-08-08) — 직거래·경매·역경매·채팅 전 구간
+
+`art_nara`(5554, **네이버 로그인 컬렉터** KyoungWon) + `art_nara2`(5556, **카카오 로그인 작가** 경원) 동시 구동. 두 번째 AVD 는 `art_nara.avd/config.ini` 를 복사해 만들었다(`avdmanager create` 는 devices.xml 을 못 읽어 실패 — userdata 는 복사하지 않아야 계정이 섞이지 않는다).
+
+- **직거래**: 예약 → 작가 '전달했어요'(「수령 확인 중」) → 구매자 '받았어요'(「결제 대기」+결제 버튼) → **실 토스 샌드박스 퀵계좌이체 승인** → 인증서 `ARTNARA-2026-327`. 결제 후 `sold=true reserved=false`, 소유권 1건, 작가 정산 650,000/수수료 65,000/정산예정 585,000.
+- **경매**: 5554 에 상세를 **열어둔 채** 5556 이 입찰 → 화면을 건드리지 않았는데 ₩200,000→₩350,000, 최소 입찰가도 자동 갱신(`/topic/auction/66` 수신 로그 확인). 5554 에서 UI 입찰 400,000 도 반영.
+- **역경매**: 컬렉터 의뢰 등록 → 작가가 **예산 초과(500,000) 제안 시 거절**(제안 0건 유지) → 320,000 제안 성공 → 의뢰가 '역경매 진행 중' 으로, 의뢰인에게 `COMMISSION_OFFER` 알림.
+- **채팅**: 작품 상세 '문의하기' → STOMP 방 개설 → 메시지 전송 → **작가 기기 알림함에 푸시 도착** → 푸시 탭 시 채팅방 직행(`[Push] 알림 탭 → 이동 (type: CHAT_MESSAGE)`) → 답장이 컬렉터 화면에 실시간 표시.
+- QA 팁: 판매 등록 API 는 경매여도 `buyNowPrice` 가 필수다(없으면 `SALE_400_PRICE`). 홈 피드 응답 키는 `recommended`/`auctions`/`artists` 다(`artworks` 아님). 상세 화면에서 뒤로가기(keyevent 4)를 두 번 누르면 앱이 종료된다.
+
 ## 알려진 한계 (미해결, 판단 필요)
 
 - **활동명(닉네임)을 바꾸면 과거 판매 이력과 끊어진다.** 작품·주문·소유권이 작가를 **활동명 문자열**로 들고 있어서, 마이페이지에서 닉네임을 바꾸면 `GET /api/settlements`(활동명 기준)에서 이전 판매가 사라지고 포트폴리오도 옛 이름으로 남는다.
