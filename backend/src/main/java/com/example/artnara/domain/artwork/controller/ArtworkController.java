@@ -63,7 +63,9 @@ public class ArtworkController {
     public BaseResponse<ArtworkDetailDto> detail(@PathVariable Long artworkId, Principal principal) {
         // 조회는 비로그인도 가능하다. 로그인 상태면 낙찰 여부까지 채워 내려준다.
         String viewer = principal == null ? null : currentUser.nicknameOf(principal);
-        return BaseResponse.success("작품 상세 조회", artworkService.getDetail(artworkId, viewer));
+        Long viewerId = principal == null ? null : currentUser.idOf(principal);
+        return BaseResponse.success("작품 상세 조회",
+                artworkService.getDetail(artworkId, viewer, viewerId));
     }
 
     @PostMapping("/{artworkId}/close")

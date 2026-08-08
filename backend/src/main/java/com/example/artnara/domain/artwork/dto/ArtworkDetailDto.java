@@ -26,6 +26,8 @@ public record ArtworkDetailDto(
         boolean sold,
         /** 예약된 작품인지 — 결제 전이라 판매 완료와는 다르게 표시한다(예약이 풀리면 다시 살 수 있다) */
         boolean reserved,
+        /** 그 예약을 건 사람이 지금 보고 있는 사용자인지 — 본인 예약이면 결제로 안내한다 */
+        boolean reservedByViewer,
         String category,
         List<Bid> bidHistory
 ) {

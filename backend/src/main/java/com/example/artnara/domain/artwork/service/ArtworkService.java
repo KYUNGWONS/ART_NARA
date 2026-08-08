@@ -12,6 +12,7 @@ import com.example.artnara.domain.artwork.repository.ArtworkLikeRepository;
 import com.example.artnara.domain.artwork.repository.ArtworkRepository;
 import com.example.artnara.domain.notification.entity.NotificationType;
 import com.example.artnara.domain.notification.service.NotificationService;
+import com.example.artnara.domain.order.repository.ArtOrderRepository;
 import com.example.artnara.global.common.DomainResultCode;
 import com.example.artnara.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -58,15 +59,16 @@ public class ArtworkService {
     private final ArtworkLikeRepository artworkLikeRepository;
     private final NotificationService notificationService;
     private final AuctionBroadcaster auctionBroadcaster;
+    private final ArtOrderRepository artOrderRepository;
 
     @Transactional(readOnly = true)
     public ArtworkDetailDto getDetail(Long artworkId) {
-        return toDto(find(artworkId), null);
+        return toDto(find(artworkId), null, null);
     }
 
     /** 로그인 사용자가 보는 상세 — 낙찰 여부를 서버가 판단해 내려준다. */
-    public ArtworkDetailDto getDetail(Long artworkId, String viewerNickname) {
-        return toDto(find(artworkId), viewerNickname);
+    public ArtworkDetailDto getDetail(Long artworkId, String viewerNickname, Long viewerId) {
+        return toDto(find(artworkId), viewerNickname, viewerId);
     }
 
     /** 결제 완료 시 작품을 판매 완료로 잠근다(피드·상세의 '판매 완료' 표시 근거). */
@@ -298,10 +300,10 @@ public class ArtworkService {
     }
 
     private ArtworkDetailDto toDto(Artwork artwork) {
-        return toDto(artwork, null);
+        return toDto(artwork, null, null);
     }
 
-    private ArtworkDetailDto toDto(Artwork artwork, String viewerNickname) {
+    private ArtworkDetailDto toDto(Artwork artwork, String viewerNickname, Long viewerId) {
         List<ArtworkDetailDto.Bid> bids = artwork.isAuction()
                 ? artworkBidRepository.findByArtworkIdOrderByAmountDesc(artwork.getId()).stream()
                         .map(bid -> new ArtworkDetailDto.Bid(
@@ -318,7 +320,19 @@ public class ArtworkService {
                 remainingTimeOf(artwork),
                 artwork.isAuctionClosed(), artwork.getWinnerName(),
                 viewerNickname != null && viewerNickname.equals(artwork.getWinnerName()),
-                true, artwork.isSold(), artwork.isReserved(), artwork.getCategory(), bids);
+                true, artwork.isSold(), artwork.isReserved(),
+                reservedBy(artwork, viewerId), artwork.getCategory(), bids);
+    }
+
+    /**
+     * 예약을 건 사람이 보고 있는지. 예약된 작품에 "예약 중인 작품입니다" 만 보여주면
+     * 정작 예약한 본인에게는 남이 채간 것처럼 읽힌다.
+     */
+    private boolean reservedBy(Artwork artwork, Long viewerId) {
+        if (!artwork.isReserved() || viewerId == null) return false;
+        return artOrderRepository
+                .existsByArtworkIdAndBuyerIdAndCancelledFalseAndRefundedFalse(
+                        artwork.getId(), viewerId);
     }
 
     private String remainingTimeOf(Artwork artwork) {

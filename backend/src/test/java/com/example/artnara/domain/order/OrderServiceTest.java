@@ -47,6 +47,16 @@ class OrderServiceTest {
     }
 
     @Test
+    @DisplayName("예약한 본인에게만 '내 예약'으로 보인다 — 남에게는 그냥 예약 중")
+    void reservedByViewerOnlyForTheBuyer() {
+        orderService.reserve(request(1L), 1L, "나");
+
+        assertThat(artworkService.getDetail(1L, "나", 1L).reservedByViewer()).isTrue();
+        assertThat(artworkService.getDetail(1L, "남", 2L).reservedByViewer()).isFalse();
+        assertThat(artworkService.getDetail(1L).reservedByViewer()).isFalse();   // 비로그인
+    }
+
+    @Test
     @DisplayName("예약하면 결제 전이라 소유권은 생기지 않고 작품만 잠긴다")
     void reserveLocksArtworkWithoutPaying() {
         int ownershipsBefore = certificateService.listOwnerships(1L).ownerships().size();

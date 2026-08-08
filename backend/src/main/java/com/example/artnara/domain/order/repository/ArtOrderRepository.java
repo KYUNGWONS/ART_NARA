@@ -22,6 +22,9 @@ public interface ArtOrderRepository extends JpaRepository<ArtOrder, Long> {
      */
     boolean existsByArtworkIdAndBuyerIdAndPaidTrueAndRefundedFalse(Long artworkId, Long buyerId);
 
+    /** 이 사용자가 이 작품에 걸어 둔 살아 있는 예약이 있는지 (본인 예약 안내용) */
+    boolean existsByArtworkIdAndBuyerIdAndCancelledFalseAndRefundedFalse(Long artworkId, Long buyerId);
+
     /** 작가 포트폴리오의 판매 수 */
     long countByArtistName(String artistName);
 
