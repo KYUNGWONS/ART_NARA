@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -95,13 +96,16 @@ public class CommissionService {
         if (request.amount() == null || request.amount() <= 0) {
             throw new GlobalException(DomainResultCode.OFFER_INVALID_AMOUNT);
         }
-        int ceiling = commissionOfferRepository
-                .findFirstByCommissionIdOrderByAmountAsc(commissionId)
-                .map(CommissionOffer::getAmount)
-                .orElse(commission.getBudget());
+        // 제안이 아직 없으면 의뢰인이 적은 예산이 상한이 된다 — 그 경우엔 '최저가' 가 아니라
+        // '예산' 이라고 불러야 작가가 무슨 금액인지 안다.
+        Optional<CommissionOffer> lowest = commissionOfferRepository
+                .findFirstByCommissionIdOrderByAmountAsc(commissionId);
+        boolean hasOffer = lowest.isPresent();
+        int ceiling = lowest.map(CommissionOffer::getAmount).orElse(commission.getBudget());
         if (request.amount() >= ceiling) {
             throw new GlobalException(DomainResultCode.OFFER_AMOUNT_TOO_HIGH,
-                    "역경매 제안가는 현재 최저가(" + ceiling + "원)보다 낮아야 합니다.");
+                    String.format("역경매 제안가는 %s ₩%,d 보다 낮아야 합니다.",
+                            hasOffer ? "현재 최저가" : "의뢰 예산", ceiling));
         }
         String artistName = request.artistName() == null || request.artistName().isBlank()
                 ? "익명 작가" : request.artistName().trim();
