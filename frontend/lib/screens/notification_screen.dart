@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/art_tokens.dart';
 import '../models/app_notification.dart';
 import '../services/notification_api_service.dart';
-import '../models/chat_room_item.dart';
-import '../services/chat_api_service.dart';
-import 'artwork_detail_screen.dart';
-import 'chat_screen.dart';
-import 'order_history_screen.dart';
+import '../utils/notification_navigation.dart';
 
 /// 알림 탭 (디자인 하단 내비 nav-item-notifications)
 /// GET /api/notifications — 제작 의뢰·경매 마감·결제 완료 등 도메인 이벤트가 쌓인다.
@@ -59,47 +55,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
     if (!mounted) return;
 
-    // 알림 종류별 이동 (targetId 해석: 의뢰 id · 작품 id · 주문 id)
-    switch (item.type) {
-      case 'COMMISSION_CREATED':
-      case 'COMMISSION_OFFER':
-        widget.onOpenTab?.call(3); // 제작 의뢰 탭
-        break;
-      case 'AUCTION_CLOSED':
-        if (item.targetId != null) {
-          Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (_) => ArtworkDetailScreen(artworkId: item.targetId!),
-          ));
-        }
-        break;
-      case 'ORDER_COMPLETED':
-      case 'ORDER_REFUNDED':
-        Navigator.of(context).push(MaterialPageRoute<void>(
-          builder: (_) => const OrderHistoryScreen(),
-        ));
-        break;
-      case 'CHAT_MESSAGE':
-        if (item.targetId != null) {
-          final rooms = await ChatApiService.getChatRooms();
-          if (!mounted) return;
-          final room = rooms.firstWhere(
-            (r) => r.chatRoomId == '${item.targetId}',
-            orElse: () => rooms.isNotEmpty
-                ? rooms.first
-                : const ChatRoomItem(chatRoomId: '', opponentNickname: ''),
-          );
-          if (room.chatRoomId.isEmpty) return;
-          if (!mounted) return;
-          Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (_) => ChatScreen(
-              roomId: room.chatRoomId,
-              partnerNickname: room.opponentNickname,
-              partnerProfileImageUrl: room.opponentProfileImageUrl,
-            ),
-          ));
-        }
-        break;
-    }
+    // 이동 규칙은 푸시 알림과 공유한다(utils/notification_navigation.dart).
+    await openNotificationTarget(
+      context,
+      type: item.type,
+      targetId: item.targetId,
+      onOpenTab: widget.onOpenTab,
+    );
   }
 
   static IconData _iconFor(String type) {

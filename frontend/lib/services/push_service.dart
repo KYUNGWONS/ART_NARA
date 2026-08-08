@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
+import '../utils/notification_navigation.dart';
 import 'api_headers.dart';
 
 /// 푸시 알림 등록.
@@ -43,10 +44,44 @@ class PushService {
         _token = refreshed;
         _sendToServer(refreshed);
       });
+
+      _listenForTaps(messaging);
     } catch (error) {
       _available = false;
       debugPrint('[Push] 초기화 실패 — 푸시 없이 진행합니다: $error');
     }
+  }
+
+  /// 알림함에서 푸시를 눌렀을 때 해당 화면으로 보낸다.
+  ///
+  /// 앱이 죽어 있었으면 [getInitialMessage], 백그라운드였으면 [onMessageOpenedApp] 로 들어온다.
+  /// 서버가 실어 보내는 data{type,targetId} 를 앱 내 알림 목록과 **같은 규칙**으로 해석한다.
+  static bool _tapListenerAttached = false;
+
+  static void _listenForTaps(FirebaseMessaging messaging) {
+    if (_tapListenerAttached) return; // 재로그인 때 중복 구독되지 않게
+    _tapListenerAttached = true;
+
+    messaging.getInitialMessage().then((message) {
+      if (message != null) _openFrom(message);
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen(_openFrom);
+  }
+
+  static void _openFrom(RemoteMessage message) {
+    final type = message.data['type'];
+    if (type == null || type.isEmpty) return;
+    final context = appNavigatorKey.currentContext;
+    if (context == null) {
+      debugPrint('[Push] 화면이 준비되지 않아 이동을 건너뜁니다 (type: $type)');
+      return;
+    }
+    debugPrint('[Push] 알림 탭 → 이동 (type: $type)');
+    openNotificationTarget(
+      context,
+      type: type,
+      targetId: int.tryParse(message.data['targetId'] ?? ''),
+    );
   }
 
   /// 로그아웃 시 이 기기로 더 이상 푸시가 가지 않게 한다.

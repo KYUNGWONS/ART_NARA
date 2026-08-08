@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'constants/art_tokens.dart';
 import 'providers/locale_provider.dart';
 import 'screens/splash_onboarding_screen.dart';
+import 'utils/notification_navigation.dart';
 
 /// 카카오 지도 SDK 초기화 상태 (앱 전역).
 /// 로그인과 같은 네이티브 앱 키를 쓰므로 별도의 지도 키가 필요 없다.
@@ -81,6 +82,9 @@ class ArtNaraApp extends StatelessWidget {
       child: MaterialApp(
         title: 'ART NARA',
         debugShowCheckedModeBanner: false,
+        // 알림함에서 푸시를 누르면 화면 밖에서 들어오므로 BuildContext 가 없다.
+        // PushService 가 이 키로 해당 화면까지 이동한다.
+        navigatorKey: appNavigatorKey,
         theme: ThemeData(
           // 디자인 토큰 기준 (Figma "ART NARA Foundations" 25:210 — 파일명이 옛 브랜드명이다)
           colorScheme: ColorScheme.fromSeed(
